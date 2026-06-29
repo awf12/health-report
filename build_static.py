@@ -287,17 +287,23 @@ async function processAll() {
     msg('正在处理 ' + (i+1) + '/' + total + ': ' + file.name + '...', 'info');
 
     try {
+      console.log('处理:', file.name);
       const result = await extractTextFromPDF(file);
+      console.log('PDF页数:', result.numPages, '文本长度:', result.fullText.length);
       const valueMap = extractValues(result.fullText);
+      console.log('提取值:', Object.keys(valueMap).length, '个映射');
       const meta = extractMeta(result.pageTexts);
+      console.log('Meta:', meta.name, meta.testDate);
       const name = file.name.replace(/\\.pdf$/i, '');
       meta.name = name;
 
       const processed = processTemplate(valueMap, meta);
+      console.log('更新了', processed.updated, '个数值');
       saveCustomer(name, processed.data, file.name);
+      msg('✅ ' + name + ' 处理完成 (' + Object.keys(valueMap).length + '值, ' + processed.updated + '更新)', 'success');
     } catch(e) {
-      msg('处理 ' + file.name + ' 失败: ' + e.message, 'error');
-      console.error(e);
+      msg('❌ ' + file.name + ' 失败: ' + e.message, 'error');
+      console.error('处理错误:', e);
     }
   }
 
