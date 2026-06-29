@@ -57,7 +57,7 @@ body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f
 <body>
 <div class="header">
   <h1>📋 营养与健康检测报告系统</h1>
-  <span style="font-size:12px;opacity:.7;">纯浏览器版 · 无需服务器 · 不限量</span>
+  <span style="font-size:12px;opacity:.7;">v2.2 · 纯浏览器版 · 不限量</span>
 </div>
 <div class="container">
   <div id="msgBox"></div>

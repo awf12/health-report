@@ -45,7 +45,7 @@ body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f
 <body>
 <div class="header">
   <h1>📋 营养与健康检测报告系统</h1>
-  <span style="font-size:12px;opacity:.7;">纯浏览器版 · 无需服务器 · 不限量</span>
+  <span style="font-size:12px;opacity:.7;">v2.2 · 纯浏览器版 · 不限量</span>
 </div>
 <div class="container">
   <div id="msgBox"></div>
@@ -288,7 +288,7 @@ td.normal { color: #2e7d32; }
     <div class="meta-item"><label>出生日期</label><span>${M.birthDate||''}</span></div>
     <div class="meta-item"><label>检测日期</label><span>${M.testDate||''}</span></div>
     <div class="meta-item"><label>就诊编号</label><span>${M.visitNumber||''}</span></div>
-    <div class="meta-item"><label>检测师</label><span>${M.practitioner||''}</span></div>
+    <div class="meta-item"><label>检测师</label><span>${M.practitioner||'<span style="color:#999;">（未提取到）</span>'}</span></div>
   </div>
   <p style="color:#999;font-size:13px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
 </div>
