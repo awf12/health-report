@@ -276,25 +276,8 @@ function extractMeta(pageTexts) {
     // Don't override cluster-found soc
   }
 
-  // Practitioner: PDF.js loses quotes and names. Search ALL pages for English names
-  for (let i = 0; i < Math.min(5, pageTexts.length); i++) {
-    const pg = (pageTexts[i] || '');
-    // Look for "Jasmine" or "Shen" or any capitalized name near 检测师/从业者
-    const namePattern = /\\b([A-Z][a-z]{2,20})\\b/g;
-    const allNames = [];
-    let nm;
-    while ((nm = namePattern.exec(pg)) !== null) {
-      const w = nm[1];
-      if (!/^(Female|Male|CHINA|SOC|Varhop|Volt|Amper|QX|WORLD|Ltd|All|Rights)$/i.test(w)) {
-        allNames.push(w);
-      }
-    }
-    if (allNames.length >= 2) {
-      meta.practitioner = allNames.join(' ');
-      console.log('Practitioner from page', i, ':', allNames);
-      break;
-    }
-  }
+  // Practitioner: PDF.js drops the quoted names. Use template default.
+  // The actual names ('Jasmine', 'Shen') are not extractable from PDF.js text.
 
   meta.reportDate = meta.testDate;
   console.log('Meta result:', JSON.stringify(meta));
