@@ -309,7 +309,9 @@ function extractMeta(pageTexts) {
 
 function processTemplate(valueMap, meta) {
   const data = JSON.parse(JSON.stringify(TEMPLATE));
+  console.log('Merging meta. Template practitioner:', data.meta.practitioner, '| Extracted:', JSON.stringify(meta));
   data.meta = Object.assign(data.meta, meta);
+  console.log('After merge practitioner:', data.meta.practitioner);
 
   let updated = 0;
   for (const [sectionKey, items] of Object.entries(data.sections)) {
