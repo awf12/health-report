@@ -289,6 +289,8 @@ function getCustomers() {
   catch(e) { return {}; }
 }
 
+const MAX_REPORTS = 3;
+
 function saveCustomer(name, data, filename) {
   const customers = getCustomers();
   customers[name] = {
@@ -297,7 +299,14 @@ function saveCustomer(name, data, filename) {
     data: data,
     savedAt: new Date().toISOString()
   };
-  localStorage.setItem('health_reports', JSON.stringify(customers));
+
+  // Keep only latest MAX_REPORTS
+  const sorted = Object.entries(customers).sort((a,b) => b[1].savedAt.localeCompare(a[1].savedAt));
+  const trimmed = {};
+  for (let i = 0; i < Math.min(sorted.length, MAX_REPORTS); i++) {
+    trimmed[sorted[i][0]] = sorted[i][1];
+  }
+  localStorage.setItem('health_reports', JSON.stringify(trimmed));
 }
 
 function deleteCustomer(name) {
