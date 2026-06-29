@@ -296,6 +296,10 @@ function extractMeta(pageTexts) {
   }
 
   meta.reportDate = meta.testDate;
+  // Clean empty fields so template defaults survive
+  for (const k of Object.keys(meta)) {
+    if (meta[k] === '' || meta[k] === undefined) delete meta[k];
+  }
   console.log('Meta result:', JSON.stringify(meta));
   return meta;
 }
