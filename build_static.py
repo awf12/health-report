@@ -195,17 +195,23 @@ function extractValues(fullText) {
     }
   }
 
-  // PDF.js joins text per page with spaces - need word-based extraction
-  // Match patterns like: "Word1 Word2 123" or "Word (description) 123"
-  // Use global regex to find all "name number" pairs
-  const pairRegex = /([A-Za-z][\\w\\s,().&+\\-]{2,80}?)\\s+(\\d{2,4})\\b/g;
+  // PDF.js text: "Name (desc) VALUE 0 % NextName (desc) VALUE2 0 %"
+  // Match VALUE skipping the "0 %" improvement percentage
+  const pairRegex = /([A-Za-z][A-Za-z\\s,().&+\\-]{2,80}?)\\s+(\\d{2,4})\\s+\\d+\\s*%/g;
   let m;
   while ((m = pairRegex.exec(fullText)) !== null) {
     const name = m[1].trim().toLowerCase();
     const val = parseInt(m[2]);
-    if (val >= 0 && val <= 2000 && name.length >= 2 &&
-        !/^\\d+\\s*\/\\s*\\d+$/.test(name) &&
-        !/^(page|of|carbon|silver|gold|tin|boron)$/i.test(name)) {
+    if (val >= 10 && val <= 2000 && name.length >= 2) {
+      valueMap[name] = val;
+    }
+  }
+  // Also match values without trailing "0 %" (risk scores, etc)
+  const simpleRegex = /([A-Z][A-Z\\s]{1,30})\\s+(\\d{1,3})\\b/g;
+  while ((m = simpleRegex.exec(fullText)) !== null) {
+    const name = m[1].trim().toLowerCase();
+    const val = parseInt(m[2]);
+    if (val >= 10 && val <= 200 && !(name in valueMap)) {
       valueMap[name] = val;
     }
   }
@@ -289,8 +295,14 @@ function extractMeta(pageTexts, rawItems) {
     // Don't override cluster-found soc
   }
 
-  // Practitioner: search raw text items (before space-joining) for names near 检测师
-  if (rawItems) {
+  // Practitioner: check joined text first (Lily format: '检测师' 'Jasmine' 'Shen')
+  const pracMatch = t.match(/'检测师'\\s*'([^']+)'\\s*'([^']+)'/);
+  if (pracMatch) {
+    meta.practitioner = pracMatch[1] + ' ' + pracMatch[2];
+    console.log('Practitioner from joined text:', meta.practitioner);
+  }
+  // Fallback: search raw items
+  if (!meta.practitioner && rawItems) {
     for (const pg of rawItems) {
       let foundNames = [];
       let nearPrac = false;
