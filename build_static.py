@@ -227,17 +227,44 @@ function extractMeta(pageTexts) {
   const meta = {name:'', gender:'', birthDate:'', testDate:'', visitNumber:'', soc:'',
     practitioner:'', clinic:'', address:'', phone:'', country:'中国', reportDate:''};
 
-  const p3 = pageTexts[2] || '';
-  const nameM = p3.match(/(\\S{2,15})\\s+(?:Female|Male)\\s/);
-  if (nameM) meta.name = nameM[1];
+  // PDF.js joins text with spaces, so patterns need to be flexible
+  const p3 = (pageTexts[2] || '').replace(/\\s+/g, ' ');  // normalize whitespace
+  console.log('Page3 text:', p3.substring(0, 200));
+
+  // Name: word before "会话日期" or after "报告创建对象"
+  let nameM = text.match(/(?:报告创建对象|对象)[：:\\s]+(\\S+)\\s+会话日期/);
+  if (!nameM) nameM = text.match(/(\\S{2,15})\\s+会话日期/);
+  if (!nameM) nameM = text.match(/(\\S{2,15})\\s+(?:Female|Male)/i);
+  // Filter out dates
+  const nameCandidate = nameM ? nameM[1] : '';
+  meta.name = /^\\d/.test(nameCandidate) ? '' : nameCandidate;
+
+  // Gender
   meta.gender = /Female/i.test(p3) ? '女' : (/Male/i.test(p3) ? '男' : '');
-  const dtM = p3.match(/(\\d{4}\\/\\d{1,2}\\/\\d{1,2})\\s*(?:就诊|SOC)/);
+
+  // Test date: find date pattern near "会话" or the first date in the text
+  const dtM = p3.match(/会话日期\\s*(\\d{4}\\/\\d{1,2}\\/\\d{1,2})/) ||
+              p3.match(/(\\d{4}\\/\\d{1,2}\\/\\d{1,2})\\s*(?:Female|Male|就诊)/);
   meta.testDate = dtM ? dtM[1] : '';
-  const bdM = p3.match(/出生日[期]?\\s*[：:]?\\s*(\\d{4}\\/\\d{1,2}\\/\\d{1,2})/);
+
+  // Birth date: find date after "出生日"
+  const bdM = p3.match(/出生日[期]?\\s*(\\d{4}\\/\\d{1,2}\\/\\d{1,2})/);
   meta.birthDate = bdM ? bdM[1] : '';
-  const viM = p3.match(/就诊编号[：:\\s]*(\\d+)/);
+
+  // Visit number: digits after "就诊编号"
+  const viM = p3.match(/就诊编号\\s*(\\d+)/);
   meta.visitNumber = viM ? viM[1] : '';
+
+  // SOC
+  const socM = p3.match(/SOC\\s+(\\d+)/i);
+  meta.soc = socM ? socM[1] : '';
+
+  // Practitioner: extract names between single quotes
+  const pracM = p3.match(/'检测师'\\s*'([^']+)'\\s*'([^']+)'/);
+  if (pracM) meta.practitioner = pracM[1] + ' ' + pracM[2];
+
   meta.reportDate = meta.testDate;
+  console.log('Extracted meta:', meta);
   return meta;
 }
 
