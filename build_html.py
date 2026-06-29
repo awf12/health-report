@@ -116,7 +116,7 @@ new Chart(document.getElementById('{chart_id}'), {{
     scales: {{
       y: {{ beginAtZero: false, min: 0, max: 160,
         ticks: {{ callback: v => v }},
-        grid: {{ color: v => v === 50 ? '#c0392b' : '#e0e0e0', lineWidth: v => v === 50 ? 2 : 1 }}
+        grid: {{ color: '#e0e0e0' }}
       }},
       x: {{ ticks: {{ maxRotation: 60, font: {{ size: 10 }} }} }}
     }}

@@ -174,10 +174,7 @@ function makeBarChart(chartId, items, labelKey='name') {
                 scales: {
                     y: {
                         beginAtZero: false, min: 0, max: 160,
-                        grid: {
-                            color: ctx => ctx.tick.value === 50 ? '#c0392b' : '#e0e0e0',
-                            lineWidth: ctx => ctx.tick.value === 50 ? 2 : 1
-                        }
+                        grid: { color: '#e0e0e0' }
                     },
                     x: { ticks: { maxRotation: 60, font: { size: 10 } } }
                 }
