@@ -447,14 +447,20 @@ async function extractTextFromPDF(file) {
   const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
   let fullText = '';
   let pageTexts = [];
+  let pageRawItems = [];
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    const text = content.items.map(function(it){ return it.str; }).join(' ');
+    const items = content.items;
+    const text = items.map(function(it){ return it.str; }).join(' ');
     pageTexts.push(text);
     fullText += text + '\n';
+    // Save raw items from page 3-4 for practitioner extraction
+    if (i === 3 || i === 4) {
+      pageRawItems.push({page: i, items: items});
+    }
   }
-  return { fullText: fullText, pageTexts: pageTexts, numPages: pdf.numPages };
+  return { fullText: fullText, pageTexts: pageTexts, numPages: pdf.numPages, rawItems: pageRawItems };
 }
 
 function extractValues(fullText) {
@@ -524,7 +530,7 @@ function lookupValue(valueMap) {
   return null;
 }
 
-function extractMeta(pageTexts) {
+function extractMeta(pageTexts, rawItems) {
   const meta = {name:'', gender:'', birthDate:'', testDate:'', visitNumber:'', soc:'',
     practitioner:'', clinic:'', address:'', phone:'', country:'中国', reportDate:''};
 
@@ -578,8 +584,28 @@ function extractMeta(pageTexts) {
     // Don't override cluster-found soc
   }
 
-  // Practitioner: PDF.js drops the quoted names. Use template default.
-  // The actual names ('Jasmine', 'Shen') are not extractable from PDF.js text.
+  // Practitioner: search raw text items (before space-joining) for names near 检测师
+  if (rawItems) {
+    for (const pg of rawItems) {
+      let foundNames = [];
+      let nearPrac = false;
+      for (const item of pg.items) {
+        const s = (item.str || '').trim();
+        if (!s) continue;
+        if (/检测师|从业者/.test(s)) { nearPrac = true; continue; }
+        if (nearPrac && /^[A-Z][a-z]{2,20}$/.test(s) &&
+            !/^(Female|Male|CHINA|SOC|Varhop|Volt|Amper|QX|WORLD|Ltd)$/i.test(s)) {
+          foundNames.push(s);
+        }
+        if (foundNames.length >= 2) break;
+      }
+      if (foundNames.length >= 2) {
+        meta.practitioner = foundNames.join(' ');
+        console.log('Practitioner from raw items:', foundNames);
+        break;
+      }
+    }
+  }
 
   meta.reportDate = meta.testDate;
   console.log('Meta result:', JSON.stringify(meta));
@@ -646,8 +672,8 @@ async function processAll() {
       console.log('PDF页数:', result.numPages, '文本长度:', result.fullText.length);
       const valueMap = extractValues(result.fullText);
       console.log('提取值:', Object.keys(valueMap).length, '个映射');
-      const meta = extractMeta(result.pageTexts);
-      console.log('Meta:', meta.name, meta.testDate);
+      const meta = extractMeta(result.pageTexts, result.rawItems);
+      console.log('Meta:', meta.name, meta.testDate, '| practitioner:', meta.practitioner);
       const name = file.name.replace(/\.pdf$/i, '');
       meta.name = name;
 
