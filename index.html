@@ -640,6 +640,8 @@ function extractMeta(pageTexts, rawItems) {
 
 function processTemplate(valueMap, meta) {
   const data = JSON.parse(JSON.stringify(TEMPLATE));
+  // Always override practitioner: use extracted value or empty
+  if (!meta.practitioner) meta.practitioner = '';
   console.log('Merging meta. Template practitioner:', data.meta.practitioner, '| Extracted:', JSON.stringify(meta));
   data.meta = Object.assign(data.meta, meta);
   console.log('After merge practitioner:', data.meta.practitioner);
