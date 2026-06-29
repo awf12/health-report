@@ -95,7 +95,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 window._charts = {};
 
 // ============ RENDER ENGINE (from render_report.js) ============
-''' + RENDER_JS + '''
+___RENDER_JS___
 
 // ============ APP STATE ============
 let pendingFiles = [];
@@ -409,6 +409,8 @@ refreshList();
 </script>
 </body>
 </html>'''
+
+html = html.replace('___RENDER_JS___', RENDER_JS)
 
 with open('index.html', 'w', encoding='utf-8') as f:
     f.write(html)
