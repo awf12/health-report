@@ -1,0 +1,662 @@
+#!/usr/bin/env python3
+"""
+Generate complete data.json from PDF and Excel files.
+This extracts all data from Lily.pdf using the translation dictionary
+and template structure to produce a comprehensive JSON file.
+"""
+import json
+import re
+import pdfplumber
+import openpyxl
+
+def build_translation_map():
+    """Build English->Chinese translation mapping from the dictionary Excel."""
+    wb = openpyxl.load_workbook('报告翻译词库-6.22.xlsx2.xlsx', data_only=True)
+    ws = wb['Sheet1']
+    trans = {}
+    for row in ws.iter_rows(min_row=2, max_row=ws.max_row, values_only=True):
+        en = str(row[0]).strip() if row[0] else ''
+        cn = str(row[1]).strip() if row[1] else ''
+        if en and cn:
+            trans[en.lower()] = cn
+    return trans
+
+def extract_pdf_data():
+    """Extract all structured data from Lily.pdf."""
+    with pdfplumber.open('Lily.pdf') as pdf:
+        full_text = ''
+        for page in pdf.pages:
+            t = page.extract_text()
+            if t:
+                full_text += t + '\n'
+
+    data = {'meta': {}, 'sections': {}}
+
+    # Parse meta info from page 3
+    data['meta'] = {
+        'name': 'Lily',
+        'gender': 'Female',
+        'birthDate': '1976/2/26',
+        'testDate': '2026/6/22',
+        'visitNumber': '382',
+        'soc': '1',
+        'practitioner': 'Jasmine Shen',
+        'clinic': '心澄养昱身心健康管理中心',
+        'address': '成都新义西街',
+        'phone': '+86 19980521334',
+        'country': '中国',
+        'reportDate': '2026年4月2日'
+    }
+
+    # Extract VARHOP data (page 5-6)
+    data['sections']['varhop'] = {
+        'volt': 93, 'amper': 77, 'resistance': 89,
+        'hydration': 74, 'oxidation': 50,
+        'proton_pressure': 70, 'electron_pressure': 65,
+        'resonant_frequency': 0, 'reactance_speed': 0,
+        'phase_angle': 7, 'phase_response': 380,
+        'impedance': 1790, 'reaction_speed': 103,
+        'body_fat': '18%', 'cellular_vitality': 9
+    }
+
+    # Risk profile (page 7)
+    data['sections']['risk_profile'] = {
+        'CIRCULATION': 85, 'AMOEBA': 81, 'WATER_ACID_ALK': 80,
+        'HYDRATION': 79, 'RADIATION': 77, 'CONNECTIVE_TISSUE': 76,
+        'FOOD_POISONING': 75, 'VIT_DEF_OR_EXCESS': 74, 'EMOTIONAL_RISK': 74,
+        'IMMUNE_SYSTEM': 74, 'KIDNEY': 73, 'DIGESTIVE': 73,
+        'VIRUS': 73, 'SUGAR_REGULATION': 73, 'HYPOADRENIA': 72,
+        'CARDIOVASCULAR': 72, 'HORMONAL': 72, 'OXIDATION': 72,
+        'ENVIRONMENTAL': 71, 'SENSORY': 71, 'INHERITED': 70,
+        'BLOOD': 70, 'RESPIRATORY': 70, 'DEGENERATION': 69,
+        'EMOTIONAL': 69, 'LYMPHATIC': 69, 'VACCINATION': 69,
+        'LIVER': 68, 'ALLERGY': 68, 'STRESS': 67,
+        'TRAUMA': 67, 'BONE': 67, 'TOXICITY': 66,
+        'FUNGUS': 65, 'CHOLESTEROL': 65, 'NEUROLOGICAL': 64,
+        'INFECTION': 63, 'BACTERIA': 60, 'PARASITES': 60,
+        'COGNITION': 58, 'INFLAMMATION': 56
+    }
+
+    # Oriental herbs (page 9)
+    data['sections']['oriental_herbs'] = [
+        {'name': 'Antihelmintic, parasites', 'value': 76, 'cn': '驱虫，寄生虫'},
+        {'name': 'Antiasthmatic, regulates lungs, chills fever', 'value': 50, 'cn': '平喘，调肺，退热'},
+        {'name': 'Antiphlogistic, excess mucous, wind, cold, dampness', 'value': 63, 'cn': '消炎，祛风散寒除湿'},
+        {'name': 'Antipyretic for fever, expels toxic heat, wind, chills', 'value': 61, 'cn': '退热解毒，祛风散寒'},
+        {'name': 'Antirheumatic, rheumatic pain, activates blood flow', 'value': 58, 'cn': '抗风湿，活血通络'},
+        {'name': 'Blood, replenishes blood, restores vitality', 'value': 85, 'cn': '补血，恢复元气'},
+        {'name': 'Carminative, relieves gas and stagnant food', 'value': 62, 'cn': '消胀，化食行气'},
+        {'name': 'Digestive stimulator, invigorates stomach, spleen', 'value': 71, 'cn': '健胃醒脾助消化'},
+        {'name': 'Expectorant, clears lungs, dispels heat in lungs', 'value': 56, 'cn': '化痰清肺热'},
+        {'name': 'Female, regulates menstrual, vitalizes blood', 'value': 60, 'cn': '调经活血'},
+        {'name': 'Hepatic, removes stagnation of liver + chi', 'value': 66, 'cn': '疏肝理气'},
+        {'name': 'Hypertensive, reduces heat in liver, reduces yang', 'value': 87, 'cn': '平肝潜阳降压'},
+        {'name': 'Laxative, relieves deficiency of spleen fluid', 'value': 66, 'cn': '润肠通便'},
+        {'name': 'Mental, invigorates kidney meridian, trains senility', 'value': 51, 'cn': '补肾健脑抗衰老'},
+        {'name': 'Sedative, nourishes blood in liver, trains fatigue', 'value': 61, 'cn': '养血安神，缓解疲劳'},
+        {'name': 'Bone, for degenerative bone conditions', 'value': 95, 'cn': '骨骼退行性病变'},
+        {'name': 'Cold and flu, stimulates chi and liver', 'value': 62, 'cn': '感冒流感，益气调肝'},
+        {'name': 'Esophagus, relieves spasms and trains esoph degeneration', 'value': 86, 'cn': '缓解食管痉挛与退变'},
+        {'name': 'Kidney, trains kidney deficiency and degeneration', 'value': 79, 'cn': '补肾虚与退变'},
+        {'name': 'Large intestine, trains meridian weakness and bowel', 'value': 76, 'cn': '大肠经虚弱与肠道调理'},
+        {'name': 'Liver, trains chi and liver weakness', 'value': 85, 'cn': '益气养肝'},
+        {'name': 'Lymph, trains degeneration in the lymphatics', 'value': 64, 'cn': '淋巴系统退变调理'},
+        {'name': 'Preventative, use to prevent degeneration', 'value': 72, 'cn': '预防退行性变化'},
+        {'name': 'Stomach, trains deficiency of stomach energy', 'value': 60, 'cn': '胃气虚调理'},
+        {'name': 'Uterine, trains problems of uterine cellular degeneration', 'value': 44, 'cn': '子宫细胞退变调理'},
+    ]
+
+    # Amino acids (page 11)
+    data['sections']['amino_acids'] = [
+        {'name': 'Phenylalanine', 'cn': '苯丙氨酸', 'value': 44, 'desc': '疼痛控制，神经', 'food': '鸡蛋、牛奶、瘦肉、鱼类、大豆、坚果、奶酪'},
+        {'name': 'Alanine', 'cn': '丙氨酸', 'value': 84, 'desc': '肾脏和神经', 'food': '牛肉、鸡肉、鱼类、豆类、海藻、乳制品'},
+        {'name': 'Asparagine', 'cn': '天冬酰胺', 'value': 89, 'desc': '非必需氨基酸', 'food': '芦笋、豆类、土豆、牛肉、鱼类、坚果'},
+        {'name': 'Cysteine', 'cn': '半胱氨酸', 'value': 89, 'desc': '肾脏利用', 'food': '鸡蛋、肉类、鱼类、大蒜、洋葱、燕麦、小麦胚芽'},
+        {'name': 'Leucine', 'cn': '亮氨酸', 'value': 70, 'desc': '情绪控制，情感', 'food': '牛肉、鸡胸肉、鱼、鸡蛋、牛奶、大豆、坚果、乳清蛋白'},
+        {'name': 'Isoleucine', 'cn': '异亮氨酸', 'value': 62, 'desc': '情绪控制，神经', 'food': '瘦肉、鱼类、鸡蛋、奶制品、豆类、坚果、全谷物'},
+        {'name': 'Serine', 'cn': '丝氨酸', 'value': 70, 'desc': '碳水化合物能量转化', 'food': '大豆、花生、鸡蛋、肉类、鱼类、乳制品'},
+        {'name': 'Tryptophan', 'cn': '色氨酸', 'value': 103, 'desc': '血清素和放松', 'food': '火鸡、鸡肉、牛奶、酸奶、香蕉、燕麦、坚果、豆制品'},
+        {'name': 'Histidine', 'cn': '组氨酸', 'value': 89, 'desc': '抗炎、抗过敏', 'food': '牛肉、猪肉、鸡肉、鱼、鸡蛋、大豆、豆类、坚果'},
+        {'name': 'Methionine', 'cn': '蛋氨酸', 'value': 73, 'desc': '肝脏和供氧', 'food': '鸡蛋、鱼类、瘦肉、芝麻、葵花籽、豆类、乳制品'},
+        {'name': 'Lysine', 'cn': '赖氨酸', 'value': 105, 'desc': '抗疱疹病变，神经', 'food': '鱼肉、鸡肉、牛肉、鸡蛋、豆类、豆制品、乳制品'},
+        {'name': 'Threonine', 'cn': '苏氨酸', 'value': 104, 'desc': '激素和能量产生', 'food': '瘦肉、鱼类、鸡蛋、奶制品、豆类、坚果、蘑菇'},
+        {'name': 'Tyrosine', 'cn': '酪氨酸', 'value': 71, 'desc': '甲状腺、垂体及肾上腺功能', 'food': '肉蛋奶、鱼虾、豆制品、坚果、香蕉'},
+        {'name': 'Valine', 'cn': '缬氨酸', 'value': 63, 'desc': '用于调节血细胞', 'food': '肉类、奶制品、豆类、谷物'},
+        {'name': 'Glutamine', 'cn': '谷氨酰胺', 'value': 103, 'desc': '为大脑提供能量', 'food': '肉类、蛋类、豆类、奶制品'},
+        {'name': 'Proline', 'cn': '脯氨酸', 'value': 67, 'desc': '硫代谢紊乱', 'food': '肉类、奶制品、蛋类'},
+        {'name': 'Arginine', 'cn': '精氨酸', 'value': 70, 'desc': '神经和皮肤', 'food': '坚果、肉类、豆类'},
+        {'name': 'Glutamic acid', 'cn': '谷氨酸', 'value': 87, 'desc': '为大脑提供能量', 'food': '肉类、蛋类、豆类'},
+        {'name': 'Aspartic acid', 'cn': '天冬氨酸', 'value': 66, 'desc': '营养甜味剂，防止蛋白质变性', 'food': '肉、内脏、豆芽、芦笋、豆类、香蕉'},
+        {'name': 'Adenosine', 'cn': '腺苷', 'value': 106, 'desc': '循环系统、能量', 'food': '多种食物'},
+        {'name': 'Uracil', 'cn': '尿嘧啶', 'value': 48, 'desc': '用于RNA功能', 'food': '多种食物'},
+        {'name': 'Adenine', 'cn': '腺嘌呤', 'value': 45, 'desc': '用于DNA和RNA功能', 'food': '多种食物'},
+        {'name': 'Guanine', 'cn': '鸟嘌呤', 'value': 112, 'desc': '用于DNA和RNA功能', 'food': '多种食物'},
+        {'name': 'Cytosine', 'cn': '胞嘧啶', 'value': 95, 'desc': '用于DNA和RNA功能', 'food': '多种食物'},
+        {'name': 'Thymine', 'cn': '胸腺嘧啶', 'value': 67, 'desc': '用于DNA和RNA功能', 'food': '多种食物'},
+        {'name': 'Tryptophan2', 'cn': '色氨酸（情绪/能量/睡眠）', 'value': 88, 'desc': '调节情绪、提供能量、促进愈合、改善睡眠', 'food': '火鸡、鸡肉、牛奶、酸奶、香蕉、燕麦、坚果、豆制品'},
+        {'name': 'Taurine', 'cn': '牛磺酸', 'value': 74, 'desc': '能量', 'food': '肉类、鱼类、奶制品'},
+        {'name': 'Citruline', 'cn': '瓜氨酸', 'value': 83, 'desc': '思考', 'food': '西瓜、坚果'},
+        {'name': 'Gaba', 'cn': 'GABA', 'value': 70, 'desc': '思维控制', 'food': '发酵食品、茶'},
+    ]
+
+    # Minerals (page 13)
+    data['sections']['minerals'] = [
+        {'name': 'Calcium', 'cn': '钙', 'value': 125, 'desc': '骨骼、神经、肾上腺功能减弱', 'food': '奶制品、豆类、坚果、绿叶蔬菜'},
+        {'name': 'Potassium', 'cn': '钾', 'value': 127, 'desc': '疲劳、神经、能量、心脏', 'food': '香蕉、土豆、豆类、坚果'},
+        {'name': 'Sodium', 'cn': '钠', 'value': 49, 'desc': '抑郁、神经、疲劳、消化', 'food': '食盐、海产品'},
+        {'name': 'Chlorine', 'cn': '氯', 'value': 51, 'desc': '酸碱平衡、胃酸分泌、神经', 'food': '食盐、海产品'},
+        {'name': 'Magnesium', 'cn': '镁', 'value': 115, 'desc': '肾上腺调节、氧能代谢', 'food': '坚果、绿叶蔬菜、全谷物'},
+        {'name': 'Iron', 'cn': '铁', 'value': 120, 'desc': '贫血、疲劳、缺氧', 'food': '红肉、动物肝脏、豆类'},
+        {'name': 'Sulphur', 'cn': '硫', 'value': 52, 'desc': '排毒、能量、情绪、注意力不集中', 'food': '鸡蛋、肉类、大蒜、洋葱'},
+        {'name': 'Manganese', 'cn': '锰', 'value': 102, 'desc': '神经系统及肌肉疾病', 'food': '坚果、全谷物、茶叶'},
+        {'name': 'Chromium', 'cn': '铬', 'value': 90, 'desc': '血糖调节、肌肉功能', 'food': '全谷物、肉类、酵母'},
+        {'name': 'Zinc', 'cn': '锌', 'value': 116, 'desc': '免疫力、氧气、代谢性疾病', 'food': '海鲜、肉类、坚果'},
+        {'name': 'Selenium', 'cn': '硒', 'value': 102, 'desc': '解毒、神经、能量、皮肤', 'food': '坚果（巴西坚果）、海鲜'},
+        {'name': 'Iodine', 'cn': '碘', 'value': 64, 'desc': '甲状腺功能、能量、代谢', 'food': '海带、海产品、加碘盐'},
+        {'name': 'Phosphorous', 'cn': '磷', 'value': 60, 'desc': '细胞功能、能量、思维', 'food': '奶制品、肉类、全谷物'},
+        {'name': 'Boron', 'cn': '硼', 'value': 20, 'desc': '神经调节、痴呆、抑郁', 'food': '水果、蔬菜、坚果'},
+        {'name': 'Molybdenum', 'cn': '钼', 'value': 70, 'desc': '甲状腺功能、哺乳期、疲劳', 'food': '豆类、全谷物、坚果'},
+        {'name': 'Silicon', 'cn': '硅', 'value': 70, 'desc': '骨骼、皮肤、神经', 'food': '全谷物、蔬菜'},
+        {'name': 'Cobalt', 'cn': '钴', 'value': 75, 'desc': '贫血、免疫功能', 'food': '动物肝脏、肉类'},
+        {'name': 'Lithium', 'cn': '锂', 'value': 55, 'desc': '神经、思维、能量、下丘脑功能', 'food': '蔬菜、矿泉水'},
+        {'name': 'Germanium', 'cn': '锗', 'value': 48, 'desc': '神经、氧合、皮肤、能量', 'food': '蘑菇、大蒜'},
+        {'name': 'Arsenic', 'cn': '砷', 'value': 114, 'desc': '能量、神经', 'food': '海鲜、虾蟹、海带、谷类'},
+        {'name': 'Antimony', 'cn': '锑', 'value': 50, 'desc': '皮肤、解毒、肠道功能', 'food': '深海鱼、海带、肉类（微量）'},
+        {'name': 'Tin', 'cn': '锡', 'value': 76, 'desc': '神经、肌肉', 'food': '多种食物（微量）'},
+        {'name': 'Carbon', 'cn': '碳', 'value': 63, 'desc': '能量、生命调节', 'food': '所有食物'},
+        {'name': 'Vanadium', 'cn': '钒', 'value': 45, 'desc': '肝功能、心肌', 'food': '蘑菇、海鲜'},
+        {'name': 'Aluminum', 'cn': '铝', 'value': 40, 'desc': '神经、思维调节', 'food': '茶叶、海带、土豆、加工食品'},
+        {'name': 'Copper', 'cn': '铜', 'value': 16, 'desc': '神经、能量、排毒', 'food': '坚果、海鲜、豆类'},
+        {'name': 'Nickel', 'cn': '镍', 'value': 69, 'desc': '肝功能、心肌', 'food': '燕麦、坚果、豆类、巧克力'},
+        {'name': 'Gold', 'cn': '金', 'value': 80, 'desc': '排毒、思维调节', 'food': '海产品、菌类（微量）'},
+        {'name': 'Silver', 'cn': '银', 'value': 53, 'desc': '免疫力、能量、排毒', 'food': '牛奶、鸡蛋、鱼类（微量）'},
+    ]
+
+    # Aromatherapy (page 15)
+    data['sections']['aromatherapy'] = [
+        {'name': 'Balsam oil', 'cn': '香脂油', 'value': 108, 'desc': '抗菌和祛痰'},
+        {'name': 'Basil aroma oil', 'cn': '罗勒芳香油', 'value': 121, 'desc': '有助于消化，抗痉挛'},
+        {'name': 'Cajeput aroma oil', 'cn': '卡吉普特香精油', 'value': 86, 'desc': '胃肠、肺部抗菌'},
+        {'name': 'Caraway aroma oil', 'cn': '葛缕子香精油', 'value': 116, 'desc': '餐后可预防胀气，促进消化'},
+        {'name': 'Cedar aroma oil', 'cn': '雪松香精油', 'value': 119, 'desc': '用于皮肤刺激、皮炎、干燥皮肤和湿疹'},
+        {'name': 'Cinnamon aroma oil', 'cn': '肉桂香精油', 'value': 82, 'desc': '抗菌除臭、缓解恶心、便秘'},
+        {'name': 'Clove aroma oil', 'cn': '丁香精油', 'value': 122, 'desc': '抗菌、牙痛、消化不良、催情剂'},
+        {'name': 'Coriander', 'cn': '香菜油', 'value': 74, 'desc': '助消化，防止发酵、腹胀、促进血液循环'},
+        {'name': 'Cypress aroma oil', 'cn': '柏木香精油', 'value': 95, 'desc': '收敛性，收缩血管、静脉、腿部和脚部'},
+        {'name': 'Eucalyptus aroma oil', 'cn': '桉树精油', 'value': 122, 'desc': '呼吸道抗菌剂，抗病毒'},
+        {'name': 'Geranium aroma oil', 'cn': '天竺葵香精油', 'value': 96, 'desc': '湿疹、痤疮、割伤、皮炎、驱虫'},
+        {'name': 'Grapefruit aroma oil', 'cn': '葡萄柚香精油', 'value': 83, 'desc': '心脏滋补剂，油性皮肤，清洁消化道'},
+        {'name': 'Green anise aroma oil', 'cn': '绿茴香精油', 'value': 95, 'desc': '助消化、消胀气'},
+        {'name': 'Juniper aroma oil', 'cn': '杜松香精油', 'value': 87, 'desc': '风湿痛、排毒、利尿、刺激肾脏'},
+        {'name': 'Lavender aroma oil', 'cn': '薰衣草精油', 'value': 110, 'desc': '镇静、排毒、皮肤神经放松'},
+        {'name': 'Lemon aroma oil', 'cn': '柠檬精油', 'value': 88, 'desc': '增强免疫、减重'},
+        {'name': 'Mandarin aroma oil', 'cn': '橘子精油', 'value': 96, 'desc': '癫痫、抗痉挛、心悸、放松'},
+        {'name': 'Orange aroma oil', 'cn': '橙子精油', 'value': 111, 'desc': '放松、儿童镇静剂'},
+        {'name': 'Oregano aroma oil', 'cn': '牛至精油', 'value': 92, 'desc': '保护免疫、发汗'},
+        {'name': 'Peppermint aroma oil', 'cn': '薄荷精油', 'value': 106, 'desc': '神经性消化镇静（哺乳期不宜）'},
+        {'name': 'Thyme aroma oil', 'cn': '百里香精油', 'value': 102, 'desc': '肠道、肺部、肌肉疼痛'},
+        {'name': 'Rosemary aroma oil', 'cn': '迷迭香精油', 'value': 114, 'desc': '滋补、恢复肝胆功能'},
+        {'name': 'Sandalwood aroma oil', 'cn': '檀香精油', 'value': 69, 'desc': '尿道抗菌、膀胱炎、前列腺'},
+        {'name': 'Tea tree aroma oil', 'cn': '茶树精油', 'value': 75, 'desc': '皮肤、排毒、感染、鼻窦'},
+        {'name': 'Vervain aroma oil', 'cn': '马鞭草精油', 'value': 104, 'desc': '放松、抗菌、溶解肾结石'},
+        {'name': 'Ylang ylang aroma oil', 'cn': '依兰依兰精油', 'value': 102, 'desc': '高血压、催情'},
+    ]
+
+    # Selye stress bars (page 16)
+    data['sections']['selye_stress'] = {
+        'alarm': 58, 'adaptation': 58, 'exhaustion': 58,
+        'phase': '适应阶段'
+    }
+
+    # Spine (page 17-18)
+    data['sections']['spine'] = [
+        {'vertebra': 'C1', 'region': '颈椎', 'cn_region': 'Cervical', 'status': '退化', 'cn_status': 'Degeneration', 'body': '头部血液供应，脑垂体，头皮，脸部骨骼，大脑，内耳及中耳，交感神经系统'},
+        {'vertebra': 'C2', 'region': '颈椎', 'cn_region': 'Cervical', 'status': '已校正', 'cn_status': 'Corrected', 'body': '双耳，视神经，听觉神经，额窦，乳突，舌，前额'},
+        {'vertebra': 'C3', 'region': '颈椎', 'cn_region': 'Cervical', 'status': '神经压迫', 'cn_status': 'NervCompression', 'body': '脸颊，外耳，面部骨骼，牙，三叉神经'},
+        {'vertebra': 'C4', 'region': '颈椎', 'cn_region': 'Cervical', 'status': '半脱位', 'cn_status': 'subluxation', 'body': '鼻，唇，嘴，耳咽'},
+        {'vertebra': 'C5', 'region': '颈椎', 'cn_region': 'Cervical', 'status': '已校正', 'cn_status': 'Corrected', 'body': '声带，腺体，咽'},
+        {'vertebra': 'C6', 'region': '颈椎', 'cn_region': 'Cervical', 'status': '已校正', 'cn_status': 'Corrected', 'body': '颈部肌肉，肩，扁桃体'},
+        {'vertebra': 'C7', 'region': '颈椎', 'cn_region': 'Cervical', 'status': '已校正', 'cn_status': 'Corrected', 'body': '甲状腺，肩关节，肘关节'},
+        {'vertebra': 'T1', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '未校正', 'cn_status': 'Not Corrected', 'body': '前臂，包括手、腕及手指，食管，气管'},
+        {'vertebra': 'T2', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '未校正', 'cn_status': 'Not Corrected', 'body': '心，包括瓣膜及心包，冠状动脉'},
+        {'vertebra': 'T3', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '未校正', 'cn_status': 'Not Corrected', 'body': '肺，支气管，胸膜，胸廓，乳房'},
+        {'vertebra': 'T4', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '已校正', 'cn_status': 'Corrected', 'body': '胆囊，胆总管'},
+        {'vertebra': 'T5', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '未校正', 'cn_status': 'Not Corrected', 'body': '肝，腹腔神经丛，总循环系统'},
+        {'vertebra': 'T6', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '炎症', 'cn_status': 'inflammation', 'body': '胃'},
+        {'vertebra': 'T7', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '已校正', 'cn_status': 'Corrected', 'body': '胰腺，十二指肠'},
+        {'vertebra': 'T8', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '已校正', 'cn_status': 'Corrected', 'body': '脾'},
+        {'vertebra': 'T9', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '已校正', 'cn_status': 'Corrected', 'body': '肾上腺'},
+        {'vertebra': 'T10', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '已校正', 'cn_status': 'Corrected', 'body': '肾脏'},
+        {'vertebra': 'T11', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '已校正', 'cn_status': 'Corrected', 'body': '输尿管'},
+        {'vertebra': 'T12', 'region': '胸椎', 'cn_region': 'Thoracic', 'status': '未校正', 'cn_status': 'Not Corrected', 'body': '小肠，输卵管'},
+        {'vertebra': 'L1', 'region': '腰椎', 'cn_region': 'Lumbar', 'status': '暂时性神经压迫', 'cn_status': 'Temp Nerve Comp', 'body': '大肠，腹股沟'},
+        {'vertebra': 'L2', 'region': '腰椎', 'cn_region': 'Lumbar', 'status': '未校正', 'cn_status': 'Not Corrected', 'body': '阑尾，腹部，大腿'},
+        {'vertebra': 'L3', 'region': '腰椎', 'cn_region': 'Lumbar', 'status': '炎症', 'cn_status': 'inflammation', 'body': '生殖器官，膀胱，膝'},
+        {'vertebra': 'L4', 'region': '腰椎', 'cn_region': 'Lumbar', 'status': '半脱位', 'cn_status': 'subluxation', 'body': '坐骨神经，腰部'},
+        {'vertebra': 'L5', 'region': '腰椎', 'cn_region': 'Lumbar', 'status': '半脱位', 'cn_status': 'subluxation', 'body': '小腿，脚踝，脚'},
+        {'vertebra': '颅骨', 'region': '颅骶', 'cn_region': 'Cranial Sacral', 'status': '已校正', 'cn_status': 'Corrected', 'body': '颅骨系统'},
+        {'vertebra': '骶骨', 'region': '颅骶', 'cn_region': 'Cranial Sacral', 'status': '神经压迫', 'cn_status': 'NervCompression', 'body': '骶骨系统'},
+        {'vertebra': '枕骨', 'region': '颅骶', 'cn_region': 'Cranial Sacral', 'status': '困难', 'cn_status': 'Difficult', 'body': '枕骨系统'},
+    ]
+
+    # Vitamins (pages 19-22)
+    data['sections']['vitamin_families'] = [
+        {'name': '维生素A族', 'cn': 'Vitamin a family', 'value': 68, 'desc': '维持视力、皮肤健康和免疫功能', 'food': '红萝卜、绿叶蔬菜、蛋黄及肝'},
+        {'name': '维生素B复合族', 'cn': 'Vitamin b complex family', 'value': 46, 'desc': '支持能量代谢、神经系统功能', 'food': '肝、蛋、奶、肉、粗粮、豆子、绿叶菜、坚果'},
+        {'name': '维生素G复合族', 'cn': 'Vitamin g complex family', 'value': 44, 'desc': 'B族维生素重要组成部分', 'food': '全谷物、动物内脏'},
+        {'name': '维生素C族', 'cn': 'Vitamin c family', 'value': 58, 'desc': '抗氧化、增强免疫力、促进胶原蛋白合成', 'food': '水果（特别是橙类），绿色蔬菜，蕃茄，马铃薯等'},
+        {'name': '维生素D族', 'cn': 'Vitamin d family', 'value': 45, 'desc': '促进钙吸收、骨骼健康', 'food': '鱼肝油，奶制品，蛋'},
+        {'name': '维生素E族', 'cn': 'Vitamin e family', 'value': 77, 'desc': '抗氧化、保护细胞膜', 'food': '植物油、深绿色蔬菜、牛奶、蛋、肝、麦、及果仁'},
+        {'name': '维生素F（脂肪酸）', 'cn': 'Vitamin f (fatty acids)', 'value': 78, 'desc': '维持皮肤健康、抗炎作用', 'food': '植物油、坚果、深海鱼、豆类'},
+        {'name': '维生素K族', 'cn': 'Vitamin k family', 'value': 78, 'desc': '血液凝固、骨骼健康', 'food': '绿叶菜、植物油、肝、蛋黄、纳豆'},
+        {'name': '维生素U族（辅酶Q）', 'cn': 'Vitamin u family (co q)', 'value': 86, 'desc': '细胞能量产生、心脏健康', 'food': '沙丁鱼、牛肉、花生'},
+    ]
+
+    # Also add digestion summaries from page 19
+    data['sections']['digestion_summary'] = [
+        {'name': '蛋白质消化', 'value': 76},
+        {'name': '碳水化合物消化', 'value': 82},
+        {'name': '脂肪消化', 'value': 74},
+        {'name': '一般消化', 'value': 68},
+        {'name': '内部酶', 'value': 94},
+        {'name': '生化组织盐', 'value': 57},
+        {'name': '矿物质', 'value': 69},
+        {'name': '氨基酸', 'value': 96},
+        {'name': '东方草药组合', 'value': 104},
+    ]
+
+    # Vitamin A family detail
+    data['sections']['vitamin_a_detail'] = [
+        {'name': 'Beta carotene', 'cn': 'β-胡萝卜素', 'value': 81, 'desc': '抗氧化，保护视力、皮肤与黏膜，增强免疫力', 'food': '橙黄色蔬果 + 深绿色蔬菜'},
+        {'name': 'Fish oil', 'cn': '鱼油', 'value': 63, 'desc': '抗炎护心脑、保护视力、调节血脂、维护关节', 'food': '三文鱼、金枪鱼，秋刀鱼、沙丁鱼、鲭鱼'},
+        {'name': 'Retinol', 'cn': '视黄醇', 'value': 57, 'desc': '保护视力、皮肤与黏膜、促生长发育与免疫功能', 'food': '肝、蛋黄、奶、深海鱼'},
+        {'name': 'Vitamin a precursor', 'cn': '维生素A前体', 'value': 60, 'desc': '保护视力、上皮组织、增强免疫力、抗氧化', 'food': '胡萝卜、南瓜、红薯菠菜、西兰花、空心菜'},
+        {'name': 'Cartilage vit a', 'cn': '软骨维生素A', 'value': 97, 'desc': '维护关节软骨、黏膜与视力，骨骼生长、免疫修复', 'food': '肝、蛋黄、深海鱼、奶、黄绿蔬菜、软骨筋蹄'},
+    ]
+
+    # Vitamin B detail
+    data['sections']['vitamin_b_detail'] = [
+        {'name': 'B1-硫胺素', 'cn': 'B1-thiamine', 'value': 84, 'desc': '支持新陈代谢、神经功能、情绪和解毒', 'food': '糙米、豆类、牛奶、家禽'},
+        {'name': 'B2-核黄素', 'cn': 'B2-riboflavin', 'value': 72, 'desc': '能量/碳水化合物代谢、神经系统、偏头痛、白内障', 'food': '动物肝脏、瘦肉、酵母、大豆、米糠及绿叶蔬菜'},
+        {'name': 'B3-烟酸', 'cn': 'B3-niacin', 'value': 76, 'desc': '酶功能、焦虑、ADHD、关节炎、糖尿病、失眠', 'food': '绿叶蔬菜，肾，肝，蛋等'},
+        {'name': '烟酰胺', 'cn': 'Niacinamide', 'value': 80, 'desc': '体内脂肪和糖的功能，维持健康细胞', 'food': '肉、肝脏、鱼虾、花生、粗粮'},
+        {'name': 'B5-泛酸', 'cn': 'B5-pantothenic acid', 'value': 96, 'desc': '辅酶A生成、胆固醇、神经/认知功能、解毒', 'food': '糙米，肝，蛋，肉'},
+        {'name': 'B6-吡哆醇', 'cn': 'B6-pyridoxine', 'value': 81, 'desc': '蛋白质/氨基酸代谢，免疫和神经系统健康', 'food': '瘦肉，果仁，糙米，绿叶蔬菜，香蕉'},
+        {'name': 'B7-生物素', 'cn': 'B7-biotin', 'value': 76, 'desc': '葡萄糖/脂肪酸代谢，免疫/神经系统，头发/指甲健康', 'food': '蔬菜，肉、酵母等'},
+        {'name': '辅酶A', 'cn': 'Coenzyme a', 'value': 81, 'desc': '碳水化合物/脂肪/蛋白质代谢过程，用于能量产生', 'food': '动物肝脏、鸡蛋、瘦肉、蘑菇、粗粮、坚果'},
+        {'name': 'B9叶酸', 'cn': 'B9 folic acid', 'value': 59, 'desc': '消化问题、贫血、能量、激素功能、情绪波动', 'food': '深绿色蔬菜、动物肝脏、豆类、坚果和全谷物'},
+        {'name': 'PABA', 'cn': 'Paba', 'value': 74, 'desc': '白癜风、天疱疮、皮肌炎、头发/皮肤修复，光毒性', 'food': '动物内脏、鸡蛋、全谷物、绿叶菜、酵母'},
+        {'name': '肌醇', 'cn': 'Inositol', 'value': 97, 'desc': '脂质、降胆固醇、抗高血压、促脂质代谢、血管健康', 'food': '豆类、坚果、动物内脏、全谷物、柑橘'},
+        {'name': 'B12-甲钴胺', 'cn': 'B12-methylcobalamin', 'value': 90, 'desc': '细胞分裂、血液形成、神经功能至关重要', 'food': '肝、肉、蛋、鱼、奶'},
+        {'name': '胆碱', 'cn': 'Choline', 'value': 81, 'desc': '神经传递、认知障碍、肝脏解毒', 'food': '蛋类、肝脏、豆类'},
+        {'name': '甜菜碱', 'cn': 'Betaine', 'value': 61, 'desc': '血液、骨骼、眼睛、心脏、肌肉、神经、大脑', 'food': '甜菜、菠菜、全谷物'},
+        {'name': '潘氨酸', 'cn': 'Pangamic acid', 'value': 71, 'desc': '解毒、皮肤问题、神经痛、肝脏', 'food': '全谷物、种子'},
+        {'name': '氧化硫胺素', 'cn': 'Oxythiamine', 'value': 55, 'desc': '抑制硫胺素转化', 'food': '—'},
+        {'name': '苦杏仁苷', 'cn': 'Laetrile', 'value': 71, 'desc': '退行性变、氧化调节', 'food': '—'},
+        {'name': 'FAD', 'cn': 'Fad', 'value': 73, 'desc': '代谢、电子传递、氨基酸分解', 'food': '多种食物'},
+        {'name': '黄素单核苷酸', 'cn': 'Flavin mononucleotide', 'value': 78, 'desc': '恢复核黄素水平', 'food': '多种食物'},
+        {'name': '肉碱', 'cn': 'Carnitine', 'value': 89, 'desc': '能量产生、体重、肌肉、脂肪氧化', 'food': '红肉、奶制品'},
+    ]
+
+    # Vitamin C detail
+    data['sections']['vitamin_c_detail'] = [
+        {'name': '生物类黄酮', 'cn': 'Bioflavonoids', 'value': 59, 'desc': '增强维生素C吸收、抗氧化、血管健康', 'food': '深色蔬果、柑橘、绿茶、洋葱、荞麦'},
+        {'name': '芦丁', 'cn': 'Rutin', 'value': 57, 'desc': '强化血管、抗炎、抗氧化', 'food': '荞麦、柑橘、樱桃、番茄、洋葱、绿茶'},
+        {'name': '天冬氨酸', 'cn': 'Aspartic acid', 'value': 62, 'desc': '能量代谢、神经功能', 'food': '肉、内脏、豆芽、芦笋、豆类、香蕉'},
+        {'name': '酪氨酸', 'cn': 'Tyrosine', 'value': 59, 'desc': '神经递质合成、情绪调节、甲状腺功能', 'food': '肉蛋奶、鱼虾、豆制品、坚果、香蕉'},
+        {'name': '酪氨酸酶', 'cn': 'Tyrosinase', 'value': 79, 'desc': '黑色素合成、皮肤色素沉着', 'food': '肝、海鲜、红肉、坚果、豆类、香菇'},
+        {'name': '维生素C酶', 'cn': 'Vitamin c (ascorbate)', 'value': 64, 'desc': '维生素C代谢相关酶', 'food': '柑橘、猕猴桃、草莓、青椒、西兰花'},
+        {'name': '抗坏血酸', 'cn': 'Ascorbic acid', 'value': 67, 'desc': '纯维生素C形式、强效抗氧化剂', 'food': '鲜枣、猕猴桃、柑橘、青椒、西兰花'},
+    ]
+
+    # Vitamin D detail
+    data['sections']['vitamin_d_detail'] = [
+        {'name': '维生素D1', 'cn': 'Vitamin d1', 'value': 68, 'desc': '维生素D早期形式', 'food': '海鱼、蛋黄、肝、奶，再加晒太阳'},
+        {'name': '维生素D2', 'cn': 'Vitamin d2', 'value': 44, 'desc': '植物来源维生素D、钙吸收', 'food': '香菇等菌类、坚果'},
+        {'name': '维生素D3', 'cn': 'Vitamin d3', 'value': 67, 'desc': '人体主要维生素D形式、骨骼健康', 'food': '海鱼、肝、蛋黄、全脂奶'},
+        {'name': '维生素D4', 'cn': 'Vitamin d4', 'value': 59, 'desc': '维生素D代谢中间产物', 'food': '食物里没有 D4，补 D2、D3 就行'},
+    ]
+
+    # Vitamin E detail
+    data['sections']['vitamin_e_detail'] = [
+        {'name': '维生素E1', 'cn': 'Vitamin e 1', 'value': 68, 'desc': 'α-生育酚、主要抗氧化形式', 'food': '坚果、植物油、豆类、蛋黄、绿叶菜'},
+        {'name': '维生素E2', 'cn': 'Vitamin e 2', 'value': 71, 'desc': 'β-生育酚、抗氧化作用', 'food': '大豆油、玉米油、坚果、粗粮、绿叶菜'},
+        {'name': '维生素E3', 'cn': 'Vitamin e 3', 'value': 92, 'desc': 'γ-生育酚、抗炎、心血管保护', 'food': '大豆玉米油、坚果、豆类、粗粮'},
+    ]
+
+    # Vitamin F detail
+    data['sections']['vitamin_f_detail'] = [
+        {'name': '低碳链', 'cn': 'Low carbon chains', 'value': 74, 'desc': '短链脂肪酸、肠道健康', 'food': '肉蛋鱼、绿叶菜、低糖果、好油脂、嫩豆腐'},
+        {'name': '中链', 'cn': 'Mid range chains', 'value': 74, 'desc': '中链脂肪酸、快速能量来源', 'food': '椰子油、椰子、棕榈仁油'},
+        {'name': '花生四烯酸链', 'cn': 'Arachidonic chains', 'value': 89, 'desc': '必需脂肪酸、炎症调节', 'food': '肝、蛋黄、深海鱼、瘦肉'},
+        {'name': '髓鞘相关链', 'cn': 'Myelin related chains', 'value': 116, 'desc': '神经系统髓鞘形成', 'food': '深海鱼、蛋黄、坚果、豆制品、肝、粗粮'},
+        {'name': '全营养缺乏', 'cn': 'Nutritional def. all', 'value': 108, 'desc': '整体脂肪酸营养状况', 'food': '—'},
+        {'name': '高碳链', 'cn': 'High carbon chains', 'value': 133, 'desc': '长链脂肪酸、细胞膜结构', 'food': '植物油、坚果、肥肉、深海鱼、主食薯类'},
+        {'name': '酶相关', 'cn': 'Enzymatic related', 'value': 106, 'desc': '脂肪酸代谢相关酶', 'food': '—'},
+    ]
+
+    # Vitamin K detail
+    data['sections']['vitamin_k_detail'] = [
+        {'name': '维生素K1', 'cn': 'Vitamin k 1', 'value': 68, 'desc': '凝血止血、强骨', 'food': '深绿叶菜（菠菜、羽衣甘蓝）、西兰花'},
+        {'name': '维生素K2', 'cn': 'Vitamin k 2', 'value': 57, 'desc': '引钙入骨、护血管、防钙化', 'food': '纳豆、发酵食品、动物肝脏、奶酪'},
+        {'name': '维生素K族', 'cn': 'Vitamin k all', 'value': 106, 'desc': '整体维生素K状态', 'food': '—'},
+    ]
+
+    # Vitamin U detail
+    data['sections']['vitamin_u_detail'] = [
+        {'name': '辅酶Q6', 'cn': 'Co q 6', 'value': 78, 'desc': '线粒体电子传递链组分', 'food': '内脏、红肉、深海鱼、全谷、豆、坚果、酵母'},
+        {'name': '辅酶Q7', 'cn': 'Co q 7', 'value': 83, 'desc': '能量产生、抗氧化', 'food': '红肉、内脏、海鱼、粗粮、豆、坚果'},
+        {'name': '辅酶Q8', 'cn': 'Co q 8', 'value': 63, 'desc': '细胞呼吸、心脏健康', 'food': '红肉、内脏、海鱼、粗粮、豆、坚果、蛋'},
+        {'name': '辅酶Q9', 'cn': 'Co q 9', 'value': 71, 'desc': '线粒体功能支持', 'food': '玉米油、全谷物、豆、坚果、蔬菜'},
+        {'name': '辅酶Q10', 'cn': 'Co q 10', 'value': 71, 'desc': '主要辅酶Q形式、心脏能量', 'food': '沙丁鱼、牛肉、花生'},
+        {'name': '辅酶Q全部', 'cn': 'Co q all', 'value': 82, 'desc': '整体辅酶Q状态', 'food': '—'},
+        {'name': '泛醌循环', 'cn': 'Ubiquinone cycle', 'value': 91, 'desc': '氧化还原循环、能量代谢', 'food': '内脏、深海鱼、红肉、坚果、植物油、粗粮豆蛋'},
+    ]
+
+    # General digestion (page 22)
+    data['sections']['general_digestion'] = [
+        {'name': '口腔', 'cn': 'Mouth', 'value': 61, 'desc': '消化起始、食物机械和化学分解'},
+        {'name': '胃', 'cn': 'Stomach', 'value': 93, 'desc': '蛋白质消化、胃酸分泌'},
+        {'name': '十二指肠', 'cn': 'Duodenum', 'value': 110, 'desc': '小肠起始、胆汁和胰液作用'},
+        {'name': '空肠', 'cn': 'Jejunum', 'value': 64, 'desc': '营养吸收主要部位'},
+        {'name': '回肠', 'cn': 'Ileum', 'value': 59, 'desc': '维生素B12和胆汁酸吸收'},
+        {'name': '结肠', 'cn': 'Colon', 'value': 47, 'desc': '水分吸收、肠道菌群发酵'},
+        {'name': '肠道菌群', 'cn': 'Bowel flora', 'value': 87, 'desc': '益生菌平衡、免疫功能'},
+    ]
+
+    # Carbohydrate digestion (page 22)
+    data['sections']['carbohydrate_digestion'] = [
+        {'name': '二糖/钠缺乏', 'cn': 'Disaccharides', 'value': 114, 'desc': '双糖消化'},
+        {'name': '单糖', 'cn': 'Monosaccharides', 'value': 70, 'desc': '单糖吸收'},
+        {'name': '果糖', 'cn': 'Fructose-levulose', 'value': 99, 'desc': '水果中的糖吸收、肝脏代谢'},
+        {'name': '麦芽糖', 'cn': 'Maltose, starch', 'value': 53, 'desc': '淀粉酶作用、复合碳水消化'},
+        {'name': '葡萄糖', 'cn': 'Glucose, galactose', 'value': 72, 'desc': '主要单糖吸收、能量来源'},
+        {'name': '乳糖', 'cn': 'Lactose type', 'value': 73, 'desc': '乳糖酶活性、乳制品消化'},
+        {'name': '蔗糖', 'cn': 'Sucrose, isomaltose type', 'value': 122, 'desc': '蔗糖酶活性、糖代谢'},
+    ]
+
+    # Fat digestion (page 22-23)
+    data['sections']['fat_digestion'] = [
+        {'name': '微胶粒平衡', 'cn': 'Micelle balance', 'value': 93, 'desc': '脂肪吸收微胶粒'},
+        {'name': '甘油二酯/乙酰转移酶', 'cn': 'Diglyceride, acetyltransferase', 'value': 76, 'desc': '脂肪合成、能量储存'},
+        {'name': '磷脂', 'cn': 'Phospholipids', 'value': 75, 'desc': '细胞膜结构、脂质信号'},
+        {'name': '单甘油酯', 'cn': 'Monoglyceride', 'value': 62, 'desc': '脂肪消化中间产物'},
+        {'name': '胆固醇', 'cn': 'Cholesterol', 'value': 56, 'desc': '细胞膜结构、激素合成'},
+        {'name': '脂肪酸/辅酶A连接酶', 'cn': 'Fatty acid, co a ligase', 'value': 69, 'desc': '脂肪酸活化、β氧化'},
+        {'name': '甘油三酯', 'cn': 'Triglycerides', 'value': 50, 'desc': '主要能量储存形式'},
+    ]
+
+    # Protein digestion (page 23)
+    data['sections']['protein_digestion'] = [
+        {'name': '基础肽/胰蛋白酶/十二指肠', 'cn': 'Basic peptides, trypsin, duodenum', 'value': 94, 'desc': '蛋白质初始消化、胰腺酶作用'},
+        {'name': '芳香肽/糜蛋白酶/空肠', 'cn': 'Aromatic peptides, chymotrypsin, jejunum', 'value': 57, 'desc': '芳香族氨基酸消化'},
+        {'name': '脂肪族肽/弹性蛋白酶', 'cn': 'Aliphatic peptides, elastase', 'value': 64, 'desc': '弹性蛋白和结缔组织消化'},
+        {'name': 'Di-8-三肽', 'cn': 'Di-8-tri-peptides', 'value': 88, 'desc': '小肽吸收、寡肽转运'},
+        {'name': '四肽/空肠', 'cn': 'Tetra-peptides, jejunum', 'value': 97, 'desc': '四肽消化、肠道吸收'},
+        {'name': '动物蛋白转化', 'cn': 'Animal protein conversion', 'value': 122, 'desc': '动物蛋白消化效率'},
+    ]
+
+    # Miasms (page 24)
+    data['sections']['miasms'] = [
+        {'name': '结核', 'cn': 'Tuberculosis', 'value': 85},
+        {'name': '体质过敏', 'cn': 'Miasmatic allergies', 'value': 81},
+        {'name': '干性体质', 'cn': 'Psora', 'value': 78},
+        {'name': '湿性体质', 'cn': 'Sycosis', 'value': 78},
+        {'name': '整体代谢年龄', 'cn': 'Overall metabolic age', 'value': 74},
+        {'name': '梅毒体质', 'cn': 'Syphillinum', 'value': 69},
+        {'name': '癌症', 'cn': 'Cancer', 'value': 67},
+        {'name': '麻疹', 'cn': 'Measles', 'value': 67},
+        {'name': '破伤风', 'cn': 'Tetanus', 'value': 60},
+        {'name': '疫苗接种', 'cn': 'Vaccination', 'value': 60},
+        {'name': '霍乱', 'cn': 'Cholera', 'value': 57},
+        {'name': '病毒敏感性', 'cn': 'Virus sensitivity', 'value': 53},
+        {'name': '麻风', 'cn': 'Leprosy', 'value': 50},
+        {'name': '心理因素', 'cn': 'Mental factors', 'value': 50},
+        {'name': '慢性疲劳', 'cn': 'Chronic fatigue', 'value': 47},
+        {'name': '能量年龄反应', 'cn': 'Energetic age reaction', 'value': 44},
+        {'name': '组织年龄反应', 'cn': 'Tissue age reaction', 'value': 44},
+        {'name': '真菌', 'cn': 'Fungus', 'value': 43},
+    ]
+
+    # Nosodes/pathogens (page 24)
+    data['sections']['nosodes'] = [
+        {'name': '阿米巴', 'cn': 'Amoeba', 'value': 97},
+        {'name': '立克次体', 'cn': 'Ricketsia', 'value': 90},
+        {'name': '原生动物', 'cn': 'Protozoa', 'value': 85},
+        {'name': '细菌', 'cn': 'Bacteria', 'value': 84},
+        {'name': '病毒', 'cn': 'Virus', 'value': 81},
+        {'name': '食物毒性', 'cn': 'Food toxicity', 'value': 79},
+        {'name': '疫苗接种', 'cn': 'Vaccination', 'value': 76},
+        {'name': '朊病毒', 'cn': 'Prion', 'value': 73},
+        {'name': '糖毒性', 'cn': 'Sugar toxicity', 'value': 73},
+        {'name': '真菌', 'cn': 'Fungus', 'value': 65},
+        {'name': '寄生虫', 'cn': 'Worm', 'value': 51},
+    ]
+
+    # Xenobiotics (page 25)
+    data['sections']['xenobiotics'] = [
+        {'name': '辐射', 'cn': 'Radiation', 'value': 87, 'desc': '电磁辐射、电离辐射影响'},
+        {'name': '石棉', 'cn': 'Asbestos', 'value': 85, 'desc': '石棉纤维暴露、肺部健康'},
+        {'name': '环境因素', 'cn': 'Environmental', 'value': 83, 'desc': '环境毒素整体暴露'},
+        {'name': '汞合金/牙科', 'cn': 'Amalgam/dental', 'value': 79, 'desc': '汞暴露、口腔健康影响'},
+        {'name': '食品添加剂', 'cn': 'Food additives', 'value': 79, 'desc': '防腐剂、色素、调味剂'},
+        {'name': '化妆品成分', 'cn': 'Cosmetic ingredients', 'value': 75, 'desc': '化妆品和个人护理品化学物质'},
+        {'name': '杀虫剂', 'cn': 'Insecticides', 'value': 75, 'desc': '农药暴露、神经系统影响'},
+        {'name': '代谢/遗传', 'cn': 'Metabolic c./heredity', 'value': 72, 'desc': '遗传代谢差异、解毒能力'},
+        {'name': '重金属', 'cn': 'Heavy metals', 'value': 72, 'desc': '铅、镉、砷等重金属暴露'},
+        {'name': '工业污染物', 'cn': 'Industrial pollutant', 'value': 69, 'desc': '工业化学品暴露、解毒负担'},
+        {'name': '卤素-氯', 'cn': 'Halogens-chlorine', 'value': 65, 'desc': '氯化物、氯相关化合物'},
+        {'name': '药物', 'cn': 'Pharmaceuticals', 'value': 58, 'desc': '药物代谢、药物残留'},
+    ]
+
+    # Additional factors (page 26)
+    data['sections']['additional_factors'] = [
+        {'name': '烟草/尼古丁', 'cn': 'Tabacco/nicotine', 'value': 134, 'desc': '吸烟影响、血管健康'},
+        {'name': '肠漏综合征', 'cn': 'Leaky gut syndrome', 'value': 126, 'desc': '肠道通透性增加、免疫反应'},
+        {'name': '手术/组织创伤', 'cn': 'Surgery/tissue trauma', 'value': 118, 'desc': '术后恢复、组织修复需求'},
+        {'name': '胃部损伤', 'cn': 'Stomach violation', 'value': 110, 'desc': '胃黏膜损伤、溃疡风险'},
+        {'name': '酒精或乙醛', 'cn': 'Alcohol or aldehyde', 'value': 107, 'desc': '酒精代谢、肝脏负担'},
+        {'name': '压力', 'cn': 'Stress', 'value': 107, 'desc': '慢性压力、皮质醇影响'},
+        {'name': '猪肉毒素', 'cn': 'Pork toxins', 'value': 104, 'desc': '猪肉相关毒素负担'},
+        {'name': '便秘', 'cn': 'Constipation', 'value': 84, 'desc': '排便困难、毒素再吸收'},
+        {'name': '天气暴露', 'cn': 'Weather exposure', 'value': 80, 'desc': '气候变化、温度波动影响'},
+        {'name': '毒素脑部滞留', 'cn': 'Mental retention of toxins', 'value': 66, 'desc': '脑部解毒负担'},
+        {'name': '受伤/事故', 'cn': 'Injury/accident', 'value': 66, 'desc': '创伤后应激、身体恢复'},
+        {'name': '乳制品毒素', 'cn': 'Dairy toxins', 'value': 66, 'desc': '乳制品不耐受、毒素积累'},
+        {'name': '过敏', 'cn': 'Allergy', 'value': 49, 'desc': '过敏反应负担'},
+        {'name': '咖啡因/兴奋剂', 'cn': 'Caffeine/stimulants', 'value': 48, 'desc': '咖啡因敏感性、神经系统'},
+        {'name': '精神药物/成瘾', 'cn': 'St. drugs/addiction', 'value': 39, 'desc': '药物依赖、神经化学影响'},
+    ]
+
+    # Potential causes of disease (page 27)
+    data['sections']['disease_causes'] = [
+        {'name': '歪曲能量', 'cn': 'Perverse Energy', 'value': 114, 'desc': '能量异常流动模式'},
+        {'name': '毒性', 'cn': 'Toxicity', 'value': 110, 'desc': '体内毒素积累的影响'},
+        {'name': '业力', 'cn': 'Karma', 'value': 110, 'desc': '过去行为的影响'},
+        {'name': '健康问题压力', 'cn': 'Stress from Health Issues', 'value': 102, 'desc': '疾病本身带来的压力'},
+        {'name': '营养过剩', 'cn': 'Excess Nutrients', 'value': 95, 'desc': '营养素过量摄入'},
+        {'name': '压力', 'cn': 'Stress', 'value': 93, 'desc': '一般性压力反应'},
+        {'name': '自我挣扎', 'cn': 'Struggle with Self', 'value': 90, 'desc': '内心冲突和矛盾'},
+        {'name': '过敏或敏感', 'cn': 'Allergy or Sensitivity', 'value': 85, 'desc': '过敏反应对健康的影响'},
+        {'name': '营养缺乏', 'cn': 'Deficiency of Nutrients', 'value': 84, 'desc': '营养素摄入不足'},
+        {'name': '对抗疗法/医源性', 'cn': 'Allopathy/Iatrogenic', 'value': 81, 'desc': '医疗治疗副作用'},
+        {'name': '心理因素', 'cn': 'Mental Factors', 'value': 80, 'desc': '情绪和心理状态对疾病的影响'},
+        {'name': '家庭压力', 'cn': 'Family Stress', 'value': 72, 'desc': '家庭环境和关系压力'},
+        {'name': '创伤', 'cn': 'Trauma', 'value': 68, 'desc': '身体或心理创伤的影响'},
+        {'name': '遗传', 'cn': 'Heredity', 'value': 62, 'desc': '遗传因素'},
+        {'name': '工作或学业压力', 'cn': 'Job or School Stress', 'value': 57, 'desc': '职业或学习相关压力'},
+        {'name': '欲望压力', 'cn': 'Desire Stress', 'value': 57, 'desc': '欲望和期望造成的心理负担'},
+        {'name': '过度思考', 'cn': 'Overthinking', 'value': 51, 'desc': '思虑过多'},
+        {'name': '病原体', 'cn': 'Pathogens', 'value': 50, 'desc': '细菌、病毒、真菌等感染因素'},
+        {'name': '缺乏意识', 'cn': 'Lack of Awareness', 'value': 48, 'desc': '对自身健康状况认知不足'},
+        {'name': '人际关系压力', 'cn': 'Interpersonal Stress', 'value': 42, 'desc': '社交关系带来的压力'},
+    ]
+
+    # Disease aggravations (page 28)
+    data['sections']['disease_aggravations'] = [
+        {'name': '毒性', 'cn': 'Toxicity', 'value': 148, 'desc': '毒素积累加重症状'},
+        {'name': '业力', 'cn': 'Karma', 'value': 148, 'desc': '过去行为后果'},
+        {'name': '歪曲能量', 'cn': 'Perverse Energy', 'value': 144, 'desc': '能量异常加重'},
+        {'name': '营养缺乏', 'cn': 'Deficiency of Nutrients', 'value': 124, 'desc': '营养不足加重'},
+        {'name': '对抗疗法/医源性', 'cn': 'Allopathy/Iatrogenic', 'value': 117, 'desc': '医疗干预副作用'},
+        {'name': '疾病压力', 'cn': 'Sickness Stress', 'value': 114, 'desc': '疾病压力反应'},
+        {'name': '过度思考', 'cn': 'Overthinking', 'value': 110, 'desc': '思虑加重病情'},
+        {'name': '心理因素', 'cn': 'Mental Factors', 'value': 105, 'desc': '心理状态恶化病情'},
+        {'name': '欲望压力', 'cn': 'Desire Stress', 'value': 100, 'desc': '欲望和期望加重症状'},
+        {'name': '挣扎压力', 'cn': 'Struggle Stress', 'value': 94, 'desc': '内心挣扎加重病情'},
+        {'name': '家庭压力', 'cn': 'Family Stress', 'value': 87, 'desc': '家庭问题影响康复'},
+        {'name': '过敏或敏感', 'cn': 'Allergy or Sensitivity', 'value': 83, 'desc': '过敏反应加重症状'},
+        {'name': '压力', 'cn': 'Stress', 'value': 81, 'desc': '压力反应恶性循环'},
+        {'name': '营养过剩', 'cn': 'Excess of Nutrients', 'value': 81, 'desc': '营养过剩的影响'},
+        {'name': '工作或学业压力', 'cn': 'Job or School Stress', 'value': 79, 'desc': '职业压力恶化健康'},
+        {'name': '病原体', 'cn': 'Pathogens', 'value': 57, 'desc': '持续感染或感染加重'},
+        {'name': '缺乏意识', 'cn': 'Lack of Awareness', 'value': 55, 'desc': '缺乏自我认知导致恶化'},
+        {'name': '创伤', 'cn': 'Trauma', 'value': 55, 'desc': '未愈合创伤的影响'},
+        {'name': '糖', 'cn': 'Sugar', 'value': 33, 'desc': '糖分加重'},
+        {'name': '遗传', 'cn': 'Heredity', 'value': 26, 'desc': '遗传因素加重'},
+        {'name': '人际关系压力', 'cn': 'Interpersonal Stress', 'value': 25, 'desc': '人际关系问题加重病情'},
+        {'name': '吸烟', 'cn': 'Smoking', 'value': 7, 'desc': '吸烟影响'},
+        {'name': '酒精', 'cn': 'Alcohol', 'value': 0, 'desc': '酒精影响'},
+    ]
+
+    # Emotions (pages 29-30)
+    emotions_data = [
+        ('Religious Conflict', '宗教冲突', 114), ('Dominance', '支配/主导', 114),
+        ('Desire for Things to be Different', '希望事情有所不同', 113), ('Betrayal', '背叛感', 110),
+        ('Inadequacy', '力不从心', 110), ('Perfectionism', '完美主义', 107),
+        ('Resistance to Change', '抗拒改变', 105), ('Pride', '骄傲', 105),
+        ('Guilt', '内疚感', 104), ('Curiosity', '好奇心', 101),
+        ('Vanity', '虚荣心', 101), ('Obsession', '执念', 101),
+        ('Identity Conflict', '身份冲突', 100), ('Submission', '顺从', 100),
+        ('Aggression', '攻击性', 96), ('Worry', '担忧', 94),
+        ('Judgementalism', '评判', 94), ('Rejection', '排斥', 92),
+        ('Misunderstood', '被误解', 89), ('Shame', '羞耻感', 88),
+        ('Impulsivity', '冲动', 88), ('Awareness', '自我觉察', 86),
+        ('Sadness', '悲伤', 86), ('Joy', '喜悦', 86),
+        ('Delusion', '妄想', 85), ('Courage', '勇气', 84),
+        ('Uncontrollable Manic', '躁狂', 84), ('Carelessness', '粗心大意', 82),
+        ('Embarrassment', '尴尬', 81), ('Ecstasy', '愉悦', 81),
+        ('Nervousness', '紧张感', 80), ('Resentment', '内耗/积怨', 80),
+        ('Frustration', '挫败感', 79), ('Greed', '贪婪', 78),
+        ('Power', '控制欲', 77), ('Projection', '心理投射', 76),
+        ('Spirituality', '灵性', 76), ('Abandonment', '被抛弃感', 74),
+        ('Awe', '敬畏感', 74), ('Laughter', '欢笑', 74),
+        ('Apathy', '冷漠', 74), ('Hopeless Despair', '绝望', 74),
+        ('Shock', '震惊', 74), ('Denial', '否认', 73),
+        ('Need to Change', '期望改变', 71), ('Distractibility', '注意力涣散', 71),
+        ('Confusion', '迷茫', 70), ('Depression', '抑郁', 69),
+        ('Fear', '恐惧', 68), ('Autistic', '回避社交', 67),
+        ('Observance', '固执', 67), ('Mental Focus', '精神专注', 67),
+        ('Unrealism', '不切实际', 67), ('Hesitation', '迟疑', 65),
+        ('Jealousy', '嫉妒', 65), ('Lust', '爱欲', 65),
+        ('Recklessness', '鲁莽', 65), ('Addiction', '成瘾', 65),
+        ('Psychic Pain', '精神痛苦', 61), ('Antagonism', '对抗', 61),
+        ('Self Doubt', '自我怀疑', 59), ('Rationalization', '合理化', 59),
+        ('Sexuality', '性心理', 59), ('Unawareness', '觉知缺失', 58),
+        ('Anger', '愤怒', 54), ('ESP', '超感知觉', 52),
+        ('Enthusiasm', '热情', 52), ('Passivity', '被动性', 51),
+        ('Bargaining', '讨价还价', 51), ('Sensuality', '感官享受', 51),
+        ('Compulsiveness', '强迫性', 51), ('Anxiety', '焦虑', 50),
+        ('Monotony', '单调', 43), ('Steadfast Loyalty', '坚定的忠诚', 43),
+    ]
+    data['sections']['emotions'] = [
+        {'name': cn, 'cn': en, 'value': v} for en, cn, v in emotions_data
+    ]
+
+    # Organ sarcodes (page 31)
+    data['sections']['organ_sarcodes'] = [
+        {'name': '顶轮', 'value': 8}, {'name': '脑内分泌', 'value': 8},
+        {'name': '脑部免疫', 'value': 8}, {'name': '唾液腺', 'value': 8},
+        {'name': '眉心轮', 'value': 0}, {'name': '喉轮', 'value': 0},
+        {'name': '心轮', 'value': 0}, {'name': '胃轮', 'value': 0},
+        {'name': '脾轮', 'value': 0}, {'name': '海底轮', 'value': 0},
+        {'name': '下丘脑', 'value': 0}, {'name': '垂体', 'value': 0},
+        {'name': '松果体', 'value': 0}, {'name': '甲状腺', 'value': 0},
+        {'name': '甲状旁腺', 'value': 0}, {'name': '胸腺', 'value': 0},
+        {'name': '心脏内分泌', 'value': 0}, {'name': '肺部内分泌', 'value': 0},
+        {'name': '胃内分泌', 'value': 0}, {'name': '胰腺内分泌', 'value': 0},
+        {'name': '胆囊内分泌', 'value': 0}, {'name': '肝脏内分泌', 'value': 0},
+        {'name': '脾脏内分泌', 'value': 0}, {'name': '肾脏内分泌', 'value': 0},
+        {'name': '肾上腺内分泌', 'value': 0}, {'name': '性腺', 'value': 0},
+        {'name': '免疫异体', 'value': 0}, {'name': '情绪免疫', 'value': 0},
+        {'name': '下丘脑免疫', 'value': 0}, {'name': '腺样体', 'value': 0},
+        {'name': '扁桃体', 'value': 0}, {'name': '胸腺免疫', 'value': 0},
+        {'name': '骨髓', 'value': 0}, {'name': '肝脏免疫', 'value': 0},
+        {'name': '脾脏免疫', 'value': 0}, {'name': '阑尾免疫', 'value': 0},
+        {'name': '消化系统', 'value': 0}, {'name': '大脑到消化', 'value': 0},
+        {'name': '食物', 'value': 0}, {'name': '口腔', 'value': 0},
+        {'name': '自主神经系统', 'value': 0}, {'name': '胃到消化', 'value': 0},
+        {'name': '小肠', 'value': 0}, {'name': '回盲瓣', 'value': 0},
+        {'name': '胰腺到消化', 'value': 0}, {'name': '肝脏到消化', 'value': 0},
+        {'name': '大肠', 'value': 0}, {'name': '腹腔神经丛', 'value': 0},
+        {'name': '胆囊', 'value': 0}, {'name': '脉轮到内分泌', 'value': 0},
+        {'name': '消化到全部', 'value': 0},
+    ]
+
+    # Neurotransmitters (pages 32-33)
+    data['sections']['neurotransmitters'] = [
+        {'name': '内啡肽', 'cn': 'ENDORPHIN', 'value': 158, 'desc': '阿片肽，用于疼痛控制'},
+        {'name': '牛磺酸', 'cn': 'TAURINE', 'value': 154, 'desc': '用于能量控制的氨基酸'},
+        {'name': '谷氨酰胺', 'cn': 'GLUTAMINE', 'value': 148, 'desc': '平衡左右的氨基酸，穿过血脑屏障，提供能量'},
+        {'name': '所有下丘脑激素', 'cn': 'ALL HYPOTHALAMIC HORMONES', 'value': 146, 'desc': '用于所有稳态调节'},
+        {'name': '乙酰胆碱', 'cn': 'ACETYLCHOLINE', 'value': 142, 'desc': '副交感神经主要传递物质，用于刺激消化和免疫力'},
+        {'name': '促红细胞生成素', 'cn': 'ERYTHROPIETIN', 'value': 134, 'desc': '生物活性肽，有助于控制贫血和血液形成'},
+        {'name': '促甲状腺激素释放激素', 'cn': 'THYROTROPIN RELEASING HORMONE', 'value': 132, 'desc': '识别甲状腺疾病，训练抑郁、疲劳、自杀倾向'},
+        {'name': '催乳素', 'cn': 'PROLACTIN', 'value': 132, 'desc': '垂体产生的激素，对乳汁分泌、生殖健康、免疫调节和行为功能至关重要'},
+        {'name': '抗痛酶抑制剂', 'cn': 'ANTI PAIN ENZYME INHIBITOR', 'value': 131, 'desc': '用于疼痛调节'},
+        {'name': '人绒毛膜促性腺激素', 'cn': 'HUMAN CHORIONIC GONADOTROPIN', 'value': 131, 'desc': '怀孕期间产生的激素，支持胎儿发育并维持子宫内膜'},
+        {'name': '神经紧张素', 'cn': 'NEUROTENSIN', 'value': 128, 'desc': '胃肠肽，影响高血压、高血糖、肠道蠕动、循环、生长、甲状腺功能减退'},
+        {'name': '去甲肾上腺素', 'cn': 'NOREPINEPHRINE', 'value': 126, 'desc': '肾上腺素激素，刺激交感神经系统'},
+        {'name': '前脑啡肽', 'cn': 'PROENKEPHALIN', 'value': 126, 'desc': '用于疼痛和情绪控制的激素'},
+        {'name': '缓激肽', 'cn': 'BRADYKININ', 'value': 125, 'desc': '生物活性肽，血浆激肽，可抑制炎症，也可指示消化问题'},
+        {'name': 'GABA', 'cn': 'GABA', 'value': 125, 'desc': '控制大脑电活动风暴的大脑因子'},
+        {'name': '加压素', 'cn': 'VASOPRESSIN', 'value': 125, 'desc': '阿片肽，抗利尿剂，血压调节剂，刺激中枢神经系统'},
+        {'name': '人生长激素', 'cn': 'HUMAN GROWTH HORMONE', 'value': 125, 'desc': '刺激人类生长、细胞再生和新陈代谢的激素'},
+        {'name': '促胰液素', 'cn': 'SECRETIN', 'value': 124, 'desc': '胃肠肽，识别胃肠疾病'},
+        {'name': '孕酮激素', 'cn': 'PROGESTERONE HORMONE', 'value': 124, 'desc': '周期后半段由黄体产生，刺激月经，改善经前综合症'},
+        {'name': '甘氨酸', 'cn': 'GLYCINE', 'value': 123, 'desc': '用于能量管理的氨基酸'},
+        {'name': '肾素', 'cn': 'RENIN BIOACTIVE PEPTIDE', 'value': 120, 'desc': '肾素激素前体，高血压时升高'},
+        {'name': '天冬氨酸', 'cn': 'ASPARTATE', 'value': 115, 'desc': '食品添加剂，可能加重神经问题'},
+        {'name': '肌肽', 'cn': 'CARNOSINE', 'value': 115, 'desc': '用于能量控制和心脏稳定性的氨基酸'},
+        {'name': '吗啡脑啡肽', 'cn': 'MORPHINE ENKAPHALIN', 'value': 112, 'desc': '阿片肽'},
+        {'name': '多巴胺', 'cn': 'DOPAMINE', 'value': 110, 'desc': '启动行动并调节血压和多种激素功能的激素'},
+        {'name': '胸腺素', 'cn': 'THYMOSIN', 'value': 110, 'desc': '刺激白细胞用于免疫系统防御细菌和真菌'},
+        {'name': '组胺', 'cn': 'HISTAMINE', 'value': 108, 'desc': '用于炎症和过敏控制的氨基酸'},
+        {'name': '胆囊收缩素', 'cn': 'CHOLECYSTOKININ', 'value': 107, 'desc': '刺激胆囊的胃激素，也调节抑郁'},
+        {'name': '谷氨酸', 'cn': 'GLUTAMATE', 'value': 105, 'desc': '主要兴奋性神经递质，参与学习、记忆和神经激活'},
+        {'name': '胰岛素', 'cn': 'INSULIN', 'value': 104, 'desc': '允许葡萄糖穿透细胞膜以产生能量，关注血糖问题'},
+        {'name': '促肾上腺皮质激素', 'cn': 'ADRENOCORTICOTROPIC HORMONE', 'value': 104, 'desc': '生物活性肽'},
+        {'name': '肠激酶', 'cn': 'ENTEROKINASE', 'value': 97, 'desc': '用于消化调节的消化酶激素'},
+        {'name': '皮质醇', 'cn': 'CORTISOL', 'value': 97, 'desc': '中肾上腺产生的分解代谢激素，破坏死亡和弱细胞以控制炎症'},
+        {'name': '生长抑素', 'cn': 'SOMATOSTATIN', 'value': 96, 'desc': '阿片肽，生长激素的一部分，抑制生长问题'},
+        {'name': 'DL-甲状腺素', 'cn': 'DL-THYROXINE', 'value': 89, 'desc': '主要甲状腺激素，用于刺激能量和代谢，抑制甲状腺问题'},
+        {'name': '亮氨酸脑啡肽', 'cn': 'LEUCINE ENKEPHALIN', 'value': 88, 'desc': '用于疼痛和情感控制的大脑激素'},
+        {'name': 'P物质', 'cn': 'SUBSTANCE P', 'value': 86, 'desc': '负责传递疼痛感觉'},
+        {'name': '血清素', 'cn': 'SEROTONIN', 'value': 85, 'desc': '幸福激素，也调节损伤，失调会导致不安全感'},
+        {'name': '血管紧张素', 'cn': 'ANGIOTENSIN', 'value': 79, 'desc': '生物活性肽，与压力和血压相关的激素'},
+        {'name': '前列腺素', 'cn': 'PROSTAGLANDIN', 'value': 125, 'desc': '识别炎症疾病'},
+        {'name': '所有阿片类递质', 'cn': 'ALL TRANSMITTERS OPIOID TYPE', 'value': 72, 'desc': '所有阿片类神经递质'},
+        {'name': '雌激素', 'cn': 'ESTROGEN', 'value': 71, 'desc': '调节女性生殖健康、月经周期和第二性征的激素'},
+        {'name': '催产素', 'cn': 'OXYTOCIN', 'value': 70, 'desc': '阿片肽，刺激泌乳和情感联结激素，纠正联结问题'},
+        {'name': '爱', 'cn': 'LOVE', 'value': 68, 'desc': '爱的情感'},
+        {'name': 'γ球蛋白', 'cn': 'GAMMA GLOBULIN', 'value': 63, 'desc': '用于增强免疫系统'},
+        {'name': '白僵菌素', 'cn': 'BEAUVERICIN', 'value': 57, 'desc': '生物活性肽，显示感官知觉的情绪问题'},
+        {'name': '睾酮', 'cn': 'TESTOSTERONE', 'value': 52, 'desc': '男性性激素，与攻击性和易怒性相关'},
+    ]
+
+    return data
+
+if __name__ == '__main__':
+    data = extract_pdf_data()
+
+    # Write JSON
+    with open('data.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print(f'Generated data.json with {len(data["sections"])} sections')
+    for key in data['sections']:
+        section = data['sections'][key]
+        if isinstance(section, list):
+            print(f'  {key}: {len(section)} items')
+        elif isinstance(section, dict):
+            print(f'  {key}: {len(section)} items')

@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>营养与健康检测报告 - 测试</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Embedded data - no external files needed
+var REPORT_DATA = {"meta": {"name": "测试", "gender": "女", "birthDate": "1976/2/26", "testDate": "2026/6/22", "visitNumber": "382", "soc": "1", "practitioner": "", "clinic": "", "address": "", "phone": "", "country": "中国", "reportDate": "2026/6/22"}, "sections": {"varhop": {"volt": 93, "amper": 77, "resistance": 89, "hydration": 79, "oxidation": 72, "proton_pressure": 70, "electron_pressure": 65, "resonant_frequency": 0, "reactance_speed": 0, "phase_angle": 7, "phase_response": 380, "impedance": 1790, "reaction_speed": 103, "body_fat": 18, "cellular_vitality": 6}, "risk_profile": {"CIRCULATION": 85, "AMOEBA": 81, "WATER_ACID_ALK": 80, "HYDRATION": 79, "RADIATION": 77, "CONNECTIVE_TISSUE": 76, "FOOD_POISONING": 75, "VIT_DEF_OR_EXCESS": 74, "EMOTIONAL_RISK": 74, "IMMUNE_SYSTEM": 74, "KIDNEY": 73, "DIGESTIVE": 73, "VIRUS": 73, "SUGAR_REGULATION": 73, "HYPOADRENIA": 72, "CARDIOVASCULAR": 72, "HORMONAL": 72, "OXIDATION": 72, "ENVIRONMENTAL": 71, "SENSORY": 71, "INHERITED": 70, "BLOOD": 70, "RESPIRATORY": 70, "DEGENERATION": 69, "EMOTIONAL": 69, "LYMPHATIC": 69, "VACCINATION": 69, "LIVER": 68, "ALLERGY": 68, "STRESS": 67, "TRAUMA": 67, "BONE": 67, "TOXICITY": 66, "FUNGUS": 65, "CHOLESTEROL": 65, "NEUROLOGICAL": 64, "INFECTION": 63, "BACTERIA": 60, "PARASITES": 60, "COGNITION": 58, "INFLAMMATION": 56}, "oriental_herbs": [{"name": "Antihelmintic, parasites", "value": 76, "cn": "驱虫，寄生虫"}, {"name": "Antiasthmatic, regulates lungs, chills fever", "value": 50, "cn": "平喘，调肺，退热"}, {"name": "Antiphlogistic, excess mucous, wind, cold, dampness", "value": 63, "cn": "消炎，祛风散寒除湿"}, {"name": "Antipyretic for fever, expels toxic heat, wind, chills", "value": 61, "cn": "退热解毒，祛风散寒"}, {"name": "Antirheumatic, rheumatic pain, activates blood flow", "value": 58, "cn": "抗风湿，活血通络"}, {"name": "Blood, replenishes blood, restores vitality", "value": 85, "cn": "补血，恢复元气"}, {"name": "Carminative, relieves gas and stagnant food", "value": 62, "cn": "消胀，化食行气"}, {"name": "Digestive stimulator, invigorates stomach, spleen", "value": 71, "cn": "健胃醒脾助消化"}, {"name": "Expectorant, clears lungs, dispels heat in lungs", "value": 56, "cn": "化痰清肺热"}, {"name": "Female, regulates menstrual, vitalizes blood", "value": 60, "cn": "调经活血"}, {"name": "Hepatic, removes stagnation of liver + chi", "value": 66, "cn": "疏肝理气"}, {"name": "Hypertensive, reduces heat in liver, reduces yang", "value": 87, "cn": "平肝潜阳降压"}, {"name": "Laxative, relieves deficiency of spleen fluid", "value": 66, "cn": "润肠通便"}, {"name": "Mental, invigorates kidney meridian, trains senility", "value": 51, "cn": "补肾健脑抗衰老"}, {"name": "Sedative, nourishes blood in liver, trains fatigue", "value": 61, "cn": "养血安神，缓解疲劳"}, {"name": "Bone, for degenerative bone conditions", "value": 95, "cn": "骨骼退行性病变"}, {"name": "Cold and flu, stimulates chi and liver", "value": 62, "cn": "感冒流感，益气调肝"}, {"name": "Esophagus, relieves spasms and trains esoph degeneration", "value": 86, "cn": "缓解食管痉挛与退变"}, {"name": "Kidney, trains kidney deficiency and degeneration", "value": 79, "cn": "补肾虚与退变"}, {"name": "Large intestine, trains meridian weakness and bowel", "value": 76, "cn": "大肠经虚弱与肠道调理"}, {"name": "Liver, trains chi and liver weakness", "value": 85, "cn": "益气养肝"}, {"name": "Lymph, trains degeneration in the lymphatics", "value": 64, "cn": "淋巴系统退变调理"}, {"name": "Preventative, use to prevent degeneration", "value": 72, "cn": "预防退行性变化"}, {"name": "Stomach, trains deficiency of stomach energy", "value": 60, "cn": "胃气虚调理"}, {"name": "Uterine, trains problems of uterine cellular degeneration", "value": 44, "cn": "子宫细胞退变调理"}], "amino_acids": [{"name": "Phenylalanine", "cn": "苯丙氨酸", "value": 44, "desc": "疼痛控制，神经", "food": "鸡蛋、牛奶、瘦肉、鱼类、大豆、坚果、奶酪"}, {"name": "Alanine", "cn": "丙氨酸", "value": 84, "desc": "肾脏和神经", "food": "牛肉、鸡肉、鱼类、豆类、海藻、乳制品"}, {"name": "Asparagine", "cn": "天冬酰胺", "value": 89, "desc": "非必需氨基酸", "food": "芦笋、豆类、土豆、牛肉、鱼类、坚果"}, {"name": "Cysteine", "cn": "半胱氨酸", "value": 89, "desc": "肾脏利用", "food": "鸡蛋、肉类、鱼类、大蒜、洋葱、燕麦、小麦胚芽"}, {"name": "Leucine", "cn": "亮氨酸", "value": 70, "desc": "情绪控制，情感", "food": "牛肉、鸡胸肉、鱼、鸡蛋、牛奶、大豆、坚果、乳清蛋白"}, {"name": "Isoleucine", "cn": "异亮氨酸", "value": 62, "desc": "情绪控制，神经", "food": "瘦肉、鱼类、鸡蛋、奶制品、豆类、坚果、全谷物"}, {"name": "Serine", "cn": "丝氨酸", "value": 70, "desc": "碳水化合物能量转化", "food": "大豆、花生、鸡蛋、肉类、鱼类、乳制品"}, {"name": "Tryptophan", "cn": "色氨酸", "value": 103, "desc": "血清素和放松", "food": "火鸡、鸡肉、牛奶、酸奶、香蕉、燕麦、坚果、豆制品"}, {"name": "Histidine", "cn": "组氨酸", "value": 89, "desc": "抗炎、抗过敏", "food": "牛肉、猪肉、鸡肉、鱼、鸡蛋、大豆、豆类、坚果"}, {"name": "Methionine", "cn": "蛋氨酸", "value": 73, "desc": "肝脏和供氧", "food": "鸡蛋、鱼类、瘦肉、芝麻、葵花籽、豆类、乳制品"}, {"name": "Lysine", "cn": "赖氨酸", "value": 105, "desc": "抗疱疹病变，神经", "food": "鱼肉、鸡肉、牛肉、鸡蛋、豆类、豆制品、乳制品"}, {"name": "Threonine", "cn": "苏氨酸", "value": 104, "desc": "激素和能量产生", "food": "瘦肉、鱼类、鸡蛋、奶制品、豆类、坚果、蘑菇"}, {"name": "Tyrosine", "cn": "酪氨酸", "value": 59, "desc": "甲状腺、垂体及肾上腺功能", "food": "肉蛋奶、鱼虾、豆制品、坚果、香蕉"}, {"name": "Valine", "cn": "缬氨酸", "value": 63, "desc": "用于调节血细胞", "food": "肉类、奶制品、豆类、谷物"}, {"name": "Glutamine", "cn": "谷氨酰胺", "value": 103, "desc": "为大脑提供能量", "food": "肉类、蛋类、豆类、奶制品"}, {"name": "Proline", "cn": "脯氨酸", "value": 67, "desc": "硫代谢紊乱", "food": "肉类、奶制品、蛋类"}, {"name": "Arginine", "cn": "精氨酸", "value": 70, "desc": "神经和皮肤", "food": "坚果、肉类、豆类"}, {"name": "Glutamic acid", "cn": "谷氨酸", "value": 87, "desc": "为大脑提供能量", "food": "肉类、蛋类、豆类"}, {"name": "Aspartic acid", "cn": "天冬氨酸", "value": 62, "desc": "营养甜味剂，防止蛋白质变性", "food": "肉、内脏、豆芽、芦笋、豆类、香蕉"}, {"name": "Adenosine", "cn": "腺苷", "value": 106, "desc": "循环系统、能量", "food": "多种食物"}, {"name": "Uracil", "cn": "尿嘧啶", "value": 48, "desc": "用于RNA功能", "food": "多种食物"}, {"name": "Adenine", "cn": "腺嘌呤", "value": 45, "desc": "用于DNA和RNA功能", "food": "多种食物"}, {"name": "Guanine", "cn": "鸟嘌呤", "value": 112, "desc": "用于DNA和RNA功能", "food": "多种食物"}, {"name": "Cytosine", "cn": "胞嘧啶", "value": 95, "desc": "用于DNA和RNA功能", "food": "多种食物"}, {"name": "Thymine", "cn": "胸腺嘧啶", "value": 67, "desc": "用于DNA和RNA功能", "food": "多种食物"}, {"name": "Tryptophan2", "cn": "色氨酸（情绪/能量/睡眠）", "value": 88, "desc": "调节情绪、提供能量、促进愈合、改善睡眠", "food": "火鸡、鸡肉、牛奶、酸奶、香蕉、燕麦、坚果、豆制品"}, {"name": "Taurine", "cn": "牛磺酸", "value": 74, "desc": "能量", "food": "肉类、鱼类、奶制品"}, {"name": "Citruline", "cn": "瓜氨酸", "value": 83, "desc": "思考", "food": "西瓜、坚果"}, {"name": "Gaba", "cn": "GABA", "value": 70, "desc": "思维控制", "food": "发酵食品、茶"}], "minerals": [{"name": "Calcium", "cn": "钙", "value": 125, "desc": "骨骼、神经、肾上腺功能减弱", "food": "奶制品、豆类、坚果、绿叶蔬菜"}, {"name": "Potassium", "cn": "钾", "value": 127, "desc": "疲劳、神经、能量、心脏", "food": "香蕉、土豆、豆类、坚果"}, {"name": "Sodium", "cn": "钠", "value": 49, "desc": "抑郁、神经、疲劳、消化", "food": "食盐、海产品"}, {"name": "Chlorine", "cn": "氯", "value": 51, "desc": "酸碱平衡、胃酸分泌、神经", "food": "食盐、海产品"}, {"name": "Magnesium", "cn": "镁", "value": 115, "desc": "肾上腺调节、氧能代谢", "food": "坚果、绿叶蔬菜、全谷物"}, {"name": "Iron", "cn": "铁", "value": 120, "desc": "贫血、疲劳、缺氧", "food": "红肉、动物肝脏、豆类"}, {"name": "Sulphur", "cn": "硫", "value": 52, "desc": "排毒、能量、情绪、注意力不集中", "food": "鸡蛋、肉类、大蒜、洋葱"}, {"name": "Manganese", "cn": "锰", "value": 102, "desc": "神经系统及肌肉疾病", "food": "坚果、全谷物、茶叶"}, {"name": "Chromium", "cn": "铬", "value": 90, "desc": "血糖调节、肌肉功能", "food": "全谷物、肉类、酵母"}, {"name": "Zinc", "cn": "锌", "value": 116, "desc": "免疫力、氧气、代谢性疾病", "food": "海鲜、肉类、坚果"}, {"name": "Selenium", "cn": "硒", "value": 102, "desc": "解毒、神经、能量、皮肤", "food": "坚果（巴西坚果）、海鲜"}, {"name": "Iodine", "cn": "碘", "value": 64, "desc": "甲状腺功能、能量、代谢", "food": "海带、海产品、加碘盐"}, {"name": "Phosphorous", "cn": "磷", "value": 60, "desc": "细胞功能、能量、思维", "food": "奶制品、肉类、全谷物"}, {"name": "Boron", "cn": "硼", "value": 20, "desc": "神经调节、痴呆、抑郁", "food": "水果、蔬菜、坚果"}, {"name": "Molybdenum", "cn": "钼", "value": 70, "desc": "甲状腺功能、哺乳期、疲劳", "food": "豆类、全谷物、坚果"}, {"name": "Silicon", "cn": "硅", "value": 70, "desc": "骨骼、皮肤、神经", "food": "全谷物、蔬菜"}, {"name": "Cobalt", "cn": "钴", "value": 75, "desc": "贫血、免疫功能", "food": "动物肝脏、肉类"}, {"name": "Lithium", "cn": "锂", "value": 55, "desc": "神经、思维、能量、下丘脑功能", "food": "蔬菜、矿泉水"}, {"name": "Germanium", "cn": "锗", "value": 48, "desc": "神经、氧合、皮肤、能量", "food": "蘑菇、大蒜"}, {"name": "Arsenic", "cn": "砷", "value": 114, "desc": "能量、神经", "food": "海鲜、虾蟹、海带、谷类"}, {"name": "Antimony", "cn": "锑", "value": 50, "desc": "皮肤、解毒、肠道功能", "food": "深海鱼、海带、肉类（微量）"}, {"name": "Tin", "cn": "锡", "value": 76, "desc": "神经、肌肉", "food": "多种食物（微量）"}, {"name": "Carbon", "cn": "碳", "value": 63, "desc": "能量、生命调节", "food": "所有食物"}, {"name": "Vanadium", "cn": "钒", "value": 45, "desc": "肝功能、心肌", "food": "蘑菇、海鲜"}, {"name": "Aluminum", "cn": "铝", "value": 40, "desc": "神经、思维调节", "food": "茶叶、海带、土豆、加工食品"}, {"name": "Copper", "cn": "铜", "value": 16, "desc": "神经、能量、排毒", "food": "坚果、海鲜、豆类"}, {"name": "Nickel", "cn": "镍", "value": 69, "desc": "肝功能、心肌", "food": "燕麦、坚果、豆类、巧克力"}, {"name": "Gold", "cn": "金", "value": 80, "desc": "排毒、思维调节", "food": "海产品、菌类（微量）"}, {"name": "Silver", "cn": "银", "value": 53, "desc": "免疫力、能量、排毒", "food": "牛奶、鸡蛋、鱼类（微量）"}], "aromatherapy": [{"name": "Balsam oil", "cn": "香脂油", "value": 108, "desc": "抗菌和祛痰"}, {"name": "Basil aroma oil", "cn": "罗勒芳香油", "value": 121, "desc": "有助于消化，抗痉挛"}, {"name": "Cajeput aroma oil", "cn": "卡吉普特香精油", "value": 86, "desc": "胃肠、肺部抗菌"}, {"name": "Caraway aroma oil", "cn": "葛缕子香精油", "value": 116, "desc": "餐后可预防胀气，促进消化"}, {"name": "Cedar aroma oil", "cn": "雪松香精油", "value": 119, "desc": "用于皮肤刺激、皮炎、干燥皮肤和湿疹"}, {"name": "Cinnamon aroma oil", "cn": "肉桂香精油", "value": 82, "desc": "抗菌除臭、缓解恶心、便秘"}, {"name": "Clove aroma oil", "cn": "丁香精油", "value": 122, "desc": "抗菌、牙痛、消化不良、催情剂"}, {"name": "Coriander", "cn": "香菜油", "value": 74, "desc": "助消化，防止发酵、腹胀、促进血液循环"}, {"name": "Cypress aroma oil", "cn": "柏木香精油", "value": 95, "desc": "收敛性，收缩血管、静脉、腿部和脚部"}, {"name": "Eucalyptus aroma oil", "cn": "桉树精油", "value": 122, "desc": "呼吸道抗菌剂，抗病毒"}, {"name": "Geranium aroma oil", "cn": "天竺葵香精油", "value": 96, "desc": "湿疹、痤疮、割伤、皮炎、驱虫"}, {"name": "Grapefruit aroma oil", "cn": "葡萄柚香精油", "value": 83, "desc": "心脏滋补剂，油性皮肤，清洁消化道"}, {"name": "Green anise aroma oil", "cn": "绿茴香精油", "value": 95, "desc": "助消化、消胀气"}, {"name": "Juniper aroma oil", "cn": "杜松香精油", "value": 87, "desc": "风湿痛、排毒、利尿、刺激肾脏"}, {"name": "Lavender aroma oil", "cn": "薰衣草精油", "value": 110, "desc": "镇静、排毒、皮肤神经放松"}, {"name": "Lemon aroma oil", "cn": "柠檬精油", "value": 88, "desc": "增强免疫、减重"}, {"name": "Mandarin aroma oil", "cn": "橘子精油", "value": 96, "desc": "癫痫、抗痉挛、心悸、放松"}, {"name": "Orange aroma oil", "cn": "橙子精油", "value": 111, "desc": "放松、儿童镇静剂"}, {"name": "Oregano aroma oil", "cn": "牛至精油", "value": 92, "desc": "保护免疫、发汗"}, {"name": "Peppermint aroma oil", "cn": "薄荷精油", "value": 106, "desc": "神经性消化镇静（哺乳期不宜）"}, {"name": "Thyme aroma oil", "cn": "百里香精油", "value": 102, "desc": "肠道、肺部、肌肉疼痛"}, {"name": "Rosemary aroma oil", "cn": "迷迭香精油", "value": 114, "desc": "滋补、恢复肝胆功能"}, {"name": "Sandalwood aroma oil", "cn": "檀香精油", "value": 69, "desc": "尿道抗菌、膀胱炎、前列腺"}, {"name": "Tea tree aroma oil", "cn": "茶树精油", "value": 75, "desc": "皮肤、排毒、感染、鼻窦"}, {"name": "Vervain aroma oil", "cn": "马鞭草精油", "value": 104, "desc": "放松、抗菌、溶解肾结石"}, {"name": "Ylang ylang aroma oil", "cn": "依兰依兰精油", "value": 102, "desc": "高血压、催情"}], "selye_stress": {"alarm": 58, "adaptation": 58, "exhaustion": 58, "phase": "适应阶段"}, "spine": [{"vertebra": "C1", "region": "颈椎", "cn_region": "Cervical", "status": "退化", "cn_status": "Degeneration", "body": "头部血液供应，脑垂体，头皮，脸部骨骼，大脑，内耳及中耳，交感神经系统"}, {"vertebra": "C2", "region": "颈椎", "cn_region": "Cervical", "status": "已校正", "cn_status": "Corrected", "body": "双耳，视神经，听觉神经，额窦，乳突，舌，前额"}, {"vertebra": "C3", "region": "颈椎", "cn_region": "Cervical", "status": "神经压迫", "cn_status": "NervCompression", "body": "脸颊，外耳，面部骨骼，牙，三叉神经"}, {"vertebra": "C4", "region": "颈椎", "cn_region": "Cervical", "status": "半脱位", "cn_status": "subluxation", "body": "鼻，唇，嘴，耳咽"}, {"vertebra": "C5", "region": "颈椎", "cn_region": "Cervical", "status": "已校正", "cn_status": "Corrected", "body": "声带，腺体，咽"}, {"vertebra": "C6", "region": "颈椎", "cn_region": "Cervical", "status": "已校正", "cn_status": "Corrected", "body": "颈部肌肉，肩，扁桃体"}, {"vertebra": "C7", "region": "颈椎", "cn_region": "Cervical", "status": "已校正", "cn_status": "Corrected", "body": "甲状腺，肩关节，肘关节"}, {"vertebra": "T1", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Not Corrected", "body": "前臂，包括手、腕及手指，食管，气管"}, {"vertebra": "T2", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Not Corrected", "body": "心，包括瓣膜及心包，冠状动脉"}, {"vertebra": "T3", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Not Corrected", "body": "肺，支气管，胸膜，胸廓，乳房"}, {"vertebra": "T4", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Corrected", "body": "胆囊，胆总管"}, {"vertebra": "T5", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Not Corrected", "body": "肝，腹腔神经丛，总循环系统"}, {"vertebra": "T6", "region": "胸椎", "cn_region": "Thoracic", "status": "炎症", "cn_status": "inflammation", "body": "胃"}, {"vertebra": "T7", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Corrected", "body": "胰腺，十二指肠"}, {"vertebra": "T8", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Corrected", "body": "脾"}, {"vertebra": "T9", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Corrected", "body": "肾上腺"}, {"vertebra": "T10", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Corrected", "body": "肾脏"}, {"vertebra": "T11", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Corrected", "body": "输尿管"}, {"vertebra": "T12", "region": "胸椎", "cn_region": "Thoracic", "status": "已校正", "cn_status": "Not Corrected", "body": "小肠，输卵管"}, {"vertebra": "L1", "region": "腰椎", "cn_region": "Lumbar", "status": "神经压迫", "cn_status": "Temp Nerve Comp", "body": "大肠，腹股沟"}, {"vertebra": "L2", "region": "腰椎", "cn_region": "Lumbar", "status": "已校正", "cn_status": "Not Corrected", "body": "阑尾，腹部，大腿"}, {"vertebra": "L3", "region": "腰椎", "cn_region": "Lumbar", "status": "炎症", "cn_status": "inflammation", "body": "生殖器官，膀胱，膝"}, {"vertebra": "L4", "region": "腰椎", "cn_region": "Lumbar", "status": "半脱位", "cn_status": "subluxation", "body": "坐骨神经，腰部"}, {"vertebra": "L5", "region": "腰椎", "cn_region": "Lumbar", "status": "半脱位", "cn_status": "subluxation", "body": "小腿，脚踝，脚"}, {"vertebra": "颅骨", "region": "颅骶", "cn_region": "Cranial Sacral", "status": "已校正", "cn_status": "Corrected", "body": "颅骨系统"}, {"vertebra": "骶骨", "region": "颅骶", "cn_region": "Cranial Sacral", "status": "神经压迫", "cn_status": "NervCompression", "body": "骶骨系统"}, {"vertebra": "枕骨", "region": "颅骶", "cn_region": "Cranial Sacral", "status": "困难", "cn_status": "Difficult", "body": "枕骨系统"}], "vitamin_families": [{"name": "维生素A族", "cn": "Vitamin a family", "value": 68, "desc": "维持视力、皮肤健康和免疫功能", "food": "红萝卜、绿叶蔬菜、蛋黄及肝"}, {"name": "维生素B复合族", "cn": "Vitamin b complex family", "value": 68, "desc": "支持能量代谢、神经系统功能", "food": "肝、蛋、奶、肉、粗粮、豆子、绿叶菜、坚果"}, {"name": "维生素G复合族", "cn": "Vitamin g complex family", "value": 68, "desc": "B族维生素重要组成部分", "food": "全谷物、动物内脏"}, {"name": "维生素C族", "cn": "Vitamin c family", "value": 68, "desc": "抗氧化、增强免疫力、促进胶原蛋白合成", "food": "水果（特别是橙类），绿色蔬菜，蕃茄，马铃薯等"}, {"name": "维生素D族", "cn": "Vitamin d family", "value": 68, "desc": "促进钙吸收、骨骼健康", "food": "鱼肝油，奶制品，蛋"}, {"name": "维生素E族", "cn": "Vitamin e family", "value": 68, "desc": "抗氧化、保护细胞膜", "food": "植物油、深绿色蔬菜、牛奶、蛋、肝、麦、及果仁"}, {"name": "维生素F（脂肪酸）", "cn": "Vitamin f (fatty acids)", "value": 68, "desc": "维持皮肤健康、抗炎作用", "food": "植物油、坚果、深海鱼、豆类"}, {"name": "维生素K族", "cn": "Vitamin k family", "value": 68, "desc": "血液凝固、骨骼健康", "food": "绿叶菜、植物油、肝、蛋黄、纳豆"}, {"name": "维生素U族（辅酶Q）", "cn": "Vitamin u family (co q)", "value": 68, "desc": "细胞能量产生、心脏健康", "food": "沙丁鱼、牛肉、花生"}], "digestion_summary": [{"name": "蛋白质消化", "value": 76}, {"name": "碳水化合物消化", "value": 82}, {"name": "脂肪消化", "value": 74}, {"name": "一般消化", "value": 68}, {"name": "内部酶", "value": 94}, {"name": "生化组织盐", "value": 57}, {"name": "矿物质", "value": 69}, {"name": "氨基酸", "value": 96}, {"name": "东方草药组合", "value": 104}], "vitamin_a_detail": [{"name": "Beta carotene", "cn": "β-胡萝卜素", "value": 81, "desc": "抗氧化，保护视力、皮肤与黏膜，增强免疫力", "food": "橙黄色蔬果 + 深绿色蔬菜"}, {"name": "Fish oil", "cn": "鱼油", "value": 63, "desc": "抗炎护心脑、保护视力、调节血脂、维护关节", "food": "三文鱼、金枪鱼，秋刀鱼、沙丁鱼、鲭鱼"}, {"name": "Retinol", "cn": "视黄醇", "value": 19, "desc": "保护视力、皮肤与黏膜、促生长发育与免疫功能", "food": "肝、蛋黄、奶、深海鱼"}, {"name": "Vitamin a precursor", "cn": "维生素A前体", "value": 60, "desc": "保护视力、上皮组织、增强免疫力、抗氧化", "food": "胡萝卜、南瓜、红薯菠菜、西兰花、空心菜"}, {"name": "Cartilage vit a", "cn": "软骨维生素A", "value": 97, "desc": "维护关节软骨、黏膜与视力，骨骼生长、免疫修复", "food": "肝、蛋黄、深海鱼、奶、黄绿蔬菜、软骨筋蹄"}], "vitamin_b_detail": [{"name": "B1-硫胺素", "cn": "B1-thiamine", "value": 84, "desc": "支持新陈代谢、神经功能、情绪和解毒", "food": "糙米、豆类、牛奶、家禽"}, {"name": "B2-核黄素", "cn": "B2-riboflavin", "value": 72, "desc": "能量/碳水化合物代谢、神经系统、偏头痛、白内障", "food": "动物肝脏、瘦肉、酵母、大豆、米糠及绿叶蔬菜"}, {"name": "B3-烟酸", "cn": "B3-niacin", "value": 76, "desc": "酶功能、焦虑、ADHD、关节炎、糖尿病、失眠", "food": "绿叶蔬菜，肾，肝，蛋等"}, {"name": "烟酰胺", "cn": "Niacinamide", "value": 80, "desc": "体内脂肪和糖的功能，维持健康细胞", "food": "肉、肝脏、鱼虾、花生、粗粮"}, {"name": "B5-泛酸", "cn": "B5-pantothenic acid", "value": 96, "desc": "辅酶A生成、胆固醇、神经/认知功能、解毒", "food": "糙米，肝，蛋，肉"}, {"name": "B6-吡哆醇", "cn": "B6-pyridoxine", "value": 81, "desc": "蛋白质/氨基酸代谢，免疫和神经系统健康", "food": "瘦肉，果仁，糙米，绿叶蔬菜，香蕉"}, {"name": "B7-生物素", "cn": "B7-biotin", "value": 76, "desc": "葡萄糖/脂肪酸代谢，免疫/神经系统，头发/指甲健康", "food": "蔬菜，肉、酵母等"}, {"name": "辅酶A", "cn": "Coenzyme a", "value": 81, "desc": "碳水化合物/脂肪/蛋白质代谢过程，用于能量产生", "food": "动物肝脏、鸡蛋、瘦肉、蘑菇、粗粮、坚果"}, {"name": "B9叶酸", "cn": "B9 folic acid", "value": 59, "desc": "消化问题、贫血、能量、激素功能、情绪波动", "food": "深绿色蔬菜、动物肝脏、豆类、坚果和全谷物"}, {"name": "PABA", "cn": "Paba", "value": 74, "desc": "白癜风、天疱疮、皮肌炎、头发/皮肤修复，光毒性", "food": "动物内脏、鸡蛋、全谷物、绿叶菜、酵母"}, {"name": "肌醇", "cn": "Inositol", "value": 97, "desc": "脂质、降胆固醇、抗高血压、促脂质代谢、血管健康", "food": "豆类、坚果、动物内脏、全谷物、柑橘"}, {"name": "B12-甲钴胺", "cn": "B12-methylcobalamin", "value": 90, "desc": "细胞分裂、血液形成、神经功能至关重要", "food": "肝、肉、蛋、鱼、奶"}, {"name": "胆碱", "cn": "Choline", "value": 81, "desc": "神经传递、认知障碍、肝脏解毒", "food": "蛋类、肝脏、豆类"}, {"name": "甜菜碱", "cn": "Betaine", "value": 61, "desc": "血液、骨骼、眼睛、心脏、肌肉、神经、大脑", "food": "甜菜、菠菜、全谷物"}, {"name": "潘氨酸", "cn": "Pangamic acid", "value": 71, "desc": "解毒、皮肤问题、神经痛、肝脏", "food": "全谷物、种子"}, {"name": "氧化硫胺素", "cn": "Oxythiamine", "value": 55, "desc": "抑制硫胺素转化", "food": "—"}, {"name": "苦杏仁苷", "cn": "Laetrile", "value": 71, "desc": "退行性变、氧化调节", "food": "—"}, {"name": "FAD", "cn": "Fad", "value": 73, "desc": "代谢、电子传递、氨基酸分解", "food": "多种食物"}, {"name": "黄素单核苷酸", "cn": "Flavin mononucleotide", "value": 78, "desc": "恢复核黄素水平", "food": "多种食物"}, {"name": "肉碱", "cn": "Carnitine", "value": 89, "desc": "能量产生、体重、肌肉、脂肪氧化", "food": "红肉、奶制品"}], "vitamin_c_detail": [{"name": "生物类黄酮", "cn": "Bioflavonoids", "value": 59, "desc": "增强维生素C吸收、抗氧化、血管健康", "food": "深色蔬果、柑橘、绿茶、洋葱、荞麦"}, {"name": "芦丁", "cn": "Rutin", "value": 57, "desc": "强化血管、抗炎、抗氧化", "food": "荞麦、柑橘、樱桃、番茄、洋葱、绿茶"}, {"name": "天冬氨酸", "cn": "Aspartic acid", "value": 66, "desc": "能量代谢、神经功能", "food": "肉、内脏、豆芽、芦笋、豆类、香蕉"}, {"name": "酪氨酸", "cn": "Tyrosine", "value": 59, "desc": "神经递质合成、情绪调节、甲状腺功能", "food": "肉蛋奶、鱼虾、豆制品、坚果、香蕉"}, {"name": "酪氨酸酶", "cn": "Tyrosinase", "value": 79, "desc": "黑色素合成、皮肤色素沉着", "food": "肝、海鲜、红肉、坚果、豆类、香菇"}, {"name": "维生素C酶", "cn": "Vitamin c (ascorbate)", "value": 68, "desc": "维生素C代谢相关酶", "food": "柑橘、猕猴桃、草莓、青椒、西兰花"}, {"name": "抗坏血酸", "cn": "Ascorbic acid", "value": 67, "desc": "纯维生素C形式、强效抗氧化剂", "food": "鲜枣、猕猴桃、柑橘、青椒、西兰花"}], "vitamin_d_detail": [{"name": "维生素D1", "cn": "Vitamin d1", "value": 68, "desc": "维生素D早期形式", "food": "海鱼、蛋黄、肝、奶，再加晒太阳"}, {"name": "维生素D2", "cn": "Vitamin d2", "value": 68, "desc": "植物来源维生素D、钙吸收", "food": "香菇等菌类、坚果"}, {"name": "维生素D3", "cn": "Vitamin d3", "value": 68, "desc": "人体主要维生素D形式、骨骼健康", "food": "海鱼、肝、蛋黄、全脂奶"}, {"name": "维生素D4", "cn": "Vitamin d4", "value": 68, "desc": "维生素D代谢中间产物", "food": "食物里没有 D4，补 D2、D3 就行"}], "vitamin_e_detail": [{"name": "维生素E1", "cn": "Vitamin e 1", "value": 3, "desc": "α-生育酚、主要抗氧化形式", "food": "坚果、植物油、豆类、蛋黄、绿叶菜"}, {"name": "维生素E2", "cn": "Vitamin e 2", "value": 3, "desc": "β-生育酚、抗氧化作用", "food": "大豆油、玉米油、坚果、粗粮、绿叶菜"}, {"name": "维生素E3", "cn": "Vitamin e 3", "value": 3, "desc": "γ-生育酚、抗炎、心血管保护", "food": "大豆玉米油、坚果、豆类、粗粮"}], "vitamin_f_detail": [{"name": "低碳链", "cn": "Low carbon chains", "value": 58, "desc": "短链脂肪酸、肠道健康", "food": "肉蛋鱼、绿叶菜、低糖果、好油脂、嫩豆腐"}, {"name": "中链", "cn": "Mid range chains", "value": 74, "desc": "中链脂肪酸、快速能量来源", "food": "椰子油、椰子、棕榈仁油"}, {"name": "花生四烯酸链", "cn": "Arachidonic chains", "value": 89, "desc": "必需脂肪酸、炎症调节", "food": "肝、蛋黄、深海鱼、瘦肉"}, {"name": "髓鞘相关链", "cn": "Myelin related chains", "value": 116, "desc": "神经系统髓鞘形成", "food": "深海鱼、蛋黄、坚果、豆制品、肝、粗粮"}, {"name": "全营养缺乏", "cn": "Nutritional def. all", "value": 108, "desc": "整体脂肪酸营养状况", "food": "—"}, {"name": "高碳链", "cn": "High carbon chains", "value": 133, "desc": "长链脂肪酸、细胞膜结构", "food": "植物油、坚果、肥肉、深海鱼、主食薯类"}, {"name": "酶相关", "cn": "Enzymatic related", "value": 106, "desc": "脂肪酸代谢相关酶", "food": "—"}], "vitamin_k_detail": [{"name": "维生素K1", "cn": "Vitamin k 1", "value": 2, "desc": "凝血止血、强骨", "food": "深绿叶菜（菠菜、羽衣甘蓝）、西兰花"}, {"name": "维生素K2", "cn": "Vitamin k 2", "value": 2, "desc": "引钙入骨、护血管、防钙化", "food": "纳豆、发酵食品、动物肝脏、奶酪"}, {"name": "维生素K族", "cn": "Vitamin k all", "value": 68, "desc": "整体维生素K状态", "food": "—"}], "vitamin_u_detail": [{"name": "辅酶Q6", "cn": "Co q 6", "value": 10, "desc": "线粒体电子传递链组分", "food": "内脏、红肉、深海鱼、全谷、豆、坚果、酵母"}, {"name": "辅酶Q7", "cn": "Co q 7", "value": 10, "desc": "能量产生、抗氧化", "food": "红肉、内脏、海鱼、粗粮、豆、坚果"}, {"name": "辅酶Q8", "cn": "Co q 8", "value": 10, "desc": "细胞呼吸、心脏健康", "food": "红肉、内脏、海鱼、粗粮、豆、坚果、蛋"}, {"name": "辅酶Q9", "cn": "Co q 9", "value": 10, "desc": "线粒体功能支持", "food": "玉米油、全谷物、豆、坚果、蔬菜"}, {"name": "辅酶Q10", "cn": "Co q 10", "value": 10, "desc": "主要辅酶Q形式、心脏能量", "food": "沙丁鱼、牛肉、花生"}, {"name": "辅酶Q全部", "cn": "Co q all", "value": 76, "desc": "整体辅酶Q状态", "food": "—"}, {"name": "泛醌循环", "cn": "Ubiquinone cycle", "value": 91, "desc": "氧化还原循环、能量代谢", "food": "内脏、深海鱼、红肉、坚果、植物油、粗粮豆蛋"}], "general_digestion": [{"name": "口腔", "cn": "Mouth", "value": 61, "desc": "消化起始、食物机械和化学分解"}, {"name": "胃", "cn": "Stomach", "value": 93, "desc": "蛋白质消化、胃酸分泌"}, {"name": "十二指肠", "cn": "Duodenum", "value": 110, "desc": "小肠起始、胆汁和胰液作用"}, {"name": "空肠", "cn": "Jejunum", "value": 64, "desc": "营养吸收主要部位"}, {"name": "回肠", "cn": "Ileum", "value": 59, "desc": "维生素B12和胆汁酸吸收"}, {"name": "结肠", "cn": "Colon", "value": 47, "desc": "水分吸收、肠道菌群发酵"}, {"name": "肠道菌群", "cn": "Bowel flora", "value": 76, "desc": "益生菌平衡、免疫功能"}], "carbohydrate_digestion": [{"name": "二糖/钠缺乏", "cn": "Disaccharides", "value": 114, "desc": "双糖消化"}, {"name": "单糖", "cn": "Monosaccharides", "value": 70, "desc": "单糖吸收"}, {"name": "果糖", "cn": "Fructose-levulose", "value": 99, "desc": "水果中的糖吸收、肝脏代谢"}, {"name": "麦芽糖", "cn": "Maltose, starch", "value": 53, "desc": "淀粉酶作用、复合碳水消化"}, {"name": "葡萄糖", "cn": "Glucose, galactose", "value": 72, "desc": "主要单糖吸收、能量来源"}, {"name": "乳糖", "cn": "Lactose type", "value": 72, "desc": "乳糖酶活性、乳制品消化"}, {"name": "蔗糖", "cn": "Sucrose, isomaltose type", "value": 122, "desc": "蔗糖酶活性、糖代谢"}], "fat_digestion": [{"name": "微胶粒平衡", "cn": "Micelle balance", "value": 93, "desc": "脂肪吸收微胶粒"}, {"name": "甘油二酯/乙酰转移酶", "cn": "Diglyceride, acetyltransferase", "value": 76, "desc": "脂肪合成、能量储存"}, {"name": "磷脂", "cn": "Phospholipids", "value": 75, "desc": "细胞膜结构、脂质信号"}, {"name": "单甘油酯", "cn": "Monoglyceride", "value": 62, "desc": "脂肪消化中间产物"}, {"name": "胆固醇", "cn": "Cholesterol", "value": 65, "desc": "细胞膜结构、激素合成"}, {"name": "脂肪酸/辅酶A连接酶", "cn": "Fatty acid, co a ligase", "value": 78, "desc": "脂肪酸活化、β氧化"}, {"name": "甘油三酯", "cn": "Triglycerides", "value": 50, "desc": "主要能量储存形式"}], "protein_digestion": [{"name": "基础肽/胰蛋白酶/十二指肠", "cn": "Basic peptides, trypsin, duodenum", "value": 94, "desc": "蛋白质初始消化、胰腺酶作用"}, {"name": "芳香肽/糜蛋白酶/空肠", "cn": "Aromatic peptides, chymotrypsin, jejunum", "value": 57, "desc": "芳香族氨基酸消化"}, {"name": "脂肪族肽/弹性蛋白酶", "cn": "Aliphatic peptides, elastase", "value": 64, "desc": "弹性蛋白和结缔组织消化"}, {"name": "Di-8-三肽", "cn": "Di-8-tri-peptides", "value": 88, "desc": "小肽吸收、寡肽转运"}, {"name": "四肽/空肠", "cn": "Tetra-peptides, jejunum", "value": 97, "desc": "四肽消化、肠道吸收"}, {"name": "动物蛋白转化", "cn": "Animal protein conversion", "value": 122, "desc": "动物蛋白消化效率"}], "miasms": [{"name": "结核", "cn": "Tuberculosis", "value": 85}, {"name": "体质过敏", "cn": "Miasmatic allergies", "value": 81}, {"name": "干性体质", "cn": "Psora", "value": 78}, {"name": "湿性体质", "cn": "Sycosis", "value": 78}, {"name": "整体代谢年龄", "cn": "Overall metabolic age", "value": 74}, {"name": "梅毒体质", "cn": "Syphillinum", "value": 69}, {"name": "癌症", "cn": "Cancer", "value": 67}, {"name": "麻疹", "cn": "Measles", "value": 67}, {"name": "破伤风", "cn": "Tetanus", "value": 60}, {"name": "疫苗接种", "cn": "Vaccination", "value": 69}, {"name": "霍乱", "cn": "Cholera", "value": 57}, {"name": "病毒敏感性", "cn": "Virus sensitivity", "value": 73}, {"name": "麻风", "cn": "Leprosy", "value": 50}, {"name": "心理因素", "cn": "Mental factors", "value": 105}, {"name": "慢性疲劳", "cn": "Chronic fatigue", "value": 47}, {"name": "能量年龄反应", "cn": "Energetic age reaction", "value": 44}, {"name": "组织年龄反应", "cn": "Tissue age reaction", "value": 76}, {"name": "真菌", "cn": "Fungus", "value": 65}], "nosodes": [{"name": "阿米巴", "cn": "Amoeba", "value": 81}, {"name": "立克次体", "cn": "Ricketsia", "value": 90}, {"name": "原生动物", "cn": "Protozoa", "value": 85}, {"name": "细菌", "cn": "Bacteria", "value": 60}, {"name": "病毒", "cn": "Virus", "value": 73}, {"name": "食物毒性", "cn": "Food toxicity", "value": 75}, {"name": "疫苗接种", "cn": "Vaccination", "value": 69}, {"name": "朊病毒", "cn": "Prion", "value": 73}, {"name": "糖毒性", "cn": "Sugar toxicity", "value": 33}, {"name": "真菌", "cn": "Fungus", "value": 65}, {"name": "寄生虫", "cn": "Worm", "value": 51}], "xenobiotics": [{"name": "辐射", "cn": "Radiation", "value": 77, "desc": "电磁辐射、电离辐射影响"}, {"name": "石棉", "cn": "Asbestos", "value": 85, "desc": "石棉纤维暴露、肺部健康"}, {"name": "环境因素", "cn": "Environmental", "value": 71, "desc": "环境毒素整体暴露"}, {"name": "汞合金/牙科", "cn": "Amalgam/dental", "value": 79, "desc": "汞暴露、口腔健康影响"}, {"name": "食品添加剂", "cn": "Food additives", "value": 75, "desc": "防腐剂、色素、调味剂"}, {"name": "化妆品成分", "cn": "Cosmetic ingredients", "value": 75, "desc": "化妆品和个人护理品化学物质"}, {"name": "杀虫剂", "cn": "Insecticides", "value": 75, "desc": "农药暴露、神经系统影响"}, {"name": "代谢/遗传", "cn": "Metabolic c./heredity", "value": 116, "desc": "遗传代谢差异、解毒能力"}, {"name": "重金属", "cn": "Heavy metals", "value": 72, "desc": "铅、镉、砷等重金属暴露"}, {"name": "工业污染物", "cn": "Industrial pollutant", "value": 69, "desc": "工业化学品暴露、解毒负担"}, {"name": "卤素-氯", "cn": "Halogens-chlorine", "value": 65, "desc": "氯化物、氯相关化合物"}, {"name": "药物", "cn": "Pharmaceuticals", "value": 58, "desc": "药物代谢、药物残留"}], "additional_factors": [{"name": "烟草/尼古丁", "cn": "Tabacco/nicotine", "value": 134, "desc": "吸烟影响、血管健康"}, {"name": "肠漏综合征", "cn": "Leaky gut syndrome", "value": 126, "desc": "肠道通透性增加、免疫反应"}, {"name": "手术/组织创伤", "cn": "Surgery/tissue trauma", "value": 118, "desc": "术后恢复、组织修复需求"}, {"name": "胃部损伤", "cn": "Stomach violation", "value": 93, "desc": "胃黏膜损伤、溃疡风险"}, {"name": "酒精或乙醛", "cn": "Alcohol or aldehyde", "value": 0, "desc": "酒精代谢、肝脏负担"}, {"name": "压力", "cn": "Stress", "value": 67, "desc": "慢性压力、皮质醇影响"}, {"name": "猪肉毒素", "cn": "Pork toxins", "value": 104, "desc": "猪肉相关毒素负担"}, {"name": "便秘", "cn": "Constipation", "value": 84, "desc": "排便困难、毒素再吸收"}, {"name": "天气暴露", "cn": "Weather exposure", "value": 80, "desc": "气候变化、温度波动影响"}, {"name": "毒素脑部滞留", "cn": "Mental retention of toxins", "value": 71, "desc": "脑部解毒负担"}, {"name": "受伤/事故", "cn": "Injury/accident", "value": 66, "desc": "创伤后应激、身体恢复"}, {"name": "乳制品毒素", "cn": "Dairy toxins", "value": 66, "desc": "乳制品不耐受、毒素积累"}, {"name": "过敏", "cn": "Allergy", "value": 68, "desc": "过敏反应负担"}, {"name": "咖啡因/兴奋剂", "cn": "Caffeine/stimulants", "value": 48, "desc": "咖啡因敏感性、神经系统"}, {"name": "精神药物/成瘾", "cn": "St. drugs/addiction", "value": 89, "desc": "药物依赖、神经化学影响"}], "disease_causes": [{"name": "歪曲能量", "cn": "Perverse Energy", "value": 144, "desc": "能量异常流动模式"}, {"name": "毒性", "cn": "Toxicity", "value": 66, "desc": "体内毒素积累的影响"}, {"name": "业力", "cn": "Karma", "value": 148, "desc": "过去行为的影响"}, {"name": "健康问题压力", "cn": "Stress from Health Issues", "value": 67, "desc": "疾病本身带来的压力"}, {"name": "营养过剩", "cn": "Excess Nutrients", "value": 74, "desc": "营养素过量摄入"}, {"name": "压力", "cn": "Stress", "value": 67, "desc": "一般性压力反应"}, {"name": "自我挣扎", "cn": "Struggle with Self", "value": 90, "desc": "内心冲突和矛盾"}, {"name": "过敏或敏感", "cn": "Allergy or Sensitivity", "value": 83, "desc": "过敏反应对健康的影响"}, {"name": "营养缺乏", "cn": "Deficiency of Nutrients", "value": 124, "desc": "营养素摄入不足"}, {"name": "对抗疗法/医源性", "cn": "Allopathy/Iatrogenic", "value": 117, "desc": "医疗治疗副作用"}, {"name": "心理因素", "cn": "Mental Factors", "value": 105, "desc": "情绪和心理状态对疾病的影响"}, {"name": "家庭压力", "cn": "Family Stress", "value": 87, "desc": "家庭环境和关系压力"}, {"name": "创伤", "cn": "Trauma", "value": 67, "desc": "身体或心理创伤的影响"}, {"name": "遗传", "cn": "Heredity", "value": 26, "desc": "遗传因素"}, {"name": "工作或学业压力", "cn": "Job or School Stress", "value": 79, "desc": "职业或学习相关压力"}, {"name": "欲望压力", "cn": "Desire Stress", "value": 100, "desc": "欲望和期望造成的心理负担"}, {"name": "过度思考", "cn": "Overthinking", "value": 110, "desc": "思虑过多"}, {"name": "病原体", "cn": "Pathogens", "value": 57, "desc": "细菌、病毒、真菌等感染因素"}, {"name": "缺乏意识", "cn": "Lack of Awareness", "value": 55, "desc": "对自身健康状况认知不足"}, {"name": "人际关系压力", "cn": "Interpersonal Stress", "value": 25, "desc": "社交关系带来的压力"}], "disease_aggravations": [{"name": "毒性", "cn": "Toxicity", "value": 66, "desc": "毒素积累加重症状"}, {"name": "业力", "cn": "Karma", "value": 148, "desc": "过去行为后果"}, {"name": "歪曲能量", "cn": "Perverse Energy", "value": 144, "desc": "能量异常加重"}, {"name": "营养缺乏", "cn": "Deficiency of Nutrients", "value": 66, "desc": "营养不足加重"}, {"name": "对抗疗法/医源性", "cn": "Allopathy/Iatrogenic", "value": 117, "desc": "医疗干预副作用"}, {"name": "疾病压力", "cn": "Sickness Stress", "value": 114, "desc": "疾病压力反应"}, {"name": "过度思考", "cn": "Overthinking", "value": 110, "desc": "思虑加重病情"}, {"name": "心理因素", "cn": "Mental Factors", "value": 71, "desc": "心理状态恶化病情"}, {"name": "欲望压力", "cn": "Desire Stress", "value": 100, "desc": "欲望和期望加重症状"}, {"name": "挣扎压力", "cn": "Struggle Stress", "value": 90, "desc": "内心挣扎加重病情"}, {"name": "家庭压力", "cn": "Family Stress", "value": 68, "desc": "家庭问题影响康复"}, {"name": "过敏或敏感", "cn": "Allergy or Sensitivity", "value": 68, "desc": "过敏反应加重症状"}, {"name": "压力", "cn": "Stress", "value": 67, "desc": "压力反应恶性循环"}, {"name": "营养过剩", "cn": "Excess of Nutrients", "value": 74, "desc": "营养过剩的影响"}, {"name": "工作或学业压力", "cn": "Job or School Stress", "value": 79, "desc": "职业压力恶化健康"}, {"name": "病原体", "cn": "Pathogens", "value": 57, "desc": "持续感染或感染加重"}, {"name": "缺乏意识", "cn": "Lack of Awareness", "value": 55, "desc": "缺乏自我认知导致恶化"}, {"name": "创伤", "cn": "Trauma", "value": 67, "desc": "未愈合创伤的影响"}, {"name": "糖", "cn": "Sugar", "value": 33, "desc": "糖分加重"}, {"name": "遗传", "cn": "Heredity", "value": 26, "desc": "遗传因素加重"}, {"name": "人际关系压力", "cn": "Interpersonal Stress", "value": 25, "desc": "人际关系问题加重病情"}, {"name": "吸烟", "cn": "Smoking", "value": 7, "desc": "吸烟影响"}, {"name": "酒精", "cn": "Alcohol", "value": 0, "desc": "酒精影响"}], "emotions": [{"name": "宗教冲突", "cn": "Religious Conflict", "value": 114}, {"name": "支配/主导", "cn": "Dominance", "value": 114}, {"name": "希望事情有所不同", "cn": "Desire for Things to be Different", "value": 100}, {"name": "背叛感", "cn": "Betrayal", "value": 110}, {"name": "力不从心", "cn": "Inadequacy", "value": 110}, {"name": "完美主义", "cn": "Perfectionism", "value": 107}, {"name": "抗拒改变", "cn": "Resistance to Change", "value": 89}, {"name": "骄傲", "cn": "Pride", "value": 105}, {"name": "内疚感", "cn": "Guilt", "value": 104}, {"name": "好奇心", "cn": "Curiosity", "value": 101}, {"name": "虚荣心", "cn": "Vanity", "value": 101}, {"name": "执念", "cn": "Obsession", "value": 101}, {"name": "身份冲突", "cn": "Identity Conflict", "value": 100}, {"name": "顺从", "cn": "Submission", "value": 100}, {"name": "攻击性", "cn": "Aggression", "value": 96}, {"name": "担忧", "cn": "Worry", "value": 94}, {"name": "评判", "cn": "Judgementalism", "value": 94}, {"name": "排斥", "cn": "Rejection", "value": 92}, {"name": "被误解", "cn": "Misunderstood", "value": 89}, {"name": "羞耻感", "cn": "Shame", "value": 88}, {"name": "冲动", "cn": "Impulsivity", "value": 88}, {"name": "自我觉察", "cn": "Awareness", "value": 86}, {"name": "悲伤", "cn": "Sadness", "value": 86}, {"name": "喜悦", "cn": "Joy", "value": 86}, {"name": "妄想", "cn": "Delusion", "value": 85}, {"name": "勇气", "cn": "Courage", "value": 84}, {"name": "躁狂", "cn": "Uncontrollable Manic", "value": 84}, {"name": "粗心大意", "cn": "Carelessness", "value": 82}, {"name": "尴尬", "cn": "Embarrassment", "value": 81}, {"name": "愉悦", "cn": "Ecstasy", "value": 81}, {"name": "紧张感", "cn": "Nervousness", "value": 80}, {"name": "内耗/积怨", "cn": "Resentment", "value": 80}, {"name": "挫败感", "cn": "Frustration", "value": 79}, {"name": "贪婪", "cn": "Greed", "value": 78}, {"name": "控制欲", "cn": "Power", "value": 77}, {"name": "心理投射", "cn": "Projection", "value": 76}, {"name": "灵性", "cn": "Spirituality", "value": 76}, {"name": "被抛弃感", "cn": "Abandonment", "value": 74}, {"name": "敬畏感", "cn": "Awe", "value": 74}, {"name": "欢笑", "cn": "Laughter", "value": 74}, {"name": "冷漠", "cn": "Apathy", "value": 74}, {"name": "绝望", "cn": "Hopeless Despair", "value": 74}, {"name": "震惊", "cn": "Shock", "value": 74}, {"name": "否认", "cn": "Denial", "value": 73}, {"name": "期望改变", "cn": "Need to Change", "value": 71}, {"name": "注意力涣散", "cn": "Distractibility", "value": 71}, {"name": "迷茫", "cn": "Confusion", "value": 70}, {"name": "抑郁", "cn": "Depression", "value": 69}, {"name": "恐惧", "cn": "Fear", "value": 68}, {"name": "回避社交", "cn": "Autistic", "value": 67}, {"name": "固执", "cn": "Observance", "value": 67}, {"name": "精神专注", "cn": "Mental Focus", "value": 71}, {"name": "不切实际", "cn": "Unrealism", "value": 67}, {"name": "迟疑", "cn": "Hesitation", "value": 65}, {"name": "嫉妒", "cn": "Jealousy", "value": 65}, {"name": "爱欲", "cn": "Lust", "value": 65}, {"name": "鲁莽", "cn": "Recklessness", "value": 65}, {"name": "成瘾", "cn": "Addiction", "value": 65}, {"name": "精神痛苦", "cn": "Psychic Pain", "value": 61}, {"name": "对抗", "cn": "Antagonism", "value": 61}, {"name": "自我怀疑", "cn": "Self Doubt", "value": 90}, {"name": "合理化", "cn": "Rationalization", "value": 59}, {"name": "性心理", "cn": "Sexuality", "value": 59}, {"name": "觉知缺失", "cn": "Unawareness", "value": 58}, {"name": "愤怒", "cn": "Anger", "value": 54}, {"name": "超感知觉", "cn": "ESP", "value": 52}, {"name": "热情", "cn": "Enthusiasm", "value": 52}, {"name": "被动性", "cn": "Passivity", "value": 51}, {"name": "讨价还价", "cn": "Bargaining", "value": 51}, {"name": "感官享受", "cn": "Sensuality", "value": 51}, {"name": "强迫性", "cn": "Compulsiveness", "value": 51}, {"name": "焦虑", "cn": "Anxiety", "value": 50}, {"name": "单调", "cn": "Monotony", "value": 43}, {"name": "坚定的忠诚", "cn": "Steadfast Loyalty", "value": 43}], "organ_sarcodes": [{"name": "顶轮", "value": 8}, {"name": "脑内分泌", "value": 8}, {"name": "脑部免疫", "value": 8}, {"name": "唾液腺", "value": 8}, {"name": "眉心轮", "value": 0}, {"name": "喉轮", "value": 0}, {"name": "心轮", "value": 0}, {"name": "胃轮", "value": 0}, {"name": "脾轮", "value": 0}, {"name": "海底轮", "value": 0}, {"name": "下丘脑", "value": 0}, {"name": "垂体", "value": 0}, {"name": "松果体", "value": 0}, {"name": "甲状腺", "value": 0}, {"name": "甲状旁腺", "value": 0}, {"name": "胸腺", "value": 0}, {"name": "心脏内分泌", "value": 0}, {"name": "肺部内分泌", "value": 0}, {"name": "胃内分泌", "value": 0}, {"name": "胰腺内分泌", "value": 0}, {"name": "胆囊内分泌", "value": 0}, {"name": "肝脏内分泌", "value": 0}, {"name": "脾脏内分泌", "value": 0}, {"name": "肾脏内分泌", "value": 0}, {"name": "肾上腺内分泌", "value": 0}, {"name": "性腺", "value": 0}, {"name": "免疫异体", "value": 0}, {"name": "情绪免疫", "value": 0}, {"name": "下丘脑免疫", "value": 0}, {"name": "腺样体", "value": 0}, {"name": "扁桃体", "value": 0}, {"name": "胸腺免疫", "value": 0}, {"name": "骨髓", "value": 0}, {"name": "肝脏免疫", "value": 0}, {"name": "脾脏免疫", "value": 0}, {"name": "阑尾免疫", "value": 0}, {"name": "消化系统", "value": 0}, {"name": "大脑到消化", "value": 0}, {"name": "食物", "value": 0}, {"name": "口腔", "value": 0}, {"name": "自主神经系统", "value": 0}, {"name": "胃到消化", "value": 0}, {"name": "小肠", "value": 0}, {"name": "回盲瓣", "value": 0}, {"name": "胰腺到消化", "value": 0}, {"name": "肝脏到消化", "value": 0}, {"name": "大肠", "value": 0}, {"name": "腹腔神经丛", "value": 0}, {"name": "胆囊", "value": 0}, {"name": "脉轮到内分泌", "value": 0}, {"name": "消化到全部", "value": 0}], "neurotransmitters": [{"name": "内啡肽", "cn": "ENDORPHIN", "value": 158, "desc": "阿片肽，用于疼痛控制"}, {"name": "牛磺酸", "cn": "TAURINE", "value": 74, "desc": "用于能量控制的氨基酸"}, {"name": "谷氨酰胺", "cn": "GLUTAMINE", "value": 103, "desc": "平衡左右的氨基酸，穿过血脑屏障，提供能量"}, {"name": "所有下丘脑激素", "cn": "ALL HYPOTHALAMIC HORMONES", "value": 68, "desc": "用于所有稳态调节"}, {"name": "乙酰胆碱", "cn": "ACETYLCHOLINE", "value": 142, "desc": "副交感神经主要传递物质，用于刺激消化和免疫力"}, {"name": "促红细胞生成素", "cn": "ERYTHROPIETIN", "value": 134, "desc": "生物活性肽，有助于控制贫血和血液形成"}, {"name": "促甲状腺激素释放激素", "cn": "THYROTROPIN RELEASING HORMONE", "value": 132, "desc": "识别甲状腺疾病，训练抑郁、疲劳、自杀倾向"}, {"name": "催乳素", "cn": "PROLACTIN", "value": 132, "desc": "垂体产生的激素，对乳汁分泌、生殖健康、免疫调节和行为功能至关重要"}, {"name": "抗痛酶抑制剂", "cn": "ANTI PAIN ENZYME INHIBITOR", "value": 76, "desc": "用于疼痛调节"}, {"name": "人绒毛膜促性腺激素", "cn": "HUMAN CHORIONIC GONADOTROPIN", "value": 131, "desc": "怀孕期间产生的激素，支持胎儿发育并维持子宫内膜"}, {"name": "神经紧张素", "cn": "NEUROTENSIN", "value": 128, "desc": "胃肠肽，影响高血压、高血糖、肠道蠕动、循环、生长、甲状腺功能减退"}, {"name": "去甲肾上腺素", "cn": "NOREPINEPHRINE", "value": 126, "desc": "肾上腺素激素，刺激交感神经系统"}, {"name": "前脑啡肽", "cn": "PROENKEPHALIN", "value": 126, "desc": "用于疼痛和情绪控制的激素"}, {"name": "缓激肽", "cn": "BRADYKININ", "value": 125, "desc": "生物活性肽，血浆激肽，可抑制炎症，也可指示消化问题"}, {"name": "GABA", "cn": "GABA", "value": 70, "desc": "控制大脑电活动风暴的大脑因子"}, {"name": "加压素", "cn": "VASOPRESSIN", "value": 125, "desc": "阿片肽，抗利尿剂，血压调节剂，刺激中枢神经系统"}, {"name": "人生长激素", "cn": "HUMAN GROWTH HORMONE", "value": 125, "desc": "刺激人类生长、细胞再生和新陈代谢的激素"}, {"name": "促胰液素", "cn": "SECRETIN", "value": 124, "desc": "胃肠肽，识别胃肠疾病"}, {"name": "孕酮激素", "cn": "PROGESTERONE HORMONE", "value": 124, "desc": "周期后半段由黄体产生，刺激月经，改善经前综合症"}, {"name": "甘氨酸", "cn": "GLYCINE", "value": 123, "desc": "用于能量管理的氨基酸"}, {"name": "肾素", "cn": "RENIN BIOACTIVE PEPTIDE", "value": 120, "desc": "肾素激素前体，高血压时升高"}, {"name": "天冬氨酸", "cn": "ASPARTATE", "value": 115, "desc": "食品添加剂，可能加重神经问题"}, {"name": "肌肽", "cn": "CARNOSINE", "value": 115, "desc": "用于能量控制和心脏稳定性的氨基酸"}, {"name": "吗啡脑啡肽", "cn": "MORPHINE ENKAPHALIN", "value": 112, "desc": "阿片肽"}, {"name": "多巴胺", "cn": "DOPAMINE", "value": 110, "desc": "启动行动并调节血压和多种激素功能的激素"}, {"name": "胸腺素", "cn": "THYMOSIN", "value": 110, "desc": "刺激白细胞用于免疫系统防御细菌和真菌"}, {"name": "组胺", "cn": "HISTAMINE", "value": 108, "desc": "用于炎症和过敏控制的氨基酸"}, {"name": "胆囊收缩素", "cn": "CHOLECYSTOKININ", "value": 107, "desc": "刺激胆囊的胃激素，也调节抑郁"}, {"name": "谷氨酸", "cn": "GLUTAMATE", "value": 105, "desc": "主要兴奋性神经递质，参与学习、记忆和神经激活"}, {"name": "胰岛素", "cn": "INSULIN", "value": 104, "desc": "允许葡萄糖穿透细胞膜以产生能量，关注血糖问题"}, {"name": "促肾上腺皮质激素", "cn": "ADRENOCORTICOTROPIC HORMONE", "value": 104, "desc": "生物活性肽"}, {"name": "肠激酶", "cn": "ENTEROKINASE", "value": 97, "desc": "用于消化调节的消化酶激素"}, {"name": "皮质醇", "cn": "CORTISOL", "value": 97, "desc": "中肾上腺产生的分解代谢激素，破坏死亡和弱细胞以控制炎症"}, {"name": "生长抑素", "cn": "SOMATOSTATIN", "value": 96, "desc": "阿片肽，生长激素的一部分，抑制生长问题"}, {"name": "DL-甲状腺素", "cn": "DL-THYROXINE", "value": 89, "desc": "主要甲状腺激素，用于刺激能量和代谢，抑制甲状腺问题"}, {"name": "亮氨酸脑啡肽", "cn": "LEUCINE ENKEPHALIN", "value": 70, "desc": "用于疼痛和情感控制的大脑激素"}, {"name": "P物质", "cn": "SUBSTANCE P", "value": 86, "desc": "负责传递疼痛感觉"}, {"name": "血清素", "cn": "SEROTONIN", "value": 103, "desc": "幸福激素，也调节损伤，失调会导致不安全感"}, {"name": "血管紧张素", "cn": "ANGIOTENSIN", "value": 120, "desc": "生物活性肽，与压力和血压相关的激素"}, {"name": "前列腺素", "cn": "PROSTAGLANDIN", "value": 125, "desc": "识别炎症疾病"}, {"name": "所有阿片类递质", "cn": "ALL TRANSMITTERS OPIOID TYPE", "value": 68, "desc": "所有阿片类神经递质"}, {"name": "雌激素", "cn": "ESTROGEN", "value": 71, "desc": "调节女性生殖健康、月经周期和第二性征的激素"}, {"name": "催产素", "cn": "OXYTOCIN", "value": 70, "desc": "阿片肽，刺激泌乳和情感联结激素，纠正联结问题"}, {"name": "爱", "cn": "LOVE", "value": 122, "desc": "爱的情感"}, {"name": "γ球蛋白", "cn": "GAMMA GLOBULIN", "value": 63, "desc": "用于增强免疫系统"}, {"name": "白僵菌素", "cn": "BEAUVERICIN", "value": 57, "desc": "生物活性肽，显示感官知觉的情绪问题"}, {"name": "睾酮", "cn": "TESTOSTERONE", "value": 52, "desc": "男性性激素，与攻击性和易怒性相关"}]}};
+</script>
+<style>
+:root { --bg: #f5f0e8; --card: #fff; --text: #333; --border: #ddd; --accent: #2c5f2d; --warn: #d4a017; --danger: #c0392b; --sidebar-w: 250px; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+.sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-w); height: 100vh; background: #1a1a2e; color: #ccc; overflow-y: auto; z-index: 100; padding: 0; font-size: 12px; }
+.sidebar h2 { color: #fff; padding: 16px 18px; font-size: 15px; border-bottom: 1px solid #333; margin: 0; position: sticky; top: 0; background: #1a1a2e; }
+.sidebar a { display: block; padding: 5px 20px; color: #aaa; text-decoration: none; transition: .15s; border-left: 3px solid transparent; }
+.sidebar a:hover, .sidebar a.active { color: #fff; background: #16213e; border-left-color: #4caf50; }
+.main { margin-left: var(--sidebar-w); padding: 24px 32px; max-width: 1100px; }
+.cover { text-align: center; padding: 50px 20px; }
+.cover h1 { font-size: 30px; color: #1a3a1a; margin-bottom: 6px; }
+.cover h3 { font-weight: 400; color: #666; margin-bottom: 24px; font-size: 16px; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 10px; max-width: 580px; margin: 0 auto 24px; text-align: left; }
+.meta-item { background: #fff; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); }
+.meta-item label { font-size: 11px; color: #999; display: block; }
+.meta-item span { font-size: 14px; font-weight: 600; }
+.card { background: var(--card); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.05); border: 1px solid var(--border); }
+.card h3 { font-size: 17px; color: var(--accent); margin-bottom: 10px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; }
+.summary-box { background: #f0f7f0; border-left: 4px solid var(--accent); padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 13px; }
+.legend { display: flex; gap: 14px; margin-bottom: 10px; font-size: 12px; flex-wrap: wrap; }
+.legend span { padding: 2px 8px; border-radius: 4px; }
+.legend .low { background: #ffe0e0; color: var(--danger); }
+.legend .high { background: #fff8e1; color: #b8860b; }
+.legend .normal { background: #e8f5e9; color: #2e7d32; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 8px 0; }
+thead th { background: #f0f0f0; padding: 7px 8px; text-align: left; font-weight: 600; position: sticky; top: 0; font-size: 12px; }
+tbody td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+tbody tr:hover { background: #fafafa; }
+td.low { background: #ffe0e0; font-weight: 700; color: var(--danger); }
+td.high { background: #fff8e1; font-weight: 700; color: #b8860b; }
+td.normal { color: #2e7d32; }
+.chart-wrap { margin: 12px 0; position: relative; width: 100%; max-height: 380px; }
+.chart-wrap canvas { max-height: 380px; }
+@media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; padding: 12px; } }
+.spine-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.spine-item { padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 12px; }
+.spine-item strong { display: block; font-size: 14px; margin-bottom: 3px; }
+.spine-item .status { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; }
+.status-正常,.status-已校正,.status-Corrected { background: #e8f5e9; color: #2e7d32; }
+.status-未校正,.status-Not.Corrected,.status-困难,.status-Difficult { background: #fff3e0; color: #e65100; }
+.status-炎症,.status-inflammation,.status-暂时性神经压迫,.status-Temp.Nerve.Comp { background: #fff8e1; color: #f57f17; }
+.status-神经压迫,.status-NervCompression,.status-退化,.status-Degeneration { background: #ffe0e0; color: #c0392b; }
+.status-半脱位,.status-subluxation { background: #fce4ec; color: #c62828; }
+.scroll-top { position: fixed; bottom: 30px; right: 30px; width: 40px; height: 40px; background: var(--accent); color: #fff; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 200; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+.digest-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.digest-item { background: #f9f9f9; padding: 8px 12px; border-radius: 8px; text-align: center; }
+.digest-item .val { font-size: 22px; font-weight: 700; }
+.footer { text-align: center; padding: 32px; color: #999; font-size: 12px; }
+@media print { .sidebar,.scroll-top { display: none !important; } .main { margin-left: 0; } .card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<nav class="sidebar" id="sidebar"><h2>📋 报告目录</h2><a href="#cover">📄 封面</a><a href="#varhop">⚡ 基本体质/VARHOP</a><a href="#risk">⚠️ 风险概况</a><a href="#vitamins">💊 维生素家族</a><a href="#vita">  └ 维生素A族详细</a><a href="#vitb">  └ 维生素B族详细</a><a href="#vitc">  └ 维生素C族详细</a><a href="#vitd">  └ 维生素D族详细</a><a href="#vite">  └ 维生素E族详细</a><a href="#vitf">  └ 维生素F详细</a><a href="#vitk">  └ 维生素K族详细</a><a href="#vitu">  └ 维生素U族详细</a><a href="#amino">🧬 氨基酸</a><a href="#minerals">🪨 矿物质</a><a href="#aroma">🌸 芳香疗法</a><a href="#digestion">🫄 一般消化系统</a><a href="#carb">🍚 碳水化合物代谢</a><a href="#fat">🧈 脂肪消化</a><a href="#protein">🥩 蛋白质消化</a><a href="#spine">🦴 脊柱系统</a><a href="#xeno">🧪 外源性物质</a><a href="#addfactors">➕ 额外因素</a><a href="#causes">🔍 疾病潜在原因</a><a href="#aggrav">📈 疾病加重因素</a><a href="#miasms">🧫 体质特征</a><a href="#nosodes">🦠 病原体特征</a><a href="#herbs">🌿 东方草药</a><a href="#emotions">💭 74项情绪</a><a href="#organs">🫀 器官拟态剂</a><a href="#neuro">🧠 神经递质</a></nav>
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="返回顶部">↑</button>
+<div class="main" id="main">
+
+<div class="cover card" id="cover">
+  <h1>营养与健康检测报告</h1>
+  <h3>Nutrition and Wellness Assessment Report</h3>
+  <div class="meta-grid">
+    <div class="meta-item"><label>姓名</label><span>测试</span></div>
+    <div class="meta-item"><label>性别</label><span>女</span></div>
+    <div class="meta-item"><label>出生日期</label><span>1976/2/26</span></div>
+    <div class="meta-item"><label>检测日期</label><span>2026/6/22</span></div>
+    <div class="meta-item"><label>就诊编号</label><span>382</span></div>
+    <div class="meta-item"><label>检测师</label><span></span></div>
+    <div class="meta-item"><label>诊所</label><span></span></div>
+    <div class="meta-item"><label>地址</label><span></span></div>
+  </div>
+  <p style="color:#999;font-size:13px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
+  <div style="margin-top:24px;font-size:14px;" class="toc" id="toc"></div>
+</div>
+<div class="card" id="varhop"><h3>VARHOP 数值 — 身体基本体质评估</h3><div class="summary-box">共 13 项 | 平均值: 219.2 | 高反应(≥100): 3 项 | 低反应(≤50): 3 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_varhop"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>电压指数(Volt)</td><td class="normal" style="">93</td><td>体力指数，100-80正常</td><td></td></tr><tr><td>电流强度(Amper)</td><td class="normal" style="">77</td><td>脑力指数，100-80正常</td><td></td></tr><tr><td>电阻(Resistance)</td><td class="normal" style="">89</td><td>免疫力指数</td><td></td></tr><tr><td>水合指数(Hydration)</td><td class="normal" style="">79</td><td>细胞水分</td><td></td></tr><tr><td>氧化指数(Oxidation)</td><td class="normal" style="">72</td><td>血液携氧能力</td><td></td></tr><tr><td>质子压力</td><td class="normal" style="">70</td><td>能量代谢/ATP生产</td><td></td></tr><tr><td>电子压力</td><td class="normal" style="">65</td><td>能量转换/ATP合成</td><td></td></tr><tr><td>相角指数</td><td class="low" style="background:#ffe0e0;">7</td><td>细胞再生/老化指标</td><td></td></tr><tr><td>相反应指数</td><td class="high" style="background:#fff8e1;">380</td><td>各系统协同能力</td><td></td></tr><tr><td>阻抗指数</td><td class="high" style="background:#fff8e1;">1790</td><td>能量流通指标</td><td></td></tr><tr><td>反应速度</td><td class="high" style="background:#fff8e1;">103</td><td>＜19正常，100重度迟钝</td><td></td></tr><tr><td>体脂率</td><td class="low" style="background:#ffe0e0;">18</td><td>18</td><td></td></tr><tr><td>细胞活力指数</td><td class="low" style="background:#ffe0e0;">6</td><td>≥6正常</td><td></td></tr></tbody></table></div></div><div class="card" id="risk"><h3>风险概况</h3><div class="summary-box">共 41 项 | 平均值: 70.2 | 高反应(≥100): 0 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_risk"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>Circulation</td><td class="normal" style="">85</td><td></td><td></td></tr><tr><td>Amoeba</td><td class="normal" style="">81</td><td></td><td></td></tr><tr><td>Water Acid Alk</td><td class="normal" style="">80</td><td></td><td></td></tr><tr><td>Hydration</td><td class="normal" style="">79</td><td></td><td></td></tr><tr><td>Radiation</td><td class="normal" style="">77</td><td></td><td></td></tr><tr><td>Connective Tissue</td><td class="normal" style="">76</td><td></td><td></td></tr><tr><td>Food Poisoning</td><td class="normal" style="">75</td><td></td><td></td></tr><tr><td>Vit Def Or Excess</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>Emotional Risk</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>Immune System</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>Kidney</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>Digestive</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>Virus</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>Sugar Regulation</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>Hypoadrenia</td><td class="normal" style="">72</td><td></td><td></td></tr><tr><td>Cardiovascular</td><td class="normal" style="">72</td><td></td><td></td></tr><tr><td>Hormonal</td><td class="normal" style="">72</td><td></td><td></td></tr><tr><td>Oxidation</td><td class="normal" style="">72</td><td></td><td></td></tr><tr><td>Environmental</td><td class="normal" style="">71</td><td></td><td></td></tr><tr><td>Sensory</td><td class="normal" style="">71</td><td></td><td></td></tr><tr><td>Inherited</td><td class="normal" style="">70</td><td></td><td></td></tr><tr><td>Blood</td><td class="normal" style="">70</td><td></td><td></td></tr><tr><td>Respiratory</td><td class="normal" style="">70</td><td></td><td></td></tr><tr><td>Degeneration</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>Emotional</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>Lymphatic</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>Vaccination</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>Liver</td><td class="normal" style="">68</td><td></td><td></td></tr><tr><td>Allergy</td><td class="normal" style="">68</td><td></td><td></td></tr><tr><td>Stress</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>Trauma</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>Bone</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>Toxicity</td><td class="normal" style="">66</td><td></td><td></td></tr><tr><td>Fungus</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>Cholesterol</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>Neurological</td><td class="normal" style="">64</td><td></td><td></td></tr><tr><td>Infection</td><td class="normal" style="">63</td><td></td><td></td></tr><tr><td>Bacteria</td><td class="normal" style="">60</td><td></td><td></td></tr><tr><td>Parasites</td><td class="normal" style="">60</td><td></td><td></td></tr><tr><td>Cognition</td><td class="normal" style="">58</td><td></td><td></td></tr><tr><td>Inflammation</td><td class="normal" style="">56</td><td></td><td></td></tr></tbody></table></div></div><div class="card" id="vitamins"><h3>维生素家族反应值</h3><div class="summary-box">共 9 项 | 平均值: 68.0 | 高反应(≥100): 0 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vitamins"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>维生素A族</td><td class="normal" style="">68</td><td>维持视力、皮肤健康和免疫功能</td><td>红萝卜、绿叶蔬菜、蛋黄及肝</td></tr><tr><td>维生素B复合族</td><td class="normal" style="">68</td><td>支持能量代谢、神经系统功能</td><td>肝、蛋、奶、肉、粗粮、豆子、绿叶菜、坚果</td></tr><tr><td>维生素G复合族</td><td class="normal" style="">68</td><td>B族维生素重要组成部分</td><td>全谷物、动物内脏</td></tr><tr><td>维生素C族</td><td class="normal" style="">68</td><td>抗氧化、增强免疫力、促进胶原蛋白合成</td><td>水果（特别是橙类），绿色蔬菜，蕃茄，马铃薯等</td></tr><tr><td>维生素D族</td><td class="normal" style="">68</td><td>促进钙吸收、骨骼健康</td><td>鱼肝油，奶制品，蛋</td></tr><tr><td>维生素E族</td><td class="normal" style="">68</td><td>抗氧化、保护细胞膜</td><td>植物油、深绿色蔬菜、牛奶、蛋、肝、麦、及果仁</td></tr><tr><td>维生素F（脂肪酸）</td><td class="normal" style="">68</td><td>维持皮肤健康、抗炎作用</td><td>植物油、坚果、深海鱼、豆类</td></tr><tr><td>维生素K族</td><td class="normal" style="">68</td><td>血液凝固、骨骼健康</td><td>绿叶菜、植物油、肝、蛋黄、纳豆</td></tr><tr><td>维生素U族（辅酶Q）</td><td class="normal" style="">68</td><td>细胞能量产生、心脏健康</td><td>沙丁鱼、牛肉、花生</td></tr></tbody></table></div></div><div class="card" id="vita"><h3>维生素A族详细</h3><div class="summary-box">共 5 项 | 平均值: 64.0 | 高反应(≥100): 0 项 | 低反应(≤50): 1 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vita"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>Beta carotene</td><td class="normal" style="">81</td><td>抗氧化，保护视力、皮肤与黏膜，增强免疫力</td><td>橙黄色蔬果 + 深绿色蔬菜</td></tr><tr><td>Fish oil</td><td class="normal" style="">63</td><td>抗炎护心脑、保护视力、调节血脂、维护关节</td><td>三文鱼、金枪鱼，秋刀鱼、沙丁鱼、鲭鱼</td></tr><tr><td>Retinol</td><td class="low" style="background:#ffe0e0;">19</td><td>保护视力、皮肤与黏膜、促生长发育与免疫功能</td><td>肝、蛋黄、奶、深海鱼</td></tr><tr><td>Vitamin a precursor</td><td class="normal" style="">60</td><td>保护视力、上皮组织、增强免疫力、抗氧化</td><td>胡萝卜、南瓜、红薯菠菜、西兰花、空心菜</td></tr><tr><td>Cartilage vit a</td><td class="normal" style="">97</td><td>维护关节软骨、黏膜与视力，骨骼生长、免疫修复</td><td>肝、蛋黄、深海鱼、奶、黄绿蔬菜、软骨筋蹄</td></tr></tbody></table></div></div><div class="card" id="vitb"><h3>维生素B族详细</h3><div class="summary-box">共 20 项 | 平均值: 77.2 | 高反应(≥100): 0 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vitb"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>B1-硫胺素</td><td class="normal" style="">84</td><td>支持新陈代谢、神经功能、情绪和解毒</td><td>糙米、豆类、牛奶、家禽</td></tr><tr><td>B2-核黄素</td><td class="normal" style="">72</td><td>能量/碳水化合物代谢、神经系统、偏头痛、白内障</td><td>动物肝脏、瘦肉、酵母、大豆、米糠及绿叶蔬菜</td></tr><tr><td>B3-烟酸</td><td class="normal" style="">76</td><td>酶功能、焦虑、ADHD、关节炎、糖尿病、失眠</td><td>绿叶蔬菜，肾，肝，蛋等</td></tr><tr><td>烟酰胺</td><td class="normal" style="">80</td><td>体内脂肪和糖的功能，维持健康细胞</td><td>肉、肝脏、鱼虾、花生、粗粮</td></tr><tr><td>B5-泛酸</td><td class="normal" style="">96</td><td>辅酶A生成、胆固醇、神经/认知功能、解毒</td><td>糙米，肝，蛋，肉</td></tr><tr><td>B6-吡哆醇</td><td class="normal" style="">81</td><td>蛋白质/氨基酸代谢，免疫和神经系统健康</td><td>瘦肉，果仁，糙米，绿叶蔬菜，香蕉</td></tr><tr><td>B7-生物素</td><td class="normal" style="">76</td><td>葡萄糖/脂肪酸代谢，免疫/神经系统，头发/指甲健康</td><td>蔬菜，肉、酵母等</td></tr><tr><td>辅酶A</td><td class="normal" style="">81</td><td>碳水化合物/脂肪/蛋白质代谢过程，用于能量产生</td><td>动物肝脏、鸡蛋、瘦肉、蘑菇、粗粮、坚果</td></tr><tr><td>B9叶酸</td><td class="normal" style="">59</td><td>消化问题、贫血、能量、激素功能、情绪波动</td><td>深绿色蔬菜、动物肝脏、豆类、坚果和全谷物</td></tr><tr><td>PABA</td><td class="normal" style="">74</td><td>白癜风、天疱疮、皮肌炎、头发/皮肤修复，光毒性</td><td>动物内脏、鸡蛋、全谷物、绿叶菜、酵母</td></tr><tr><td>肌醇</td><td class="normal" style="">97</td><td>脂质、降胆固醇、抗高血压、促脂质代谢、血管健康</td><td>豆类、坚果、动物内脏、全谷物、柑橘</td></tr><tr><td>B12-甲钴胺</td><td class="normal" style="">90</td><td>细胞分裂、血液形成、神经功能至关重要</td><td>肝、肉、蛋、鱼、奶</td></tr><tr><td>胆碱</td><td class="normal" style="">81</td><td>神经传递、认知障碍、肝脏解毒</td><td>蛋类、肝脏、豆类</td></tr><tr><td>甜菜碱</td><td class="normal" style="">61</td><td>血液、骨骼、眼睛、心脏、肌肉、神经、大脑</td><td>甜菜、菠菜、全谷物</td></tr><tr><td>潘氨酸</td><td class="normal" style="">71</td><td>解毒、皮肤问题、神经痛、肝脏</td><td>全谷物、种子</td></tr><tr><td>氧化硫胺素</td><td class="normal" style="">55</td><td>抑制硫胺素转化</td><td>—</td></tr><tr><td>苦杏仁苷</td><td class="normal" style="">71</td><td>退行性变、氧化调节</td><td>—</td></tr><tr><td>FAD</td><td class="normal" style="">73</td><td>代谢、电子传递、氨基酸分解</td><td>多种食物</td></tr><tr><td>黄素单核苷酸</td><td class="normal" style="">78</td><td>恢复核黄素水平</td><td>多种食物</td></tr><tr><td>肉碱</td><td class="normal" style="">89</td><td>能量产生、体重、肌肉、脂肪氧化</td><td>红肉、奶制品</td></tr></tbody></table></div></div><div class="card" id="vitc"><h3>维生素C族详细</h3><div class="summary-box">共 7 项 | 平均值: 65.0 | 高反应(≥100): 0 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vitc"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>生物类黄酮</td><td class="normal" style="">59</td><td>增强维生素C吸收、抗氧化、血管健康</td><td>深色蔬果、柑橘、绿茶、洋葱、荞麦</td></tr><tr><td>芦丁</td><td class="normal" style="">57</td><td>强化血管、抗炎、抗氧化</td><td>荞麦、柑橘、樱桃、番茄、洋葱、绿茶</td></tr><tr><td>天冬氨酸</td><td class="normal" style="">66</td><td>能量代谢、神经功能</td><td>肉、内脏、豆芽、芦笋、豆类、香蕉</td></tr><tr><td>酪氨酸</td><td class="normal" style="">59</td><td>神经递质合成、情绪调节、甲状腺功能</td><td>肉蛋奶、鱼虾、豆制品、坚果、香蕉</td></tr><tr><td>酪氨酸酶</td><td class="normal" style="">79</td><td>黑色素合成、皮肤色素沉着</td><td>肝、海鲜、红肉、坚果、豆类、香菇</td></tr><tr><td>维生素C酶</td><td class="normal" style="">68</td><td>维生素C代谢相关酶</td><td>柑橘、猕猴桃、草莓、青椒、西兰花</td></tr><tr><td>抗坏血酸</td><td class="normal" style="">67</td><td>纯维生素C形式、强效抗氧化剂</td><td>鲜枣、猕猴桃、柑橘、青椒、西兰花</td></tr></tbody></table></div></div><div class="card" id="vitd"><h3>维生素D族详细</h3><div class="summary-box">共 4 项 | 平均值: 68.0 | 高反应(≥100): 0 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vitd"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>维生素D1</td><td class="normal" style="">68</td><td>维生素D早期形式</td><td>海鱼、蛋黄、肝、奶，再加晒太阳</td></tr><tr><td>维生素D2</td><td class="normal" style="">68</td><td>植物来源维生素D、钙吸收</td><td>香菇等菌类、坚果</td></tr><tr><td>维生素D3</td><td class="normal" style="">68</td><td>人体主要维生素D形式、骨骼健康</td><td>海鱼、肝、蛋黄、全脂奶</td></tr><tr><td>维生素D4</td><td class="normal" style="">68</td><td>维生素D代谢中间产物</td><td>食物里没有 D4，补 D2、D3 就行</td></tr></tbody></table></div></div><div class="card" id="vite"><h3>维生素E族详细</h3><div class="summary-box">共 3 项 | 平均值: 3.0 | 高反应(≥100): 0 项 | 低反应(≤50): 3 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vite"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>维生素E1</td><td class="low" style="background:#ffe0e0;">3</td><td>α-生育酚、主要抗氧化形式</td><td>坚果、植物油、豆类、蛋黄、绿叶菜</td></tr><tr><td>维生素E2</td><td class="low" style="background:#ffe0e0;">3</td><td>β-生育酚、抗氧化作用</td><td>大豆油、玉米油、坚果、粗粮、绿叶菜</td></tr><tr><td>维生素E3</td><td class="low" style="background:#ffe0e0;">3</td><td>γ-生育酚、抗炎、心血管保护</td><td>大豆玉米油、坚果、豆类、粗粮</td></tr></tbody></table></div></div><div class="card" id="vitf"><h3>维生素F（脂肪酸）详细</h3><div class="summary-box">共 7 项 | 平均值: 97.7 | 高反应(≥100): 4 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vitf"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>低碳链</td><td class="normal" style="">58</td><td>短链脂肪酸、肠道健康</td><td>肉蛋鱼、绿叶菜、低糖果、好油脂、嫩豆腐</td></tr><tr><td>中链</td><td class="normal" style="">74</td><td>中链脂肪酸、快速能量来源</td><td>椰子油、椰子、棕榈仁油</td></tr><tr><td>花生四烯酸链</td><td class="normal" style="">89</td><td>必需脂肪酸、炎症调节</td><td>肝、蛋黄、深海鱼、瘦肉</td></tr><tr><td>髓鞘相关链</td><td class="high" style="background:#fff8e1;">116</td><td>神经系统髓鞘形成</td><td>深海鱼、蛋黄、坚果、豆制品、肝、粗粮</td></tr><tr><td>全营养缺乏</td><td class="high" style="background:#fff8e1;">108</td><td>整体脂肪酸营养状况</td><td>—</td></tr><tr><td>高碳链</td><td class="high" style="background:#fff8e1;">133</td><td>长链脂肪酸、细胞膜结构</td><td>植物油、坚果、肥肉、深海鱼、主食薯类</td></tr><tr><td>酶相关</td><td class="high" style="background:#fff8e1;">106</td><td>脂肪酸代谢相关酶</td><td>—</td></tr></tbody></table></div></div><div class="card" id="vitk"><h3>维生素K族详细</h3><div class="summary-box">共 3 项 | 平均值: 24.0 | 高反应(≥100): 0 项 | 低反应(≤50): 2 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vitk"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>维生素K1</td><td class="low" style="background:#ffe0e0;">2</td><td>凝血止血、强骨</td><td>深绿叶菜（菠菜、羽衣甘蓝）、西兰花</td></tr><tr><td>维生素K2</td><td class="low" style="background:#ffe0e0;">2</td><td>引钙入骨、护血管、防钙化</td><td>纳豆、发酵食品、动物肝脏、奶酪</td></tr><tr><td>维生素K族</td><td class="normal" style="">68</td><td>整体维生素K状态</td><td>—</td></tr></tbody></table></div></div><div class="card" id="vitu"><h3>维生素U族（辅酶Q）详细</h3><div class="summary-box">共 7 项 | 平均值: 31.0 | 高反应(≥100): 0 项 | 低反应(≤50): 5 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_vitu"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>辅酶Q6</td><td class="low" style="background:#ffe0e0;">10</td><td>线粒体电子传递链组分</td><td>内脏、红肉、深海鱼、全谷、豆、坚果、酵母</td></tr><tr><td>辅酶Q7</td><td class="low" style="background:#ffe0e0;">10</td><td>能量产生、抗氧化</td><td>红肉、内脏、海鱼、粗粮、豆、坚果</td></tr><tr><td>辅酶Q8</td><td class="low" style="background:#ffe0e0;">10</td><td>细胞呼吸、心脏健康</td><td>红肉、内脏、海鱼、粗粮、豆、坚果、蛋</td></tr><tr><td>辅酶Q9</td><td class="low" style="background:#ffe0e0;">10</td><td>线粒体功能支持</td><td>玉米油、全谷物、豆、坚果、蔬菜</td></tr><tr><td>辅酶Q10</td><td class="low" style="background:#ffe0e0;">10</td><td>主要辅酶Q形式、心脏能量</td><td>沙丁鱼、牛肉、花生</td></tr><tr><td>辅酶Q全部</td><td class="normal" style="">76</td><td>整体辅酶Q状态</td><td>—</td></tr><tr><td>泛醌循环</td><td class="normal" style="">91</td><td>氧化还原循环、能量代谢</td><td>内脏、深海鱼、红肉、坚果、植物油、粗粮豆蛋</td></tr></tbody></table></div></div><div class="card" id="amino"><h3>氨基酸平衡性评估</h3><div class="summary-box">共 29 项 | 平均值: 78.7 | 高反应(≥100): 6 项 | 低反应(≤50): 3 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_amino"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>Phenylalanine</td><td class="low" style="background:#ffe0e0;">44</td><td>疼痛控制，神经</td><td>鸡蛋、牛奶、瘦肉、鱼类、大豆、坚果、奶酪</td></tr><tr><td>Alanine</td><td class="normal" style="">84</td><td>肾脏和神经</td><td>牛肉、鸡肉、鱼类、豆类、海藻、乳制品</td></tr><tr><td>Asparagine</td><td class="normal" style="">89</td><td>非必需氨基酸</td><td>芦笋、豆类、土豆、牛肉、鱼类、坚果</td></tr><tr><td>Cysteine</td><td class="normal" style="">89</td><td>肾脏利用</td><td>鸡蛋、肉类、鱼类、大蒜、洋葱、燕麦、小麦胚芽</td></tr><tr><td>Leucine</td><td class="normal" style="">70</td><td>情绪控制，情感</td><td>牛肉、鸡胸肉、鱼、鸡蛋、牛奶、大豆、坚果、乳清蛋白</td></tr><tr><td>Isoleucine</td><td class="normal" style="">62</td><td>情绪控制，神经</td><td>瘦肉、鱼类、鸡蛋、奶制品、豆类、坚果、全谷物</td></tr><tr><td>Serine</td><td class="normal" style="">70</td><td>碳水化合物能量转化</td><td>大豆、花生、鸡蛋、肉类、鱼类、乳制品</td></tr><tr><td>Tryptophan</td><td class="high" style="background:#fff8e1;">103</td><td>血清素和放松</td><td>火鸡、鸡肉、牛奶、酸奶、香蕉、燕麦、坚果、豆制品</td></tr><tr><td>Histidine</td><td class="normal" style="">89</td><td>抗炎、抗过敏</td><td>牛肉、猪肉、鸡肉、鱼、鸡蛋、大豆、豆类、坚果</td></tr><tr><td>Methionine</td><td class="normal" style="">73</td><td>肝脏和供氧</td><td>鸡蛋、鱼类、瘦肉、芝麻、葵花籽、豆类、乳制品</td></tr><tr><td>Lysine</td><td class="high" style="background:#fff8e1;">105</td><td>抗疱疹病变，神经</td><td>鱼肉、鸡肉、牛肉、鸡蛋、豆类、豆制品、乳制品</td></tr><tr><td>Threonine</td><td class="high" style="background:#fff8e1;">104</td><td>激素和能量产生</td><td>瘦肉、鱼类、鸡蛋、奶制品、豆类、坚果、蘑菇</td></tr><tr><td>Tyrosine</td><td class="normal" style="">59</td><td>甲状腺、垂体及肾上腺功能</td><td>肉蛋奶、鱼虾、豆制品、坚果、香蕉</td></tr><tr><td>Valine</td><td class="normal" style="">63</td><td>用于调节血细胞</td><td>肉类、奶制品、豆类、谷物</td></tr><tr><td>Glutamine</td><td class="high" style="background:#fff8e1;">103</td><td>为大脑提供能量</td><td>肉类、蛋类、豆类、奶制品</td></tr><tr><td>Proline</td><td class="normal" style="">67</td><td>硫代谢紊乱</td><td>肉类、奶制品、蛋类</td></tr><tr><td>Arginine</td><td class="normal" style="">70</td><td>神经和皮肤</td><td>坚果、肉类、豆类</td></tr><tr><td>Glutamic acid</td><td class="normal" style="">87</td><td>为大脑提供能量</td><td>肉类、蛋类、豆类</td></tr><tr><td>Aspartic acid</td><td class="normal" style="">62</td><td>营养甜味剂，防止蛋白质变性</td><td>肉、内脏、豆芽、芦笋、豆类、香蕉</td></tr><tr><td>Adenosine</td><td class="high" style="background:#fff8e1;">106</td><td>循环系统、能量</td><td>多种食物</td></tr><tr><td>Uracil</td><td class="low" style="background:#ffe0e0;">48</td><td>用于RNA功能</td><td>多种食物</td></tr><tr><td>Adenine</td><td class="low" style="background:#ffe0e0;">45</td><td>用于DNA和RNA功能</td><td>多种食物</td></tr><tr><td>Guanine</td><td class="high" style="background:#fff8e1;">112</td><td>用于DNA和RNA功能</td><td>多种食物</td></tr><tr><td>Cytosine</td><td class="normal" style="">95</td><td>用于DNA和RNA功能</td><td>多种食物</td></tr><tr><td>Thymine</td><td class="normal" style="">67</td><td>用于DNA和RNA功能</td><td>多种食物</td></tr><tr><td>Tryptophan2</td><td class="normal" style="">88</td><td>调节情绪、提供能量、促进愈合、改善睡眠</td><td>火鸡、鸡肉、牛奶、酸奶、香蕉、燕麦、坚果、豆制品</td></tr><tr><td>Taurine</td><td class="normal" style="">74</td><td>能量</td><td>肉类、鱼类、奶制品</td></tr><tr><td>Citruline</td><td class="normal" style="">83</td><td>思考</td><td>西瓜、坚果</td></tr><tr><td>Gaba</td><td class="normal" style="">70</td><td>思维控制</td><td>发酵食品、茶</td></tr></tbody></table></div></div><div class="card" id="minerals"><h3>矿物质平衡性评估</h3><div class="summary-box">共 29 项 | 平均值: 73.0 | 高反应(≥100): 8 项 | 低反应(≤50): 7 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_minerals"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>Calcium</td><td class="high" style="background:#fff8e1;">125</td><td>骨骼、神经、肾上腺功能减弱</td><td>奶制品、豆类、坚果、绿叶蔬菜</td></tr><tr><td>Potassium</td><td class="high" style="background:#fff8e1;">127</td><td>疲劳、神经、能量、心脏</td><td>香蕉、土豆、豆类、坚果</td></tr><tr><td>Sodium</td><td class="low" style="background:#ffe0e0;">49</td><td>抑郁、神经、疲劳、消化</td><td>食盐、海产品</td></tr><tr><td>Chlorine</td><td class="normal" style="">51</td><td>酸碱平衡、胃酸分泌、神经</td><td>食盐、海产品</td></tr><tr><td>Magnesium</td><td class="high" style="background:#fff8e1;">115</td><td>肾上腺调节、氧能代谢</td><td>坚果、绿叶蔬菜、全谷物</td></tr><tr><td>Iron</td><td class="high" style="background:#fff8e1;">120</td><td>贫血、疲劳、缺氧</td><td>红肉、动物肝脏、豆类</td></tr><tr><td>Sulphur</td><td class="normal" style="">52</td><td>排毒、能量、情绪、注意力不集中</td><td>鸡蛋、肉类、大蒜、洋葱</td></tr><tr><td>Manganese</td><td class="high" style="background:#fff8e1;">102</td><td>神经系统及肌肉疾病</td><td>坚果、全谷物、茶叶</td></tr><tr><td>Chromium</td><td class="normal" style="">90</td><td>血糖调节、肌肉功能</td><td>全谷物、肉类、酵母</td></tr><tr><td>Zinc</td><td class="high" style="background:#fff8e1;">116</td><td>免疫力、氧气、代谢性疾病</td><td>海鲜、肉类、坚果</td></tr><tr><td>Selenium</td><td class="high" style="background:#fff8e1;">102</td><td>解毒、神经、能量、皮肤</td><td>坚果（巴西坚果）、海鲜</td></tr><tr><td>Iodine</td><td class="normal" style="">64</td><td>甲状腺功能、能量、代谢</td><td>海带、海产品、加碘盐</td></tr><tr><td>Phosphorous</td><td class="normal" style="">60</td><td>细胞功能、能量、思维</td><td>奶制品、肉类、全谷物</td></tr><tr><td>Boron</td><td class="low" style="background:#ffe0e0;">20</td><td>神经调节、痴呆、抑郁</td><td>水果、蔬菜、坚果</td></tr><tr><td>Molybdenum</td><td class="normal" style="">70</td><td>甲状腺功能、哺乳期、疲劳</td><td>豆类、全谷物、坚果</td></tr><tr><td>Silicon</td><td class="normal" style="">70</td><td>骨骼、皮肤、神经</td><td>全谷物、蔬菜</td></tr><tr><td>Cobalt</td><td class="normal" style="">75</td><td>贫血、免疫功能</td><td>动物肝脏、肉类</td></tr><tr><td>Lithium</td><td class="normal" style="">55</td><td>神经、思维、能量、下丘脑功能</td><td>蔬菜、矿泉水</td></tr><tr><td>Germanium</td><td class="low" style="background:#ffe0e0;">48</td><td>神经、氧合、皮肤、能量</td><td>蘑菇、大蒜</td></tr><tr><td>Arsenic</td><td class="high" style="background:#fff8e1;">114</td><td>能量、神经</td><td>海鲜、虾蟹、海带、谷类</td></tr><tr><td>Antimony</td><td class="low" style="background:#ffe0e0;">50</td><td>皮肤、解毒、肠道功能</td><td>深海鱼、海带、肉类（微量）</td></tr><tr><td>Tin</td><td class="normal" style="">76</td><td>神经、肌肉</td><td>多种食物（微量）</td></tr><tr><td>Carbon</td><td class="normal" style="">63</td><td>能量、生命调节</td><td>所有食物</td></tr><tr><td>Vanadium</td><td class="low" style="background:#ffe0e0;">45</td><td>肝功能、心肌</td><td>蘑菇、海鲜</td></tr><tr><td>Aluminum</td><td class="low" style="background:#ffe0e0;">40</td><td>神经、思维调节</td><td>茶叶、海带、土豆、加工食品</td></tr><tr><td>Copper</td><td class="low" style="background:#ffe0e0;">16</td><td>神经、能量、排毒</td><td>坚果、海鲜、豆类</td></tr><tr><td>Nickel</td><td class="normal" style="">69</td><td>肝功能、心肌</td><td>燕麦、坚果、豆类、巧克力</td></tr><tr><td>Gold</td><td class="normal" style="">80</td><td>排毒、思维调节</td><td>海产品、菌类（微量）</td></tr><tr><td>Silver</td><td class="normal" style="">53</td><td>免疫力、能量、排毒</td><td>牛奶、鸡蛋、鱼类（微量）</td></tr></tbody></table></div></div><div class="card" id="aroma"><h3>芳香疗法反应性评估</h3><div class="summary-box">共 26 项 | 平均值: 99.0 | 高反应(≥100): 13 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_aroma"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>Balsam oil</td><td class="high" style="background:#fff8e1;">108</td><td>抗菌和祛痰</td><td></td></tr><tr><td>Basil aroma oil</td><td class="high" style="background:#fff8e1;">121</td><td>有助于消化，抗痉挛</td><td></td></tr><tr><td>Cajeput aroma oil</td><td class="normal" style="">86</td><td>胃肠、肺部抗菌</td><td></td></tr><tr><td>Caraway aroma oil</td><td class="high" style="background:#fff8e1;">116</td><td>餐后可预防胀气，促进消化</td><td></td></tr><tr><td>Cedar aroma oil</td><td class="high" style="background:#fff8e1;">119</td><td>用于皮肤刺激、皮炎、干燥皮肤和湿疹</td><td></td></tr><tr><td>Cinnamon aroma oil</td><td class="normal" style="">82</td><td>抗菌除臭、缓解恶心、便秘</td><td></td></tr><tr><td>Clove aroma oil</td><td class="high" style="background:#fff8e1;">122</td><td>抗菌、牙痛、消化不良、催情剂</td><td></td></tr><tr><td>Coriander</td><td class="normal" style="">74</td><td>助消化，防止发酵、腹胀、促进血液循环</td><td></td></tr><tr><td>Cypress aroma oil</td><td class="normal" style="">95</td><td>收敛性，收缩血管、静脉、腿部和脚部</td><td></td></tr><tr><td>Eucalyptus aroma oil</td><td class="high" style="background:#fff8e1;">122</td><td>呼吸道抗菌剂，抗病毒</td><td></td></tr><tr><td>Geranium aroma oil</td><td class="normal" style="">96</td><td>湿疹、痤疮、割伤、皮炎、驱虫</td><td></td></tr><tr><td>Grapefruit aroma oil</td><td class="normal" style="">83</td><td>心脏滋补剂，油性皮肤，清洁消化道</td><td></td></tr><tr><td>Green anise aroma oil</td><td class="normal" style="">95</td><td>助消化、消胀气</td><td></td></tr><tr><td>Juniper aroma oil</td><td class="normal" style="">87</td><td>风湿痛、排毒、利尿、刺激肾脏</td><td></td></tr><tr><td>Lavender aroma oil</td><td class="high" style="background:#fff8e1;">110</td><td>镇静、排毒、皮肤神经放松</td><td></td></tr><tr><td>Lemon aroma oil</td><td class="normal" style="">88</td><td>增强免疫、减重</td><td></td></tr><tr><td>Mandarin aroma oil</td><td class="normal" style="">96</td><td>癫痫、抗痉挛、心悸、放松</td><td></td></tr><tr><td>Orange aroma oil</td><td class="high" style="background:#fff8e1;">111</td><td>放松、儿童镇静剂</td><td></td></tr><tr><td>Oregano aroma oil</td><td class="normal" style="">92</td><td>保护免疫、发汗</td><td></td></tr><tr><td>Peppermint aroma oil</td><td class="high" style="background:#fff8e1;">106</td><td>神经性消化镇静（哺乳期不宜）</td><td></td></tr><tr><td>Thyme aroma oil</td><td class="high" style="background:#fff8e1;">102</td><td>肠道、肺部、肌肉疼痛</td><td></td></tr><tr><td>Rosemary aroma oil</td><td class="high" style="background:#fff8e1;">114</td><td>滋补、恢复肝胆功能</td><td></td></tr><tr><td>Sandalwood aroma oil</td><td class="normal" style="">69</td><td>尿道抗菌、膀胱炎、前列腺</td><td></td></tr><tr><td>Tea tree aroma oil</td><td class="normal" style="">75</td><td>皮肤、排毒、感染、鼻窦</td><td></td></tr><tr><td>Vervain aroma oil</td><td class="high" style="background:#fff8e1;">104</td><td>放松、抗菌、溶解肾结石</td><td></td></tr><tr><td>Ylang ylang aroma oil</td><td class="high" style="background:#fff8e1;">102</td><td>高血压、催情</td><td></td></tr></tbody></table></div></div><div class="card" id="digestion"><h3>一般消化系统评估</h3><div class="summary-box">共 7 项 | 平均值: 72.9 | 高反应(≥100): 1 项 | 低反应(≤50): 1 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_digestion"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>口腔</td><td class="normal" style="">61</td><td>消化起始、食物机械和化学分解</td><td></td></tr><tr><td>胃</td><td class="normal" style="">93</td><td>蛋白质消化、胃酸分泌</td><td></td></tr><tr><td>十二指肠</td><td class="high" style="background:#fff8e1;">110</td><td>小肠起始、胆汁和胰液作用</td><td></td></tr><tr><td>空肠</td><td class="normal" style="">64</td><td>营养吸收主要部位</td><td></td></tr><tr><td>回肠</td><td class="normal" style="">59</td><td>维生素B12和胆汁酸吸收</td><td></td></tr><tr><td>结肠</td><td class="low" style="background:#ffe0e0;">47</td><td>水分吸收、肠道菌群发酵</td><td></td></tr><tr><td>肠道菌群</td><td class="normal" style="">76</td><td>益生菌平衡、免疫功能</td><td></td></tr></tbody></table></div></div><div class="card" id="carb"><h3>碳水化合物代谢反应性评估</h3><div class="summary-box">共 7 项 | 平均值: 86.0 | 高反应(≥100): 2 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_carb"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>二糖/钠缺乏</td><td class="high" style="background:#fff8e1;">114</td><td>双糖消化</td><td></td></tr><tr><td>单糖</td><td class="normal" style="">70</td><td>单糖吸收</td><td></td></tr><tr><td>果糖</td><td class="normal" style="">99</td><td>水果中的糖吸收、肝脏代谢</td><td></td></tr><tr><td>麦芽糖</td><td class="normal" style="">53</td><td>淀粉酶作用、复合碳水消化</td><td></td></tr><tr><td>葡萄糖</td><td class="normal" style="">72</td><td>主要单糖吸收、能量来源</td><td></td></tr><tr><td>乳糖</td><td class="normal" style="">72</td><td>乳糖酶活性、乳制品消化</td><td></td></tr><tr><td>蔗糖</td><td class="high" style="background:#fff8e1;">122</td><td>蔗糖酶活性、糖代谢</td><td></td></tr></tbody></table></div></div><div class="card" id="fat"><h3>脂肪消化评估</h3><div class="summary-box">共 7 项 | 平均值: 71.3 | 高反应(≥100): 0 项 | 低反应(≤50): 1 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_fat"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>微胶粒平衡</td><td class="normal" style="">93</td><td>脂肪吸收微胶粒</td><td></td></tr><tr><td>甘油二酯/乙酰转移酶</td><td class="normal" style="">76</td><td>脂肪合成、能量储存</td><td></td></tr><tr><td>磷脂</td><td class="normal" style="">75</td><td>细胞膜结构、脂质信号</td><td></td></tr><tr><td>单甘油酯</td><td class="normal" style="">62</td><td>脂肪消化中间产物</td><td></td></tr><tr><td>胆固醇</td><td class="normal" style="">65</td><td>细胞膜结构、激素合成</td><td></td></tr><tr><td>脂肪酸/辅酶A连接酶</td><td class="normal" style="">78</td><td>脂肪酸活化、β氧化</td><td></td></tr><tr><td>甘油三酯</td><td class="low" style="background:#ffe0e0;">50</td><td>主要能量储存形式</td><td></td></tr></tbody></table></div></div><div class="card" id="protein"><h3>蛋白质消化评估</h3><div class="summary-box">共 6 项 | 平均值: 87.0 | 高反应(≥100): 1 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_protein"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>基础肽/胰蛋白酶/十二指肠</td><td class="normal" style="">94</td><td>蛋白质初始消化、胰腺酶作用</td><td></td></tr><tr><td>芳香肽/糜蛋白酶/空肠</td><td class="normal" style="">57</td><td>芳香族氨基酸消化</td><td></td></tr><tr><td>脂肪族肽/弹性蛋白酶</td><td class="normal" style="">64</td><td>弹性蛋白和结缔组织消化</td><td></td></tr><tr><td>Di-8-三肽</td><td class="normal" style="">88</td><td>小肽吸收、寡肽转运</td><td></td></tr><tr><td>四肽/空肠</td><td class="normal" style="">97</td><td>四肽消化、肠道吸收</td><td></td></tr><tr><td>动物蛋白转化</td><td class="high" style="background:#fff8e1;">122</td><td>动物蛋白消化效率</td><td></td></tr></tbody></table></div></div><div class="card" id="spine"><h3>脊柱系统反应性评估</h3><div class="summary-box">共 27 个椎位。正常: 17 | 轻度压力/未校正: 4 | 中重度: 6</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="spine-grid"><div class="spine-item"><strong>C1 · 颈椎</strong><span class="status status-退化">退化</span><div style="margin-top:4px;font-size:12px;color:#666;">头部血液供应，脑垂体，头皮，脸部骨骼，大脑，内耳及中耳，交感神经系统</div></div><div class="spine-item"><strong>C2 · 颈椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">双耳，视神经，听觉神经，额窦，乳突，舌，前额</div></div><div class="spine-item"><strong>C3 · 颈椎</strong><span class="status status-神经压迫">神经压迫</span><div style="margin-top:4px;font-size:12px;color:#666;">脸颊，外耳，面部骨骼，牙，三叉神经</div></div><div class="spine-item"><strong>C4 · 颈椎</strong><span class="status status-半脱位">半脱位</span><div style="margin-top:4px;font-size:12px;color:#666;">鼻，唇，嘴，耳咽</div></div><div class="spine-item"><strong>C5 · 颈椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">声带，腺体，咽</div></div><div class="spine-item"><strong>C6 · 颈椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">颈部肌肉，肩，扁桃体</div></div><div class="spine-item"><strong>C7 · 颈椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">甲状腺，肩关节，肘关节</div></div><div class="spine-item"><strong>T1 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">前臂，包括手、腕及手指，食管，气管</div></div><div class="spine-item"><strong>T2 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">心，包括瓣膜及心包，冠状动脉</div></div><div class="spine-item"><strong>T3 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">肺，支气管，胸膜，胸廓，乳房</div></div><div class="spine-item"><strong>T4 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">胆囊，胆总管</div></div><div class="spine-item"><strong>T5 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">肝，腹腔神经丛，总循环系统</div></div><div class="spine-item"><strong>T6 · 胸椎</strong><span class="status status-炎症">炎症</span><div style="margin-top:4px;font-size:12px;color:#666;">胃</div></div><div class="spine-item"><strong>T7 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">胰腺，十二指肠</div></div><div class="spine-item"><strong>T8 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">脾</div></div><div class="spine-item"><strong>T9 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">肾上腺</div></div><div class="spine-item"><strong>T10 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">肾脏</div></div><div class="spine-item"><strong>T11 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">输尿管</div></div><div class="spine-item"><strong>T12 · 胸椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">小肠，输卵管</div></div><div class="spine-item"><strong>L1 · 腰椎</strong><span class="status status-神经压迫">神经压迫</span><div style="margin-top:4px;font-size:12px;color:#666;">大肠，腹股沟</div></div><div class="spine-item"><strong>L2 · 腰椎</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">阑尾，腹部，大腿</div></div><div class="spine-item"><strong>L3 · 腰椎</strong><span class="status status-炎症">炎症</span><div style="margin-top:4px;font-size:12px;color:#666;">生殖器官，膀胱，膝</div></div><div class="spine-item"><strong>L4 · 腰椎</strong><span class="status status-半脱位">半脱位</span><div style="margin-top:4px;font-size:12px;color:#666;">坐骨神经，腰部</div></div><div class="spine-item"><strong>L5 · 腰椎</strong><span class="status status-半脱位">半脱位</span><div style="margin-top:4px;font-size:12px;color:#666;">小腿，脚踝，脚</div></div><div class="spine-item"><strong>颅骨 · 颅骶</strong><span class="status status-已校正">已校正</span><div style="margin-top:4px;font-size:12px;color:#666;">颅骨系统</div></div><div class="spine-item"><strong>骶骨 · 颅骶</strong><span class="status status-神经压迫">神经压迫</span><div style="margin-top:4px;font-size:12px;color:#666;">骶骨系统</div></div><div class="spine-item"><strong>枕骨 · 颅骶</strong><span class="status status-困难">困难</span><div style="margin-top:4px;font-size:12px;color:#666;">枕骨系统</div></div></div></div><div class="card" id="xeno"><h3>外源性物质反应性评估</h3><div class="summary-box">共 12 项 | 平均值: 76.4 | 高反应(≥100): 1 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_xeno"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>辐射</td><td class="normal" style="">77</td><td>电磁辐射、电离辐射影响</td><td></td></tr><tr><td>石棉</td><td class="normal" style="">85</td><td>石棉纤维暴露、肺部健康</td><td></td></tr><tr><td>环境因素</td><td class="normal" style="">71</td><td>环境毒素整体暴露</td><td></td></tr><tr><td>汞合金/牙科</td><td class="normal" style="">79</td><td>汞暴露、口腔健康影响</td><td></td></tr><tr><td>食品添加剂</td><td class="normal" style="">75</td><td>防腐剂、色素、调味剂</td><td></td></tr><tr><td>化妆品成分</td><td class="normal" style="">75</td><td>化妆品和个人护理品化学物质</td><td></td></tr><tr><td>杀虫剂</td><td class="normal" style="">75</td><td>农药暴露、神经系统影响</td><td></td></tr><tr><td>代谢/遗传</td><td class="high" style="background:#fff8e1;">116</td><td>遗传代谢差异、解毒能力</td><td></td></tr><tr><td>重金属</td><td class="normal" style="">72</td><td>铅、镉、砷等重金属暴露</td><td></td></tr><tr><td>工业污染物</td><td class="normal" style="">69</td><td>工业化学品暴露、解毒负担</td><td></td></tr><tr><td>卤素-氯</td><td class="normal" style="">65</td><td>氯化物、氯相关化合物</td><td></td></tr><tr><td>药物</td><td class="normal" style="">58</td><td>药物代谢、药物残留</td><td></td></tr></tbody></table></div></div><div class="card" id="addfactors"><h3>外源性物质额外因素评估</h3><div class="summary-box">共 15 项 | 平均值: 80.9 | 高反应(≥100): 4 项 | 低反应(≤50): 2 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_addfactors"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>烟草/尼古丁</td><td class="high" style="background:#fff8e1;">134</td><td>吸烟影响、血管健康</td><td></td></tr><tr><td>肠漏综合征</td><td class="high" style="background:#fff8e1;">126</td><td>肠道通透性增加、免疫反应</td><td></td></tr><tr><td>手术/组织创伤</td><td class="high" style="background:#fff8e1;">118</td><td>术后恢复、组织修复需求</td><td></td></tr><tr><td>胃部损伤</td><td class="normal" style="">93</td><td>胃黏膜损伤、溃疡风险</td><td></td></tr><tr><td>酒精或乙醛</td><td class="low" style="background:#ffe0e0;">0</td><td>酒精代谢、肝脏负担</td><td></td></tr><tr><td>压力</td><td class="normal" style="">67</td><td>慢性压力、皮质醇影响</td><td></td></tr><tr><td>猪肉毒素</td><td class="high" style="background:#fff8e1;">104</td><td>猪肉相关毒素负担</td><td></td></tr><tr><td>便秘</td><td class="normal" style="">84</td><td>排便困难、毒素再吸收</td><td></td></tr><tr><td>天气暴露</td><td class="normal" style="">80</td><td>气候变化、温度波动影响</td><td></td></tr><tr><td>毒素脑部滞留</td><td class="normal" style="">71</td><td>脑部解毒负担</td><td></td></tr><tr><td>受伤/事故</td><td class="normal" style="">66</td><td>创伤后应激、身体恢复</td><td></td></tr><tr><td>乳制品毒素</td><td class="normal" style="">66</td><td>乳制品不耐受、毒素积累</td><td></td></tr><tr><td>过敏</td><td class="normal" style="">68</td><td>过敏反应负担</td><td></td></tr><tr><td>咖啡因/兴奋剂</td><td class="low" style="background:#ffe0e0;">48</td><td>咖啡因敏感性、神经系统</td><td></td></tr><tr><td>精神药物/成瘾</td><td class="normal" style="">89</td><td>药物依赖、神经化学影响</td><td></td></tr></tbody></table></div></div><div class="card" id="causes"><h3>导致健康风险和健康恶化的原因</h3><div class="summary-box">共 20 项 | 平均值: 84.5 | 高反应(≥100): 7 项 | 低反应(≤50): 2 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_causes"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>歪曲能量</td><td class="high" style="background:#fff8e1;">144</td><td>能量异常流动模式</td><td></td></tr><tr><td>毒性</td><td class="normal" style="">66</td><td>体内毒素积累的影响</td><td></td></tr><tr><td>业力</td><td class="high" style="background:#fff8e1;">148</td><td>过去行为的影响</td><td></td></tr><tr><td>健康问题压力</td><td class="normal" style="">67</td><td>疾病本身带来的压力</td><td></td></tr><tr><td>营养过剩</td><td class="normal" style="">74</td><td>营养素过量摄入</td><td></td></tr><tr><td>压力</td><td class="normal" style="">67</td><td>一般性压力反应</td><td></td></tr><tr><td>自我挣扎</td><td class="normal" style="">90</td><td>内心冲突和矛盾</td><td></td></tr><tr><td>过敏或敏感</td><td class="normal" style="">83</td><td>过敏反应对健康的影响</td><td></td></tr><tr><td>营养缺乏</td><td class="high" style="background:#fff8e1;">124</td><td>营养素摄入不足</td><td></td></tr><tr><td>对抗疗法/医源性</td><td class="high" style="background:#fff8e1;">117</td><td>医疗治疗副作用</td><td></td></tr><tr><td>心理因素</td><td class="high" style="background:#fff8e1;">105</td><td>情绪和心理状态对疾病的影响</td><td></td></tr><tr><td>家庭压力</td><td class="normal" style="">87</td><td>家庭环境和关系压力</td><td></td></tr><tr><td>创伤</td><td class="normal" style="">67</td><td>身体或心理创伤的影响</td><td></td></tr><tr><td>遗传</td><td class="low" style="background:#ffe0e0;">26</td><td>遗传因素</td><td></td></tr><tr><td>工作或学业压力</td><td class="normal" style="">79</td><td>职业或学习相关压力</td><td></td></tr><tr><td>欲望压力</td><td class="high" style="background:#fff8e1;">100</td><td>欲望和期望造成的心理负担</td><td></td></tr><tr><td>过度思考</td><td class="high" style="background:#fff8e1;">110</td><td>思虑过多</td><td></td></tr><tr><td>病原体</td><td class="normal" style="">57</td><td>细菌、病毒、真菌等感染因素</td><td></td></tr><tr><td>缺乏意识</td><td class="normal" style="">55</td><td>对自身健康状况认知不足</td><td></td></tr><tr><td>人际关系压力</td><td class="low" style="background:#ffe0e0;">25</td><td>社交关系带来的压力</td><td></td></tr></tbody></table></div></div><div class="card" id="aggrav"><h3>疾病加重因素</h3><div class="summary-box">共 23 项 | 平均值: 71.8 | 高反应(≥100): 6 项 | 低反应(≤50): 5 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_aggrav"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>毒性</td><td class="normal" style="">66</td><td>毒素积累加重症状</td><td></td></tr><tr><td>业力</td><td class="high" style="background:#fff8e1;">148</td><td>过去行为后果</td><td></td></tr><tr><td>歪曲能量</td><td class="high" style="background:#fff8e1;">144</td><td>能量异常加重</td><td></td></tr><tr><td>营养缺乏</td><td class="normal" style="">66</td><td>营养不足加重</td><td></td></tr><tr><td>对抗疗法/医源性</td><td class="high" style="background:#fff8e1;">117</td><td>医疗干预副作用</td><td></td></tr><tr><td>疾病压力</td><td class="high" style="background:#fff8e1;">114</td><td>疾病压力反应</td><td></td></tr><tr><td>过度思考</td><td class="high" style="background:#fff8e1;">110</td><td>思虑加重病情</td><td></td></tr><tr><td>心理因素</td><td class="normal" style="">71</td><td>心理状态恶化病情</td><td></td></tr><tr><td>欲望压力</td><td class="high" style="background:#fff8e1;">100</td><td>欲望和期望加重症状</td><td></td></tr><tr><td>挣扎压力</td><td class="normal" style="">90</td><td>内心挣扎加重病情</td><td></td></tr><tr><td>家庭压力</td><td class="normal" style="">68</td><td>家庭问题影响康复</td><td></td></tr><tr><td>过敏或敏感</td><td class="normal" style="">68</td><td>过敏反应加重症状</td><td></td></tr><tr><td>压力</td><td class="normal" style="">67</td><td>压力反应恶性循环</td><td></td></tr><tr><td>营养过剩</td><td class="normal" style="">74</td><td>营养过剩的影响</td><td></td></tr><tr><td>工作或学业压力</td><td class="normal" style="">79</td><td>职业压力恶化健康</td><td></td></tr><tr><td>病原体</td><td class="normal" style="">57</td><td>持续感染或感染加重</td><td></td></tr><tr><td>缺乏意识</td><td class="normal" style="">55</td><td>缺乏自我认知导致恶化</td><td></td></tr><tr><td>创伤</td><td class="normal" style="">67</td><td>未愈合创伤的影响</td><td></td></tr><tr><td>糖</td><td class="low" style="background:#ffe0e0;">33</td><td>糖分加重</td><td></td></tr><tr><td>遗传</td><td class="low" style="background:#ffe0e0;">26</td><td>遗传因素加重</td><td></td></tr><tr><td>人际关系压力</td><td class="low" style="background:#ffe0e0;">25</td><td>人际关系问题加重病情</td><td></td></tr><tr><td>吸烟</td><td class="low" style="background:#ffe0e0;">7</td><td>吸烟影响</td><td></td></tr><tr><td>酒精</td><td class="low" style="background:#ffe0e0;">0</td><td>酒精影响</td><td></td></tr></tbody></table></div></div><div class="card" id="miasms"><h3>体质特征反应性</h3><div class="summary-box">共 18 项 | 平均值: 69.2 | 高反应(≥100): 1 项 | 低反应(≤50): 3 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_miasms"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>结核</td><td class="normal" style="">85</td><td></td><td></td></tr><tr><td>体质过敏</td><td class="normal" style="">81</td><td></td><td></td></tr><tr><td>干性体质</td><td class="normal" style="">78</td><td></td><td></td></tr><tr><td>湿性体质</td><td class="normal" style="">78</td><td></td><td></td></tr><tr><td>整体代谢年龄</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>梅毒体质</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>癌症</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>麻疹</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>破伤风</td><td class="normal" style="">60</td><td></td><td></td></tr><tr><td>疫苗接种</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>霍乱</td><td class="normal" style="">57</td><td></td><td></td></tr><tr><td>病毒敏感性</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>麻风</td><td class="low" style="background:#ffe0e0;">50</td><td></td><td></td></tr><tr><td>心理因素</td><td class="high" style="background:#fff8e1;">105</td><td></td><td></td></tr><tr><td>慢性疲劳</td><td class="low" style="background:#ffe0e0;">47</td><td></td><td></td></tr><tr><td>能量年龄反应</td><td class="low" style="background:#ffe0e0;">44</td><td></td><td></td></tr><tr><td>组织年龄反应</td><td class="normal" style="">76</td><td></td><td></td></tr><tr><td>真菌</td><td class="normal" style="">65</td><td></td><td></td></tr></tbody></table></div></div><div class="card" id="nosodes"><h3>病原体特征反应性</h3><div class="summary-box">共 11 项 | 平均值: 68.6 | 高反应(≥100): 0 项 | 低反应(≤50): 1 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_nosodes"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>阿米巴</td><td class="normal" style="">81</td><td></td><td></td></tr><tr><td>立克次体</td><td class="normal" style="">90</td><td></td><td></td></tr><tr><td>原生动物</td><td class="normal" style="">85</td><td></td><td></td></tr><tr><td>细菌</td><td class="normal" style="">60</td><td></td><td></td></tr><tr><td>病毒</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>食物毒性</td><td class="normal" style="">75</td><td></td><td></td></tr><tr><td>疫苗接种</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>朊病毒</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>糖毒性</td><td class="low" style="background:#ffe0e0;">33</td><td></td><td></td></tr><tr><td>真菌</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>寄生虫</td><td class="normal" style="">51</td><td></td><td></td></tr></tbody></table></div></div><div class="card" id="herbs"><h3>东方草药反应性</h3><div class="summary-box">共 25 项 | 平均值: 67.8 | 高反应(≥100): 0 项 | 低反应(≤50): 2 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_herbs"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>Antihelmintic, parasites</td><td class="normal" style="">76</td><td></td><td></td></tr><tr><td>Antiasthmatic, regulates lungs, chills fever</td><td class="low" style="background:#ffe0e0;">50</td><td></td><td></td></tr><tr><td>Antiphlogistic, excess mucous, wind, cold, dampness</td><td class="normal" style="">63</td><td></td><td></td></tr><tr><td>Antipyretic for fever, expels toxic heat, wind, chills</td><td class="normal" style="">61</td><td></td><td></td></tr><tr><td>Antirheumatic, rheumatic pain, activates blood flow</td><td class="normal" style="">58</td><td></td><td></td></tr><tr><td>Blood, replenishes blood, restores vitality</td><td class="normal" style="">85</td><td></td><td></td></tr><tr><td>Carminative, relieves gas and stagnant food</td><td class="normal" style="">62</td><td></td><td></td></tr><tr><td>Digestive stimulator, invigorates stomach, spleen</td><td class="normal" style="">71</td><td></td><td></td></tr><tr><td>Expectorant, clears lungs, dispels heat in lungs</td><td class="normal" style="">56</td><td></td><td></td></tr><tr><td>Female, regulates menstrual, vitalizes blood</td><td class="normal" style="">60</td><td></td><td></td></tr><tr><td>Hepatic, removes stagnation of liver + chi</td><td class="normal" style="">66</td><td></td><td></td></tr><tr><td>Hypertensive, reduces heat in liver, reduces yang</td><td class="normal" style="">87</td><td></td><td></td></tr><tr><td>Laxative, relieves deficiency of spleen fluid</td><td class="normal" style="">66</td><td></td><td></td></tr><tr><td>Mental, invigorates kidney meridian, trains senility</td><td class="normal" style="">51</td><td></td><td></td></tr><tr><td>Sedative, nourishes blood in liver, trains fatigue</td><td class="normal" style="">61</td><td></td><td></td></tr><tr><td>Bone, for degenerative bone conditions</td><td class="normal" style="">95</td><td></td><td></td></tr><tr><td>Cold and flu, stimulates chi and liver</td><td class="normal" style="">62</td><td></td><td></td></tr><tr><td>Esophagus, relieves spasms and trains esoph degeneration</td><td class="normal" style="">86</td><td></td><td></td></tr><tr><td>Kidney, trains kidney deficiency and degeneration</td><td class="normal" style="">79</td><td></td><td></td></tr><tr><td>Large intestine, trains meridian weakness and bowel</td><td class="normal" style="">76</td><td></td><td></td></tr><tr><td>Liver, trains chi and liver weakness</td><td class="normal" style="">85</td><td></td><td></td></tr><tr><td>Lymph, trains degeneration in the lymphatics</td><td class="normal" style="">64</td><td></td><td></td></tr><tr><td>Preventative, use to prevent degeneration</td><td class="normal" style="">72</td><td></td><td></td></tr><tr><td>Stomach, trains deficiency of stomach energy</td><td class="normal" style="">60</td><td></td><td></td></tr><tr><td>Uterine, trains problems of uterine cellular degeneration</td><td class="low" style="background:#ffe0e0;">44</td><td></td><td></td></tr></tbody></table></div></div><div class="card" id="emotions"><h3>74项数字化多元情绪压力评估</h3><div class="summary-box">共 74 项 | 平均值: 77.7 | 高反应(≥100): 13 项 | 低反应(≤50): 3 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_emotions"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>宗教冲突</td><td class="high" style="background:#fff8e1;">114</td><td></td><td></td></tr><tr><td>支配/主导</td><td class="high" style="background:#fff8e1;">114</td><td></td><td></td></tr><tr><td>希望事情有所不同</td><td class="high" style="background:#fff8e1;">100</td><td></td><td></td></tr><tr><td>背叛感</td><td class="high" style="background:#fff8e1;">110</td><td></td><td></td></tr><tr><td>力不从心</td><td class="high" style="background:#fff8e1;">110</td><td></td><td></td></tr><tr><td>完美主义</td><td class="high" style="background:#fff8e1;">107</td><td></td><td></td></tr><tr><td>抗拒改变</td><td class="normal" style="">89</td><td></td><td></td></tr><tr><td>骄傲</td><td class="high" style="background:#fff8e1;">105</td><td></td><td></td></tr><tr><td>内疚感</td><td class="high" style="background:#fff8e1;">104</td><td></td><td></td></tr><tr><td>好奇心</td><td class="high" style="background:#fff8e1;">101</td><td></td><td></td></tr><tr><td>虚荣心</td><td class="high" style="background:#fff8e1;">101</td><td></td><td></td></tr><tr><td>执念</td><td class="high" style="background:#fff8e1;">101</td><td></td><td></td></tr><tr><td>身份冲突</td><td class="high" style="background:#fff8e1;">100</td><td></td><td></td></tr><tr><td>顺从</td><td class="high" style="background:#fff8e1;">100</td><td></td><td></td></tr><tr><td>攻击性</td><td class="normal" style="">96</td><td></td><td></td></tr><tr><td>担忧</td><td class="normal" style="">94</td><td></td><td></td></tr><tr><td>评判</td><td class="normal" style="">94</td><td></td><td></td></tr><tr><td>排斥</td><td class="normal" style="">92</td><td></td><td></td></tr><tr><td>被误解</td><td class="normal" style="">89</td><td></td><td></td></tr><tr><td>羞耻感</td><td class="normal" style="">88</td><td></td><td></td></tr><tr><td>冲动</td><td class="normal" style="">88</td><td></td><td></td></tr><tr><td>自我觉察</td><td class="normal" style="">86</td><td></td><td></td></tr><tr><td>悲伤</td><td class="normal" style="">86</td><td></td><td></td></tr><tr><td>喜悦</td><td class="normal" style="">86</td><td></td><td></td></tr><tr><td>妄想</td><td class="normal" style="">85</td><td></td><td></td></tr><tr><td>勇气</td><td class="normal" style="">84</td><td></td><td></td></tr><tr><td>躁狂</td><td class="normal" style="">84</td><td></td><td></td></tr><tr><td>粗心大意</td><td class="normal" style="">82</td><td></td><td></td></tr><tr><td>尴尬</td><td class="normal" style="">81</td><td></td><td></td></tr><tr><td>愉悦</td><td class="normal" style="">81</td><td></td><td></td></tr><tr><td>紧张感</td><td class="normal" style="">80</td><td></td><td></td></tr><tr><td>内耗/积怨</td><td class="normal" style="">80</td><td></td><td></td></tr><tr><td>挫败感</td><td class="normal" style="">79</td><td></td><td></td></tr><tr><td>贪婪</td><td class="normal" style="">78</td><td></td><td></td></tr><tr><td>控制欲</td><td class="normal" style="">77</td><td></td><td></td></tr><tr><td>心理投射</td><td class="normal" style="">76</td><td></td><td></td></tr><tr><td>灵性</td><td class="normal" style="">76</td><td></td><td></td></tr><tr><td>被抛弃感</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>敬畏感</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>欢笑</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>冷漠</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>绝望</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>震惊</td><td class="normal" style="">74</td><td></td><td></td></tr><tr><td>否认</td><td class="normal" style="">73</td><td></td><td></td></tr><tr><td>期望改变</td><td class="normal" style="">71</td><td></td><td></td></tr><tr><td>注意力涣散</td><td class="normal" style="">71</td><td></td><td></td></tr><tr><td>迷茫</td><td class="normal" style="">70</td><td></td><td></td></tr><tr><td>抑郁</td><td class="normal" style="">69</td><td></td><td></td></tr><tr><td>恐惧</td><td class="normal" style="">68</td><td></td><td></td></tr><tr><td>回避社交</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>固执</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>精神专注</td><td class="normal" style="">71</td><td></td><td></td></tr><tr><td>不切实际</td><td class="normal" style="">67</td><td></td><td></td></tr><tr><td>迟疑</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>嫉妒</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>爱欲</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>鲁莽</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>成瘾</td><td class="normal" style="">65</td><td></td><td></td></tr><tr><td>精神痛苦</td><td class="normal" style="">61</td><td></td><td></td></tr><tr><td>对抗</td><td class="normal" style="">61</td><td></td><td></td></tr><tr><td>自我怀疑</td><td class="normal" style="">90</td><td></td><td></td></tr><tr><td>合理化</td><td class="normal" style="">59</td><td></td><td></td></tr><tr><td>性心理</td><td class="normal" style="">59</td><td></td><td></td></tr><tr><td>觉知缺失</td><td class="normal" style="">58</td><td></td><td></td></tr><tr><td>愤怒</td><td class="normal" style="">54</td><td></td><td></td></tr><tr><td>超感知觉</td><td class="normal" style="">52</td><td></td><td></td></tr><tr><td>热情</td><td class="normal" style="">52</td><td></td><td></td></tr><tr><td>被动性</td><td class="normal" style="">51</td><td></td><td></td></tr><tr><td>讨价还价</td><td class="normal" style="">51</td><td></td><td></td></tr><tr><td>感官享受</td><td class="normal" style="">51</td><td></td><td></td></tr><tr><td>强迫性</td><td class="normal" style="">51</td><td></td><td></td></tr><tr><td>焦虑</td><td class="low" style="background:#ffe0e0;">50</td><td></td><td></td></tr><tr><td>单调</td><td class="low" style="background:#ffe0e0;">43</td><td></td><td></td></tr><tr><td>坚定的忠诚</td><td class="low" style="background:#ffe0e0;">43</td><td></td><td></td></tr></tbody></table></div></div><div class="card" id="organs"><h3>器官拟态剂</h3><div class="summary-box">共 51 项 | 平均值: 0.6 | 高反应(≥100): 0 项 | 低反应(≤50): 51 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_organs"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>顶轮</td><td class="low" style="background:#ffe0e0;">8</td><td></td><td></td></tr><tr><td>脑内分泌</td><td class="low" style="background:#ffe0e0;">8</td><td></td><td></td></tr><tr><td>脑部免疫</td><td class="low" style="background:#ffe0e0;">8</td><td></td><td></td></tr><tr><td>唾液腺</td><td class="low" style="background:#ffe0e0;">8</td><td></td><td></td></tr><tr><td>眉心轮</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>喉轮</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>心轮</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胃轮</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>脾轮</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>海底轮</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>下丘脑</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>垂体</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>松果体</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>甲状腺</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>甲状旁腺</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胸腺</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>心脏内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>肺部内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胃内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胰腺内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胆囊内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>肝脏内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>脾脏内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>肾脏内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>肾上腺内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>性腺</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>免疫异体</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>情绪免疫</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>下丘脑免疫</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>腺样体</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>扁桃体</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胸腺免疫</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>骨髓</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>肝脏免疫</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>脾脏免疫</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>阑尾免疫</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>消化系统</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>大脑到消化</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>食物</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>口腔</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>自主神经系统</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胃到消化</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>小肠</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>回盲瓣</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胰腺到消化</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>肝脏到消化</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>大肠</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>腹腔神经丛</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>胆囊</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>脉轮到内分泌</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr><tr><td>消化到全部</td><td class="low" style="background:#ffe0e0;">0</td><td></td><td></td></tr></tbody></table></div></div><div class="card" id="neuro"><h3>神经递质平衡性评估</h3><div class="summary-box">共 47 项 | 平均值: 105.1 | 高反应(≥100): 31 项 | 低反应(≤50): 0 项</div><div class="legend"><span class="low">■ ≤50 长期压力</span><span class="normal">■ 50-100 平衡</span><span class="high">■ ≥100 近期压力</span></div><div class="chart-wrap"><canvas id="chart_neuro"></canvas></div><div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>说明解释</th><th>食物来源</th></tr></thead><tbody><tr><td>内啡肽</td><td class="high" style="background:#fff8e1;">158</td><td>阿片肽，用于疼痛控制</td><td></td></tr><tr><td>牛磺酸</td><td class="normal" style="">74</td><td>用于能量控制的氨基酸</td><td></td></tr><tr><td>谷氨酰胺</td><td class="high" style="background:#fff8e1;">103</td><td>平衡左右的氨基酸，穿过血脑屏障，提供能量</td><td></td></tr><tr><td>所有下丘脑激素</td><td class="normal" style="">68</td><td>用于所有稳态调节</td><td></td></tr><tr><td>乙酰胆碱</td><td class="high" style="background:#fff8e1;">142</td><td>副交感神经主要传递物质，用于刺激消化和免疫力</td><td></td></tr><tr><td>促红细胞生成素</td><td class="high" style="background:#fff8e1;">134</td><td>生物活性肽，有助于控制贫血和血液形成</td><td></td></tr><tr><td>促甲状腺激素释放激素</td><td class="high" style="background:#fff8e1;">132</td><td>识别甲状腺疾病，训练抑郁、疲劳、自杀倾向</td><td></td></tr><tr><td>催乳素</td><td class="high" style="background:#fff8e1;">132</td><td>垂体产生的激素，对乳汁分泌、生殖健康、免疫调节和行为功能至关重要</td><td></td></tr><tr><td>抗痛酶抑制剂</td><td class="normal" style="">76</td><td>用于疼痛调节</td><td></td></tr><tr><td>人绒毛膜促性腺激素</td><td class="high" style="background:#fff8e1;">131</td><td>怀孕期间产生的激素，支持胎儿发育并维持子宫内膜</td><td></td></tr><tr><td>神经紧张素</td><td class="high" style="background:#fff8e1;">128</td><td>胃肠肽，影响高血压、高血糖、肠道蠕动、循环、生长、甲状腺功能减退</td><td></td></tr><tr><td>去甲肾上腺素</td><td class="high" style="background:#fff8e1;">126</td><td>肾上腺素激素，刺激交感神经系统</td><td></td></tr><tr><td>前脑啡肽</td><td class="high" style="background:#fff8e1;">126</td><td>用于疼痛和情绪控制的激素</td><td></td></tr><tr><td>缓激肽</td><td class="high" style="background:#fff8e1;">125</td><td>生物活性肽，血浆激肽，可抑制炎症，也可指示消化问题</td><td></td></tr><tr><td>GABA</td><td class="normal" style="">70</td><td>控制大脑电活动风暴的大脑因子</td><td></td></tr><tr><td>加压素</td><td class="high" style="background:#fff8e1;">125</td><td>阿片肽，抗利尿剂，血压调节剂，刺激中枢神经系统</td><td></td></tr><tr><td>人生长激素</td><td class="high" style="background:#fff8e1;">125</td><td>刺激人类生长、细胞再生和新陈代谢的激素</td><td></td></tr><tr><td>促胰液素</td><td class="high" style="background:#fff8e1;">124</td><td>胃肠肽，识别胃肠疾病</td><td></td></tr><tr><td>孕酮激素</td><td class="high" style="background:#fff8e1;">124</td><td>周期后半段由黄体产生，刺激月经，改善经前综合症</td><td></td></tr><tr><td>甘氨酸</td><td class="high" style="background:#fff8e1;">123</td><td>用于能量管理的氨基酸</td><td></td></tr><tr><td>肾素</td><td class="high" style="background:#fff8e1;">120</td><td>肾素激素前体，高血压时升高</td><td></td></tr><tr><td>天冬氨酸</td><td class="high" style="background:#fff8e1;">115</td><td>食品添加剂，可能加重神经问题</td><td></td></tr><tr><td>肌肽</td><td class="high" style="background:#fff8e1;">115</td><td>用于能量控制和心脏稳定性的氨基酸</td><td></td></tr><tr><td>吗啡脑啡肽</td><td class="high" style="background:#fff8e1;">112</td><td>阿片肽</td><td></td></tr><tr><td>多巴胺</td><td class="high" style="background:#fff8e1;">110</td><td>启动行动并调节血压和多种激素功能的激素</td><td></td></tr><tr><td>胸腺素</td><td class="high" style="background:#fff8e1;">110</td><td>刺激白细胞用于免疫系统防御细菌和真菌</td><td></td></tr><tr><td>组胺</td><td class="high" style="background:#fff8e1;">108</td><td>用于炎症和过敏控制的氨基酸</td><td></td></tr><tr><td>胆囊收缩素</td><td class="high" style="background:#fff8e1;">107</td><td>刺激胆囊的胃激素，也调节抑郁</td><td></td></tr><tr><td>谷氨酸</td><td class="high" style="background:#fff8e1;">105</td><td>主要兴奋性神经递质，参与学习、记忆和神经激活</td><td></td></tr><tr><td>胰岛素</td><td class="high" style="background:#fff8e1;">104</td><td>允许葡萄糖穿透细胞膜以产生能量，关注血糖问题</td><td></td></tr><tr><td>促肾上腺皮质激素</td><td class="high" style="background:#fff8e1;">104</td><td>生物活性肽</td><td></td></tr><tr><td>肠激酶</td><td class="normal" style="">97</td><td>用于消化调节的消化酶激素</td><td></td></tr><tr><td>皮质醇</td><td class="normal" style="">97</td><td>中肾上腺产生的分解代谢激素，破坏死亡和弱细胞以控制炎症</td><td></td></tr><tr><td>生长抑素</td><td class="normal" style="">96</td><td>阿片肽，生长激素的一部分，抑制生长问题</td><td></td></tr><tr><td>DL-甲状腺素</td><td class="normal" style="">89</td><td>主要甲状腺激素，用于刺激能量和代谢，抑制甲状腺问题</td><td></td></tr><tr><td>亮氨酸脑啡肽</td><td class="normal" style="">70</td><td>用于疼痛和情感控制的大脑激素</td><td></td></tr><tr><td>P物质</td><td class="normal" style="">86</td><td>负责传递疼痛感觉</td><td></td></tr><tr><td>血清素</td><td class="high" style="background:#fff8e1;">103</td><td>幸福激素，也调节损伤，失调会导致不安全感</td><td></td></tr><tr><td>血管紧张素</td><td class="high" style="background:#fff8e1;">120</td><td>生物活性肽，与压力和血压相关的激素</td><td></td></tr><tr><td>前列腺素</td><td class="high" style="background:#fff8e1;">125</td><td>识别炎症疾病</td><td></td></tr><tr><td>所有阿片类递质</td><td class="normal" style="">68</td><td>所有阿片类神经递质</td><td></td></tr><tr><td>雌激素</td><td class="normal" style="">71</td><td>调节女性生殖健康、月经周期和第二性征的激素</td><td></td></tr><tr><td>催产素</td><td class="normal" style="">70</td><td>阿片肽，刺激泌乳和情感联结激素，纠正联结问题</td><td></td></tr><tr><td>爱</td><td class="high" style="background:#fff8e1;">122</td><td>爱的情感</td><td></td></tr><tr><td>γ球蛋白</td><td class="normal" style="">63</td><td>用于增强免疫系统</td><td></td></tr><tr><td>白僵菌素</td><td class="normal" style="">57</td><td>生物活性肽，显示感官知觉的情绪问题</td><td></td></tr><tr><td>睾酮</td><td class="normal" style="">52</td><td>男性性激素，与攻击性和易怒性相关</td><td></td></tr></tbody></table></div></div>
+<div class="footer">
+  <p>营养与健康检测报告 · 测试 · 检测日期: 2026/6/22</p>
+  <p>本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
+</div>
+</div>
+<script>
+(function() {
+  // Charts
+  
+new Chart(document.getElementById('chart_varhop'), {
+  type: 'bar',
+  data: {
+    labels: ["电压指数(Volt)", "电流强度(Amper)", "电阻(Resistance)", "水合指数(Hydration)", "氧化指数(Oxidation)", "质子压力", "电子压力", "相角指数", "相反应指数", "阻抗指数", "反应速度", "体脂率", "细胞活力指数"],
+    datasets: [{
+      data: [93, 77, 89, 79, 72, 70, 65, 7, 380, 1790, 103, 18, 6],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_varhop',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [93, 77, 89, 79, 72, 70, 65, 7, 380, 1790, 103, 18, 6][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_risk'), {
+  type: 'bar',
+  data: {
+    labels: ["Circulation", "Amoeba", "Water Acid Alk", "Hydration", "Radiation", "Connective Tissue", "Food Poisoning", "Vit Def Or Excess", "Emotional Risk", "Immune System", "Kidney", "Digestive", "Virus", "Sugar Regulation", "Hypoadrenia", "Cardiovascular", "Hormonal", "Oxidation", "Environmental", "Sensory", "Inherited", "Blood", "Respiratory", "Degeneration", "Emotional", "Lymphatic", "Vaccination", "Liver", "Allergy", "Stress", "Trauma", "Bone", "Toxicity", "Fungus", "Cholesterol", "Neurological", "Infection", "Bacteria", "Parasites", "Cognition", "Inflammation"],
+    datasets: [{
+      data: [85, 81, 80, 79, 77, 76, 75, 74, 74, 74, 73, 73, 73, 73, 72, 72, 72, 72, 71, 71, 70, 70, 70, 69, 69, 69, 69, 68, 68, 67, 67, 67, 66, 65, 65, 64, 63, 60, 60, 58, 56],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)', 'rgba(30,144,255,0.85)', 'rgba(255,127,80,0.85)', 'rgba(50,205,50,0.85)', 'rgba(186,85,211,0.85)', 'rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)', 'rgba(30,144,255,1)', 'rgba(255,127,80,1)', 'rgba(50,205,50,1)', 'rgba(186,85,211,1)', 'rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_risk',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [85, 81, 80, 79, 77, 76, 75, 74, 74, 74, 73, 73, 73, 73, 72, 72, 72, 72, 71, 71, 70, 70, 70, 69, 69, 69, 69, 68, 68, 67, 67, 67, 66, 65, 65, 64, 63, 60, 60, 58, 56][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vitamins'), {
+  type: 'bar',
+  data: {
+    labels: ["维生素A族", "维生素B复合族", "维生素G复合族", "维生素C族", "维生素D族", "维生素E族", "维生素F（脂肪酸）", "维生素K族", "维生素U族（辅酶Q）"],
+    datasets: [{
+      data: [68, 68, 68, 68, 68, 68, 68, 68, 68],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vitamins',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [68, 68, 68, 68, 68, 68, 68, 68, 68][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vita'), {
+  type: 'bar',
+  data: {
+    labels: ["Beta carotene", "Fish oil", "Retinol", "Vitamin a precursor", "Cartilage vit a"],
+    datasets: [{
+      data: [81, 63, 19, 60, 97],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vita',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [81, 63, 19, 60, 97][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vitb'), {
+  type: 'bar',
+  data: {
+    labels: ["B1-硫胺素", "B2-核黄素", "B3-烟酸", "烟酰胺", "B5-泛酸", "B6-吡哆醇", "B7-生物素", "辅酶A", "B9叶酸", "PABA", "肌醇", "B12-甲钴胺", "胆碱", "甜菜碱", "潘氨酸", "氧化硫胺素", "苦杏仁苷", "FAD", "黄素单核苷酸", "肉碱"],
+    datasets: [{
+      data: [84, 72, 76, 80, 96, 81, 76, 81, 59, 74, 97, 90, 81, 61, 71, 55, 71, 73, 78, 89],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vitb',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [84, 72, 76, 80, 96, 81, 76, 81, 59, 74, 97, 90, 81, 61, 71, 55, 71, 73, 78, 89][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vitc'), {
+  type: 'bar',
+  data: {
+    labels: ["生物类黄酮", "芦丁", "天冬氨酸", "酪氨酸", "酪氨酸酶", "维生素C酶", "抗坏血酸"],
+    datasets: [{
+      data: [59, 57, 66, 59, 79, 68, 67],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vitc',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [59, 57, 66, 59, 79, 68, 67][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vitd'), {
+  type: 'bar',
+  data: {
+    labels: ["维生素D1", "维生素D2", "维生素D3", "维生素D4"],
+    datasets: [{
+      data: [68, 68, 68, 68],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vitd',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [68, 68, 68, 68][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vite'), {
+  type: 'bar',
+  data: {
+    labels: ["维生素E1", "维生素E2", "维生素E3"],
+    datasets: [{
+      data: [3, 3, 3],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vite',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [3, 3, 3][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vitf'), {
+  type: 'bar',
+  data: {
+    labels: ["低碳链", "中链", "花生四烯酸链", "髓鞘相关链", "全营养缺乏", "高碳链", "酶相关"],
+    datasets: [{
+      data: [58, 74, 89, 116, 108, 133, 106],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vitf',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [58, 74, 89, 116, 108, 133, 106][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vitk'), {
+  type: 'bar',
+  data: {
+    labels: ["维生素K1", "维生素K2", "维生素K族"],
+    datasets: [{
+      data: [2, 2, 68],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vitk',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [2, 2, 68][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_vitu'), {
+  type: 'bar',
+  data: {
+    labels: ["辅酶Q6", "辅酶Q7", "辅酶Q8", "辅酶Q9", "辅酶Q10", "辅酶Q全部", "泛醌循环"],
+    datasets: [{
+      data: [10, 10, 10, 10, 10, 76, 91],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_vitu',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [10, 10, 10, 10, 10, 76, 91][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_amino'), {
+  type: 'bar',
+  data: {
+    labels: ["Phenylalanine", "Alanine", "Asparagine", "Cysteine", "Leucine", "Isoleucine", "Serine", "Tryptophan", "Histidine", "Methionine", "Lysine", "Threonine", "Tyrosine", "Valine", "Glutamine", "Proline", "Arginine", "Glutamic acid", "Aspartic acid", "Adenosine", "Uracil", "Adenine", "Guanine", "Cytosine", "Thymine", "Tryptophan2", "Taurine", "Citruline", "Gaba"],
+    datasets: [{
+      data: [44, 84, 89, 89, 70, 62, 70, 103, 89, 73, 105, 104, 59, 63, 103, 67, 70, 87, 62, 106, 48, 45, 112, 95, 67, 88, 74, 83, 70],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)', 'rgba(30,144,255,0.85)', 'rgba(255,127,80,0.85)', 'rgba(50,205,50,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)', 'rgba(30,144,255,1)', 'rgba(255,127,80,1)', 'rgba(50,205,50,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_amino',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [44, 84, 89, 89, 70, 62, 70, 103, 89, 73, 105, 104, 59, 63, 103, 67, 70, 87, 62, 106, 48, 45, 112, 95, 67, 88, 74, 83, 70][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_minerals'), {
+  type: 'bar',
+  data: {
+    labels: ["Calcium", "Potassium", "Sodium", "Chlorine", "Magnesium", "Iron", "Sulphur", "Manganese", "Chromium", "Zinc", "Selenium", "Iodine", "Phosphorous", "Boron", "Molybdenum", "Silicon", "Cobalt", "Lithium", "Germanium", "Arsenic", "Antimony", "Tin", "Carbon", "Vanadium", "Aluminum", "Copper", "Nickel", "Gold", "Silver"],
+    datasets: [{
+      data: [125, 127, 49, 51, 115, 120, 52, 102, 90, 116, 102, 64, 60, 20, 70, 70, 75, 55, 48, 114, 50, 76, 63, 45, 40, 16, 69, 80, 53],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)', 'rgba(30,144,255,0.85)', 'rgba(255,127,80,0.85)', 'rgba(50,205,50,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)', 'rgba(30,144,255,1)', 'rgba(255,127,80,1)', 'rgba(50,205,50,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_minerals',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [125, 127, 49, 51, 115, 120, 52, 102, 90, 116, 102, 64, 60, 20, 70, 70, 75, 55, 48, 114, 50, 76, 63, 45, 40, 16, 69, 80, 53][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_aroma'), {
+  type: 'bar',
+  data: {
+    labels: ["Balsam oil", "Basil aroma oil", "Cajeput aroma oil", "Caraway aroma oil", "Cedar aroma oil", "Cinnamon aroma oil", "Clove aroma oil", "Coriander", "Cypress aroma oil", "Eucalyptus aroma oil", "Geranium aroma oil", "Grapefruit aroma oil", "Green anise aroma oil", "Juniper aroma oil", "Lavender aroma oil", "Lemon aroma oil", "Mandarin aroma oil", "Orange aroma oil", "Oregano aroma oil", "Peppermint aroma oil", "Thyme aroma oil", "Rosemary aroma oil", "Sandalwood aroma oil", "Tea tree aroma oil", "Vervain aroma oil", "Ylang ylang aroma oil"],
+    datasets: [{
+      data: [108, 121, 86, 116, 119, 82, 122, 74, 95, 122, 96, 83, 95, 87, 110, 88, 96, 111, 92, 106, 102, 114, 69, 75, 104, 102],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_aroma',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [108, 121, 86, 116, 119, 82, 122, 74, 95, 122, 96, 83, 95, 87, 110, 88, 96, 111, 92, 106, 102, 114, 69, 75, 104, 102][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_digestion'), {
+  type: 'bar',
+  data: {
+    labels: ["口腔", "胃", "十二指肠", "空肠", "回肠", "结肠", "肠道菌群"],
+    datasets: [{
+      data: [61, 93, 110, 64, 59, 47, 76],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_digestion',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [61, 93, 110, 64, 59, 47, 76][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_carb'), {
+  type: 'bar',
+  data: {
+    labels: ["二糖/钠缺乏", "单糖", "果糖", "麦芽糖", "葡萄糖", "乳糖", "蔗糖"],
+    datasets: [{
+      data: [114, 70, 99, 53, 72, 72, 122],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_carb',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [114, 70, 99, 53, 72, 72, 122][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_fat'), {
+  type: 'bar',
+  data: {
+    labels: ["微胶粒平衡", "甘油二酯/乙酰转移酶", "磷脂", "单甘油酯", "胆固醇", "脂肪酸/辅酶A连接酶", "甘油三酯"],
+    datasets: [{
+      data: [93, 76, 75, 62, 65, 78, 50],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_fat',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [93, 76, 75, 62, 65, 78, 50][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_protein'), {
+  type: 'bar',
+  data: {
+    labels: ["基础肽/胰蛋白酶/十二指肠", "芳香肽/糜蛋白酶/空肠", "脂肪族肽/弹性蛋白酶", "Di-8-三肽", "四肽/空肠", "动物蛋白转化"],
+    datasets: [{
+      data: [94, 57, 64, 88, 97, 122],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_protein',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [94, 57, 64, 88, 97, 122][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_xeno'), {
+  type: 'bar',
+  data: {
+    labels: ["辐射", "石棉", "环境因素", "汞合金/牙科", "食品添加剂", "化妆品成分", "杀虫剂", "代谢/遗传", "重金属", "工业污染物", "卤素-氯", "药物"],
+    datasets: [{
+      data: [77, 85, 71, 79, 75, 75, 75, 116, 72, 69, 65, 58],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_xeno',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [77, 85, 71, 79, 75, 75, 75, 116, 72, 69, 65, 58][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_addfactors'), {
+  type: 'bar',
+  data: {
+    labels: ["烟草/尼古丁", "肠漏综合征", "手术/组织创伤", "胃部损伤", "酒精或乙醛", "压力", "猪肉毒素", "便秘", "天气暴露", "毒素脑部滞留", "受伤/事故", "乳制品毒素", "过敏", "咖啡因/兴奋剂", "精神药物/成瘾"],
+    datasets: [{
+      data: [134, 126, 118, 93, 0, 67, 104, 84, 80, 71, 66, 66, 68, 48, 89],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_addfactors',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [134, 126, 118, 93, 0, 67, 104, 84, 80, 71, 66, 66, 68, 48, 89][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_causes'), {
+  type: 'bar',
+  data: {
+    labels: ["歪曲能量", "毒性", "业力", "健康问题压力", "营养过剩", "压力", "自我挣扎", "过敏或敏感", "营养缺乏", "对抗疗法/医源性", "心理因素", "家庭压力", "创伤", "遗传", "工作或学业压力", "欲望压力", "过度思考", "病原体", "缺乏意识", "人际关系压力"],
+    datasets: [{
+      data: [144, 66, 148, 67, 74, 67, 90, 83, 124, 117, 105, 87, 67, 26, 79, 100, 110, 57, 55, 25],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_causes',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [144, 66, 148, 67, 74, 67, 90, 83, 124, 117, 105, 87, 67, 26, 79, 100, 110, 57, 55, 25][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_aggrav'), {
+  type: 'bar',
+  data: {
+    labels: ["毒性", "业力", "歪曲能量", "营养缺乏", "对抗疗法/医源性", "疾病压力", "过度思考", "心理因素", "欲望压力", "挣扎压力", "家庭压力", "过敏或敏感", "压力", "营养过剩", "工作或学业压力", "病原体", "缺乏意识", "创伤", "糖", "遗传", "人际关系压力", "吸烟", "酒精"],
+    datasets: [{
+      data: [66, 148, 144, 66, 117, 114, 110, 71, 100, 90, 68, 68, 67, 74, 79, 57, 55, 67, 33, 26, 25, 7, 0],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_aggrav',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [66, 148, 144, 66, 117, 114, 110, 71, 100, 90, 68, 68, 67, 74, 79, 57, 55, 67, 33, 26, 25, 7, 0][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_miasms'), {
+  type: 'bar',
+  data: {
+    labels: ["结核", "体质过敏", "干性体质", "湿性体质", "整体代谢年龄", "梅毒体质", "癌症", "麻疹", "破伤风", "疫苗接种", "霍乱", "病毒敏感性", "麻风", "心理因素", "慢性疲劳", "能量年龄反应", "组织年龄反应", "真菌"],
+    datasets: [{
+      data: [85, 81, 78, 78, 74, 69, 67, 67, 60, 69, 57, 73, 50, 105, 47, 44, 76, 65],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_miasms',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [85, 81, 78, 78, 74, 69, 67, 67, 60, 69, 57, 73, 50, 105, 47, 44, 76, 65][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_nosodes'), {
+  type: 'bar',
+  data: {
+    labels: ["阿米巴", "立克次体", "原生动物", "细菌", "病毒", "食物毒性", "疫苗接种", "朊病毒", "糖毒性", "真菌", "寄生虫"],
+    datasets: [{
+      data: [81, 90, 85, 60, 73, 75, 69, 73, 33, 65, 51],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_nosodes',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [81, 90, 85, 60, 73, 75, 69, 73, 33, 65, 51][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_herbs'), {
+  type: 'bar',
+  data: {
+    labels: ["Antihelmintic, parasites", "Antiasthmatic, regulates lungs, chills fever", "Antiphlogistic, excess mucous, wind, cold, dampness", "Antipyretic for fever, expels toxic heat, wind, chills", "Antirheumatic, rheumatic pain, activates blood flow", "Blood, replenishes blood, restores vitality", "Carminative, relieves gas and stagnant food", "Digestive stimulator, invigorates stomach, spleen", "Expectorant, clears lungs, dispels heat in lungs", "Female, regulates menstrual, vitalizes blood", "Hepatic, removes stagnation of liver + chi", "Hypertensive, reduces heat in liver, reduces yang", "Laxative, relieves deficiency of spleen fluid", "Mental, invigorates kidney meridian, trains senility", "Sedative, nourishes blood in liver, trains fatigue", "Bone, for degenerative bone conditions", "Cold and flu, stimulates chi and liver", "Esophagus, relieves spasms and trains esoph degeneration", "Kidney, trains kidney deficiency and degeneration", "Large intestine, trains meridian weakness and bowel", "Liver, trains chi and liver weakness", "Lymph, trains degeneration in the lymphatics", "Preventative, use to prevent degeneration", "Stomach, trains deficiency of stomach energy", "Uterine, trains problems of uterine cellular degeneration"],
+    datasets: [{
+      data: [76, 50, 63, 61, 58, 85, 62, 71, 56, 60, 66, 87, 66, 51, 61, 95, 62, 86, 79, 76, 85, 64, 72, 60, 44],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_herbs',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [76, 50, 63, 61, 58, 85, 62, 71, 56, 60, 66, 87, 66, 51, 61, 95, 62, 86, 79, 76, 85, 64, 72, 60, 44][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_emotions'), {
+  type: 'bar',
+  data: {
+    labels: ["宗教冲突", "支配/主导", "希望事情有所不同", "背叛感", "力不从心", "完美主义", "抗拒改变", "骄傲", "内疚感", "好奇心", "虚荣心", "执念", "身份冲突", "顺从", "攻击性", "担忧", "评判", "排斥", "被误解", "羞耻感", "冲动", "自我觉察", "悲伤", "喜悦", "妄想", "勇气", "躁狂", "粗心大意", "尴尬", "愉悦", "紧张感", "内耗/积怨", "挫败感", "贪婪", "控制欲", "心理投射", "灵性", "被抛弃感", "敬畏感", "欢笑", "冷漠", "绝望", "震惊", "否认", "期望改变", "注意力涣散", "迷茫", "抑郁", "恐惧", "回避社交", "固执", "精神专注", "不切实际", "迟疑", "嫉妒", "爱欲", "鲁莽", "成瘾", "精神痛苦", "对抗", "自我怀疑", "合理化", "性心理", "觉知缺失", "愤怒", "超感知觉", "热情", "被动性", "讨价还价", "感官享受", "强迫性", "焦虑", "单调", "坚定的忠诚"],
+    datasets: [{
+      data: [114, 114, 100, 110, 110, 107, 89, 105, 104, 101, 101, 101, 100, 100, 96, 94, 94, 92, 89, 88, 88, 86, 86, 86, 85, 84, 84, 82, 81, 81, 80, 80, 79, 78, 77, 76, 76, 74, 74, 74, 74, 74, 74, 73, 71, 71, 70, 69, 68, 67, 67, 71, 67, 65, 65, 65, 65, 65, 61, 61, 90, 59, 59, 58, 54, 52, 52, 51, 51, 51, 51, 50, 43, 43],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)', 'rgba(30,144,255,0.85)', 'rgba(255,127,80,0.85)', 'rgba(50,205,50,0.85)', 'rgba(186,85,211,0.85)', 'rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)', 'rgba(30,144,255,0.85)', 'rgba(255,127,80,0.85)', 'rgba(50,205,50,0.85)', 'rgba(186,85,211,0.85)', 'rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)', 'rgba(30,144,255,1)', 'rgba(255,127,80,1)', 'rgba(50,205,50,1)', 'rgba(186,85,211,1)', 'rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)', 'rgba(30,144,255,1)', 'rgba(255,127,80,1)', 'rgba(50,205,50,1)', 'rgba(186,85,211,1)', 'rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_emotions',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [114, 114, 100, 110, 110, 107, 89, 105, 104, 101, 101, 101, 100, 100, 96, 94, 94, 92, 89, 88, 88, 86, 86, 86, 85, 84, 84, 82, 81, 81, 80, 80, 79, 78, 77, 76, 76, 74, 74, 74, 74, 74, 74, 73, 71, 71, 70, 69, 68, 67, 67, 71, 67, 65, 65, 65, 65, 65, 61, 61, 90, 59, 59, 58, 54, 52, 52, 51, 51, 51, 51, 50, 43, 43][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_organs'), {
+  type: 'bar',
+  data: {
+    labels: ["顶轮", "脑内分泌", "脑部免疫", "唾液腺", "眉心轮", "喉轮", "心轮", "胃轮", "脾轮", "海底轮", "下丘脑", "垂体", "松果体", "甲状腺", "甲状旁腺", "胸腺", "心脏内分泌", "肺部内分泌", "胃内分泌", "胰腺内分泌", "胆囊内分泌", "肝脏内分泌", "脾脏内分泌", "肾脏内分泌", "肾上腺内分泌", "性腺", "免疫异体", "情绪免疫", "下丘脑免疫", "腺样体", "扁桃体", "胸腺免疫", "骨髓", "肝脏免疫", "脾脏免疫", "阑尾免疫", "消化系统", "大脑到消化", "食物", "口腔", "自主神经系统", "胃到消化", "小肠", "回盲瓣", "胰腺到消化", "肝脏到消化", "大肠", "腹腔神经丛", "胆囊", "脉轮到内分泌", "消化到全部"],
+    datasets: [{
+      data: [8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)', 'rgba(30,144,255,0.85)', 'rgba(255,127,80,0.85)', 'rgba(50,205,50,0.85)', 'rgba(186,85,211,0.85)', 'rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)', 'rgba(30,144,255,1)', 'rgba(255,127,80,1)', 'rgba(50,205,50,1)', 'rgba(186,85,211,1)', 'rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_organs',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+ 
+new Chart(document.getElementById('chart_neuro'), {
+  type: 'bar',
+  data: {
+    labels: ["内啡肽", "牛磺酸", "谷氨酰胺", "所有下丘脑激素", "乙酰胆碱", "促红细胞生成素", "促甲状腺激素释放激素", "催乳素", "抗痛酶抑制剂", "人绒毛膜促性腺激素", "神经紧张素", "去甲肾上腺素", "前脑啡肽", "缓激肽", "GABA", "加压素", "人生长激素", "促胰液素", "孕酮激素", "甘氨酸", "肾素", "天冬氨酸", "肌肽", "吗啡脑啡肽", "多巴胺", "胸腺素", "组胺", "胆囊收缩素", "谷氨酸", "胰岛素", "促肾上腺皮质激素", "肠激酶", "皮质醇", "生长抑素", "DL-甲状腺素", "亮氨酸脑啡肽", "P物质", "血清素", "血管紧张素", "前列腺素", "所有阿片类递质", "雌激素", "催产素", "爱", "γ球蛋白", "白僵菌素", "睾酮"],
+    datasets: [{
+      data: [158, 74, 103, 68, 142, 134, 132, 132, 76, 131, 128, 126, 126, 125, 70, 125, 125, 124, 124, 123, 120, 115, 115, 112, 110, 110, 108, 107, 105, 104, 104, 97, 97, 96, 89, 70, 86, 103, 120, 125, 68, 71, 70, 122, 63, 57, 52],
+      backgroundColor: ['rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)', 'rgba(205,92,92,0.85)', 'rgba(60,179,113,0.85)', 'rgba(255,160,122,0.85)', 'rgba(72,61,139,0.85)', 'rgba(188,143,143,0.85)', 'rgba(95,158,160,0.85)', 'rgba(240,128,128,0.85)', 'rgba(106,90,205,0.85)', 'rgba(184,134,11,0.85)', 'rgba(30,144,255,0.85)', 'rgba(255,127,80,0.85)', 'rgba(50,205,50,0.85)', 'rgba(186,85,211,0.85)', 'rgba(65,105,225,0.85)', 'rgba(220,20,60,0.85)', 'rgba(46,139,87,0.85)', 'rgba(255,140,0,0.85)', 'rgba(138,43,226,0.85)', 'rgba(0,139,139,0.85)', 'rgba(255,69,0,0.85)', 'rgba(70,130,180,0.85)', 'rgba(218,165,32,0.85)', 'rgba(199,21,133,0.85)', 'rgba(34,139,34,0.85)', 'rgba(255,99,71,0.85)', 'rgba(100,149,237,0.85)', 'rgba(178,34,34,0.85)', 'rgba(0,128,128,0.85)', 'rgba(210,105,30,0.85)', 'rgba(123,104,238,0.85)'],
+      borderColor: ['rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)', 'rgba(205,92,92,1)', 'rgba(60,179,113,1)', 'rgba(255,160,122,1)', 'rgba(72,61,139,1)', 'rgba(188,143,143,1)', 'rgba(95,158,160,1)', 'rgba(240,128,128,1)', 'rgba(106,90,205,1)', 'rgba(184,134,11,1)', 'rgba(30,144,255,1)', 'rgba(255,127,80,1)', 'rgba(50,205,50,1)', 'rgba(186,85,211,1)', 'rgba(65,105,225,1)', 'rgba(220,20,60,1)', 'rgba(46,139,87,1)', 'rgba(255,140,0,1)', 'rgba(138,43,226,1)', 'rgba(0,139,139,1)', 'rgba(255,69,0,1)', 'rgba(70,130,180,1)', 'rgba(218,165,32,1)', 'rgba(199,21,133,1)', 'rgba(34,139,34,1)', 'rgba(255,99,71,1)', 'rgba(100,149,237,1)', 'rgba(178,34,34,1)', 'rgba(0,128,128,1)', 'rgba(210,105,30,1)', 'rgba(123,104,238,1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: false, min: 0, max: 160,
+        ticks: { callback: v => v },
+        grid: { color: v => v === 50 ? '#c0392b' : v === 100 ? '#d4a017' : '#e0e0e0', lineWidth: v => (v === 50 || v === 100) ? 2 : 1 }
+      },
+      x: { ticks: { maxRotation: 60, font: { size: 10 } } }
+    }
+  },
+  plugins: [{
+    id: 'barLabels_chart_neuro',
+    afterDraw: function(chart) {
+      var ctx = chart.ctx;
+      var meta = chart.getDatasetMeta(0);
+      ctx.save();
+      ctx.font = 'bold 11px "PingFang SC","Microsoft YaHei",sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      meta.data.forEach(function(bar, i) {
+        var val = [158, 74, 103, 68, 142, 134, 132, 132, 76, 131, 128, 126, 126, 125, 70, 125, 125, 124, 124, 123, 120, 115, 115, 112, 110, 110, 108, 107, 105, 104, 104, 97, 97, 96, 89, 70, 86, 103, 120, 125, 68, 71, 70, 122, 63, 57, 52][i];
+        var x = bar.x;
+        var y = bar.y - 4;
+        // Color based on value thresholds
+        if (val <= 50) ctx.fillStyle = '#c0392b';
+        else if (val >= 100) ctx.fillStyle = '#d4a017';
+        else ctx.fillStyle = '#2c5f2d';
+        ctx.fillText(val, x, y);
+      });
+      ctx.restore();
+    }
+  }]
+});
+
+
+  // Scroll to top button
+  window.addEventListener('scroll', function() {
+    document.getElementById('scrollTop').style.display = window.scrollY > 300 ? 'block' : 'none';
+  });
+
+  // Active sidebar link
+  var sections = document.querySelectorAll('.card[id]');
+  var links = document.querySelectorAll('.sidebar a');
+  window.addEventListener('scroll', function() {
+    var current = '';
+    sections.forEach(function(s) {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    links.forEach(function(l) {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  });
+})();
+</script>
+</body>
+</html>
