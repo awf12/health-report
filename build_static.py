@@ -60,6 +60,7 @@ body {{ font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5
   <div id="msgBox"></div>
   <div class="progress" id="progress"><div class="progress-bar" id="progressBar"></div></div>
 
+  <div id="uploadSection">
   <div class="card">
     <h2>📤 上传 PDF 生成报告</h2>
     <div class="upload-zone" id="uploadZone">
@@ -73,10 +74,14 @@ body {{ font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5
     </div>
   </div>
 
+  </div>
+  <div id="listSection">
   <div class="card">
     <h2>👥 已有报告（浏览器本地存储）</h2>
     <div class="customer-list" id="customerList"><p style="color:#999;">暂无报告</p></div>
   </div>
+  </div>
+  <div id="reportView" style="display:none;"></div>
 </div>
 
 <script>
@@ -385,7 +390,9 @@ function renderSection(title, items, chartId) {{
   let html = '<div style="background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.05);">';
   html += '<h3 style="color:#2c5f2d;font-size:15px;border-bottom:2px solid #2c5f2d;padding-bottom:6px;margin-bottom:10px;">'+title+'</h3>';
   html += '<div style="background:#f0f7f0;border-left:4px solid #2c5f2d;padding:8px 12px;border-radius:4px;margin-bottom:8px;font-size:12px;">共 '+vals.length+' 项 | 平均 '+avg+' | ⚠高(≥100) '+high+' 项 | 🔴低(≤50) '+low+' 项</div>';
-  html += '<div style="max-height:350px;"><canvas id="'+chartId+'"></canvas></div>';
+  const labelsJson = JSON.stringify(items.map(i => i.name || ''));
+  const valuesJson = JSON.stringify(items.map(i => i.value || 0));
+  html += '<div style="max-height:350px;"><canvas id="'+chartId+'" data-labels=\\'' + labelsJson.replace(/'/g, "&#39;") + '\\' data-values=\\'' + valuesJson + '\\'></canvas></div>';
   html += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;"><thead><tr><th style="background:#f0f0f0;padding:5px 8px;text-align:left;">检测项目</th><th style="background:#f0f0f0;padding:5px 8px;">反应值</th><th style="background:#f0f0f0;padding:5px 8px;text-align:left;">说明</th></tr></thead><tbody>';
 
   for (const item of items) {{
@@ -429,26 +436,74 @@ function renderSection(title, items, chartId) {{
 }}
 
 // ============ VIEW / DOWNLOAD ============
+let currentView = null;
+
 function viewReport(name) {{
   const customers = getCustomers();
   const c = customers[name];
   if (!c) return;
-  const html = renderReport(c.data);
-  const w = window.open('', '_blank');
-  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+name+' - 健康报告</title><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">\\x3C/script></head><body>'+html+'</body></html>');
-  w.document.close();
+
+  // Destroy old charts
+  Object.values(charts).forEach(ch => ch.destroy());
+  charts = {{}};
+
+  // Hide upload UI, show report
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('listSection').style.display = 'none';
+  document.getElementById('reportView').style.display = 'block';
+  document.getElementById('reportView').innerHTML =
+    '<div style="margin-bottom:12px;"><button class="btn" onclick="closeReport()">← 返回列表</button></div>' +
+    renderReport(c.data);
+  currentView = name;
+  window.scrollTo(0,0);
+}}
+
+function closeReport() {{
+  Object.values(charts).forEach(ch => ch.destroy());
+  charts = {{}};
+  document.getElementById('uploadSection').style.display = 'block';
+  document.getElementById('listSection').style.display = 'block';
+  document.getElementById('reportView').style.display = 'none';
+  currentView = null;
 }}
 
 function downloadReport(name) {{
   const customers = getCustomers();
   const c = customers[name];
   if (!c) return;
-  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+name+' - 健康报告</title><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">\\x3C/script></head><body>'+renderReport(c.data)+'</body></html>';
-  const blob = new Blob([html], {{type:'text/html;charset=utf-8'}});
-  const url = URL.createObjectURL(blob);
+  const reportHTML = renderReport(c.data);
+  const fullHTML = '<!DOCTYPE html>\\n<html lang=\"zh-CN\">\\n<head>\\n<meta charset=\"UTF-8\">\\n<title>'+name+' - 健康报告</title>\\n' +
+    '<script src=\"https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js\"><\\/script>\\n' +
+    '<style>body{{font-family:PingFang SC,Microsoft YaHei,sans-serif;background:#f5f0e8;padding:20px;}}' +
+    '.card{{background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.05);}}' +
+    'h3{{color:#2c5f2d;border-bottom:2px solid #2c5f2d;padding-bottom:6px;}}' +
+    'table{{width:100%;border-collapse:collapse;font-size:11px;}}' +
+    'th{{background:#f0f0f0;padding:5px 8px;text-align:left;}}' +
+    'td{{padding:4px 8px;border-bottom:1px solid #eee;}}' +
+    '.low{{background:#ffe0e0;color:#c0392b;font-weight:700;}}' +
+    '.high{{background:#fff8e1;color:#b8860b;font-weight:700;}}' +
+    '</style>\\n</head>\\n<body>\\n' + reportHTML + '\\n' +
+    '<script>\\n' +
+    'document.querySelectorAll("canvas").forEach(function(c) {{\\n' +
+    '  var labels = JSON.parse(c.getAttribute("data-labels")||"[]");\\n' +
+    '  var values = JSON.parse(c.getAttribute("data-values")||"[]");\\n' +
+    '  if(labels.length) {{\\n' +
+    '    var colors = values.map(function(v){{return v<=50?\"rgba(192,57,43,0.8)\":v>=100?\"rgba(212,160,23,0.8)\":\"rgba(44,95,45,0.8)\";}});\\n' +
+    '    new Chart(c, {{type:\"bar\",data:{{labels:labels,datasets:[{{data:values,backgroundColor:colors}}]}},\\n' +
+    '      options:{{responsive:true,plugins:{{legend:{{display:false}}}},\\n' +
+    '        scales:{{y:{{min:0,max:160}},x:{{ticks:{{maxRotation:60,font:{{size:9}}}}}}}}}}}});\\n' +
+    '  }}\\n' +
+    '}});\\n' +
+    '<\\/script>\\n' +
+    '</body>\\n</html>';
+  const blob = new Blob([fullHTML], {{type:'text/html;charset=utf-8'}});
   const a = document.createElement('a');
-  a.href = url; a.download = name + '_健康检测报告.html';
-  a.click(); URL.revokeObjectURL(url);
+  a.href = URL.createObjectURL(blob);
+  a.download = name + '_健康检测报告.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }}
 
 function refreshList() {{
