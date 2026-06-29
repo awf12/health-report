@@ -14,7 +14,33 @@ from flask import Flask, request, jsonify, send_file
 
 app = Flask(__name__)
 UPLOAD_DIR = 'customers'
+REPORTS_DIR = 'reports'  # synced to GitHub
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(REPORTS_DIR, exist_ok=True)
+
+def push_to_github(customer_name):
+    """Push generated report to GitHub for cloud storage."""
+    try:
+        # Copy report to reports/ folder
+        report_src = os.path.join(UPLOAD_DIR, f'{customer_name}.html')
+        report_dst = os.path.join(REPORTS_DIR, f'{customer_name}.html')
+        json_src = os.path.join(UPLOAD_DIR, f'{customer_name}.json')
+        json_dst = os.path.join(REPORTS_DIR, f'{customer_name}.json')
+
+        if os.path.exists(report_src):
+            shutil.copy(report_src, report_dst)
+        if os.path.exists(json_src):
+            shutil.copy(json_src, json_dst)
+
+        # Git add, commit, push
+        subprocess.run(['git', 'add', f'reports/{customer_name}.html', f'reports/{customer_name}.json'],
+                       check=False, capture_output=True)
+        subprocess.run(['git', 'commit', '-m', f'报告: {customer_name}'],
+                       check=False, capture_output=True)
+        subprocess.run(['git', 'push'], check=False, capture_output=True)
+        print(f'  ☁️  已同步到 GitHub: {customer_name}')
+    except Exception as e:
+        print(f'  ⚠️ GitHub 同步失败: {e}')
 
 # ============================================================
 HOME_PAGE = r'''
@@ -150,7 +176,10 @@ async function loadCustomers() {
       return;
     }
     list.innerHTML = data.customers.map(function(c){
-      return '<div class="customer-card"><div class="info"><strong>'+c.name+'</strong><span>'+c.date+' · '+c.size+'</span></div><div class="actions"><a href="/report/'+c.id+'" target="_blank" class="btn-sm btn-view">👁 查看</a><a href="/download/'+c.id+'" class="btn-sm btn-dl">⬇ 下载</a><button onclick="delCustomer(\''+c.id+'\')" class="btn-sm btn-del">🗑 删除</button></div></div>';
+      var btns = '<a href="/report/'+c.id+'" target="_blank" class="btn-sm btn-view">👁 查看</a><a href="/download/'+c.id+'" class="btn-sm btn-dl">⬇ 下载</a>';
+      if (c.cloud_url) btns += '<a href="'+c.cloud_url+'" target="_blank" class="btn-sm" style="background:#e3f2fd;color:#1565c0;" title="永久分享链接">🔗</a>';
+      btns += '<button onclick="delCustomer(\''+c.id+'\')" class="btn-sm btn-del">🗑</button>';
+      return '<div class="customer-card"><div class="info"><strong>'+c.name+'</strong><span>'+c.date+' · '+c.size+'</span></div><div class="actions">'+btns+'</div></div>';
     }).join('');
   } catch(e) {
     document.getElementById('customerList').innerHTML = '<p style="color:#c0392b;">加载失败</p>';
@@ -206,11 +235,17 @@ def upload():
         # 3) Run build_html.py (now reads the filename-based name)
         subprocess.run(['python3', 'build_html.py'], check=True, capture_output=True)
 
-        # 4) Copy the generated files to customers dir
+        # 4) Save to customers dir with customer name
+        safe_name = name.replace('/', '_').replace(' ', '_')[:30]
+        report_path = os.path.join(UPLOAD_DIR, f'{safe_name}.html')
+        json_path = os.path.join(UPLOAD_DIR, f'{safe_name}.json')
         if os.path.exists('index.html'):
-            shutil.copy('index.html', os.path.join(UPLOAD_DIR, f'{customer_id}.html'))
+            shutil.copy('index.html', report_path)
         if os.path.exists('data.json'):
-            shutil.copy('data.json', os.path.join(UPLOAD_DIR, f'{customer_id}.json'))
+            shutil.copy('data.json', json_path)
+
+        # 5) Push report to GitHub (cloud storage)
+        push_to_github(safe_name)
 
         return jsonify({
             'success': True,
@@ -224,40 +259,59 @@ def upload():
 @app.route('/customers')
 def list_customers():
     customers = []
-    for f in sorted(os.listdir(UPLOAD_DIR), reverse=True):
-        if f.endswith('.json') and not f.startswith('_'):
-            cid = f.replace('.json', '')
-            try:
-                with open(os.path.join(UPLOAD_DIR, f), 'r') as fp:
-                    data = json.load(fp)
-                name = data['meta'].get('name', cid)
-                date = data['meta'].get('testDate', '')
-                pdf_file = os.path.join(UPLOAD_DIR, f'{cid}.pdf')
-                size = f'{os.path.getsize(pdf_file)/1024/1024:.1f}MB' if os.path.exists(pdf_file) else ''
-                customers.append({'id': cid, 'name': name, 'date': date, 'size': size})
-            except:
-                pass
+    seen = set()
+    # Read from reports/ (GitHub-synced, cloud storage)
+    for d in [REPORTS_DIR, UPLOAD_DIR]:
+        if not os.path.exists(d):
+            continue
+        for f in sorted(os.listdir(d), reverse=True):
+            if f.endswith('.json') and not f.startswith('_'):
+                cid = f.replace('.json', '')
+                if cid in seen:
+                    continue
+                seen.add(cid)
+                try:
+                    with open(os.path.join(d, f), 'r') as fp:
+                        data = json.load(fp)
+                    name = data['meta'].get('name', cid)
+                    date = data['meta'].get('testDate', '')
+                    # Check PDF size
+                    pdf_file = os.path.join(UPLOAD_DIR, f'{cid}.pdf')
+                    size = f'{os.path.getsize(pdf_file)/1024/1024:.1f}MB' if os.path.exists(pdf_file) else '云端'
+                    # Generate shareable GitHub URL
+                    gh_url = f'https://raw.githubusercontent.com/awf12/health-report/main/reports/{cid}.html'
+                    customers.append({
+                        'id': cid, 'name': name, 'date': date, 'size': size,
+                        'cloud_url': gh_url
+                    })
+                except:
+                    pass
     return jsonify({'customers': customers})
 
 @app.route('/report/<customer_id>')
 def view_report(customer_id):
-    html_path = os.path.join(UPLOAD_DIR, f'{customer_id}.html')
-    if os.path.exists(html_path):
-        with open(html_path, 'r', encoding='utf-8') as f:
-            return f.read()
+    for d in [REPORTS_DIR, UPLOAD_DIR]:
+        html_path = os.path.join(d, f'{customer_id}.html')
+        if os.path.exists(html_path):
+            with open(html_path, 'r', encoding='utf-8') as f:
+                return f.read()
     return '<h2 style="text-align:center;padding:40px;">报告不存在或已被删除</h2>', 404
 
 @app.route('/download/<customer_id>')
 def download_report(customer_id):
-    html_path = os.path.join(UPLOAD_DIR, f'{customer_id}.html')
-    if os.path.exists(html_path):
-        name = customer_id
-        try:
-            with open(os.path.join(UPLOAD_DIR, f'{customer_id}.json'), 'r') as f:
-                name = json.load(f)['meta'].get('name', customer_id)
-        except:
-            pass
-        return send_file(html_path, as_attachment=True, download_name=f'健康检测报告_{name}.html')
+    for d in [REPORTS_DIR, UPLOAD_DIR]:
+        html_path = os.path.join(d, f'{customer_id}.html')
+        if os.path.exists(html_path):
+            name = customer_id
+            for dd in [REPORTS_DIR, UPLOAD_DIR]:
+                jp = os.path.join(dd, f'{customer_id}.json')
+                if os.path.exists(jp):
+                    try:
+                        with open(jp) as f:
+                            name = json.load(f)['meta'].get('name', customer_id)
+                    except: pass
+                    break
+            return send_file(html_path, as_attachment=True, download_name=f'健康检测报告_{name}.html')
     return '报告不存在', 404
 
 @app.route('/delete/<customer_id>', methods=['POST'])
