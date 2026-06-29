@@ -435,7 +435,7 @@ function viewReport(name) {{
   if (!c) return;
   const html = renderReport(c.data);
   const w = window.open('', '_blank');
-  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+name+' - 健康报告</title><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\\/script></head><body>'+html+'</body></html>');
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+name+' - 健康报告</title><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">\\x3C/script></head><body>'+html+'</body></html>');
   w.document.close();
 }}
 
@@ -443,7 +443,7 @@ function downloadReport(name) {{
   const customers = getCustomers();
   const c = customers[name];
   if (!c) return;
-  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+name+' - 健康报告</title><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\\/script></head><body>'+renderReport(c.data)+'</body></html>';
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+name+' - 健康报告</title><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">\\x3C/script></head><body>'+renderReport(c.data)+'</body></html>';
   const blob = new Blob([html], {{type:'text/html;charset=utf-8'}});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
