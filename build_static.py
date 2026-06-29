@@ -227,33 +227,42 @@ function extractMeta(pageTexts) {
   const meta = {name:'', gender:'', birthDate:'', testDate:'', visitNumber:'', soc:'',
     practitioner:'', clinic:'', address:'', phone:'', country:'中国', reportDate:''};
 
-  // PDF.js joins text with spaces, so patterns need to be flexible
-  const t = (pageTexts[2] || '').replace(/\\s+/g, ' ');
-  console.log('Page3:', t.substring(0, 200));
+  // PDF.js joins text with spaces, combine first 4 pages for robust search
+  let combined = '';
+  for (let i = 0; i < Math.min(4, pageTexts.length); i++) {
+    combined += (pageTexts[i] || '') + ' ';
+  }
+  const t = combined.replace(/\\s+/g, ' ');
+  console.log('Meta text:', t.substring(0, 300));
 
-  // Name: word before "会话日期" or after "报告创建对象"
-  let nameM = t.match(/(?:报告创建对象|对象)[：:\\s]+(\\S+)\\s+会话日期/);
+  // Name
+  let nameM = t.match(/(?:报告创建对象|对象)[：:\\s]+(\\S+?)\\s+会话日期/);
   if (!nameM) nameM = t.match(/(\\S{2,15})\\s+会话日期/);
-  if (!nameM) nameM = t.match(/(\\S{2,15})\\s+(?:Female|Male)/i);
+  if (!nameM) nameM = t.match(/\\b([A-Z][a-z]+)\\s+(?:Female|Male)\\b/);
   const nc = nameM ? nameM[1] : '';
   meta.name = /^\\d/.test(nc) ? '' : nc;
 
   meta.gender = /Female/i.test(t) ? '女' : (/Male/i.test(t) ? '男' : '');
 
-  const dtM = t.match(/会话日期\\s*(\\d{4}\\/\\d{1,2}\\/\\d{1,2})/) ||
-              t.match(/(\\d{4}\\/\\d{1,2}\\/\\d{1,2})\\s*(?:Female|Male|就诊)/);
-  meta.testDate = dtM ? dtM[1] : '';
+  // All dates in text
+  const allDates = t.match(/\\d{4}\\/\\d{1,2}\\/\\d{1,2}/g) || [];
+  console.log('All dates:', allDates);
+
+  const dtM = t.match(/会话日期\\s*(\\d{4}\\/\\d{1,2}\\/\\d{1,2})/);
+  meta.testDate = dtM ? dtM[1] : (allDates[0] || '');
 
   const bdM = t.match(/出生日[期]?\\s*(\\d{4}\\/\\d{1,2}\\/\\d{1,2})/);
-  meta.birthDate = bdM ? bdM[1] : '';
+  meta.birthDate = bdM ? bdM[1] : (allDates[1] || '');
 
-  const viM = t.match(/就诊编号\\s*(\\d+)/);
+  const viM = t.match(/就诊编号\\s*(\\d+)/) || t.match(/编号\\s*(\\d+)/);
   meta.visitNumber = viM ? viM[1] : '';
 
-  const pracM = t.match(/'检测师'\\s*'([^']+)'\\s*'([^']+)'/);
-  if (pracM) meta.practitioner = pracM[1] + ' ' + pracM[2];
+  const pracM = t.match(/'检测师'\\s*'([^']+)'\\s*'([^']+)'/) ||
+                t.match(/'检测师'[^']*'([^']+)'/);
+  if (pracM) meta.practitioner = pracM[2] ? pracM[1] + ' ' + pracM[2] : pracM[1];
 
   meta.reportDate = meta.testDate;
+  console.log('Meta result:', JSON.stringify(meta));
   return meta;
 }
 
