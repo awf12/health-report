@@ -537,13 +537,12 @@ function extractMeta(pageTexts) {
   const t = combined.replace(/\s+/g, ' ');
   console.log('Meta text:', t.substring(0, 400));
 
-  // Format: ...报告创建对象： ... 刘惠 2026/6/25 Female 1972/3/30 1 62 中国
-  // Or:    ...报告创建对象： Lily 会话日期 2026/6/22 Female ...
-  // Find the tail section after "报告创建对象"
+  // Two possible PDF formats:
+  // Format A: labels then values: "...刘惠 2026/6/25 Female 1972/3/30 1 62 中国"
+  // Format B: labels mixed: "...Lily 会话日期 2026/6/22 Female 就诊编号 382 出生日 1976/2/26 SOC 1"
   const tail = t.split(/报告创建对象[：:\s]+/)[1] || t;
 
-  // Find name + date + Female/Male cluster
-  // Pattern: WordWord  dddd/d/d  Female/Male  dddd/d/d  number  number
+  // Try Format A: value cluster at end
   const clusterM = tail.match(/(\S{2,15})\s+(\d{4}\/\d{1,2}\/\d{1,2})\s+(Female|Male)\s+(\d{4}\/\d{1,2}\/\d{1,2})\s+(\d{1,4})\s+(\d{1,4})/i);
   if (clusterM) {
     meta.name = clusterM[1];
@@ -552,27 +551,48 @@ function extractMeta(pageTexts) {
     meta.birthDate = clusterM[4];
     meta.soc = clusterM[5];
     meta.visitNumber = clusterM[6];
-    console.log('Cluster match:', clusterM[1], clusterM[2], clusterM[3], clusterM[4], clusterM[5], clusterM[6]);
-  } else {
-    console.log('Cluster NOT matched, trying fallbacks...');
-    // Fallbacks
-    const allDates = tail.match(/\d{4}\/\d{1,2}\/\d{1,2}/g) || [];
-    meta.testDate = allDates[0] || '';
-    meta.birthDate = allDates[1] || '';
-    meta.gender = /Female/i.test(tail) ? '女' : (/Male/i.test(tail) ? '男' : '');
-    const viM = tail.match(/(\d+)\s*(?:中国|CHINA)/);
-    if (viM) meta.visitNumber = viM[1];
-    const nameAfterObj = tail.match(/(\S{2,15})\s+\d{4}\/\d{1,2}/);
-    if (nameAfterObj && !/^\d/.test(nameAfterObj[1])) meta.name = nameAfterObj[1];
-    const socM = tail.match(/(\d+)\s+(?:\d+)\s+(?:中国|CHINA)/);
+    console.log('Format A (cluster):', clusterM[1], clusterM[2], clusterM[4]);
   }
 
-  // Practitioner: search all pages for quoted names near "检测师"
+  // Format B: labeled fields
+  if (!meta.testDate) {
+    const dtM = tail.match(/会话日期\s*(\d{4}\/\d{1,2}\/\d{1,2})/);
+    if (dtM) meta.testDate = dtM[1];
+  }
+  if (!meta.birthDate) {
+    const bdM = tail.match(/出生日[期]?\s*(\d{4}\/\d{1,2}\/\d{1,2})/);
+    if (bdM) meta.birthDate = bdM[1];
+  }
+  if (!meta.visitNumber) {
+    const viM = tail.match(/就诊编号\s*(\d+)/) || tail.match(/(\d+)\s*(?:中国|CHINA)/);
+    if (viM) meta.visitNumber = viM[1];
+  }
+  if (!meta.name) {
+    const nmM = tail.match(/(\S{2,15})\s+(?:会话日期|\d{4}\/)/);
+    if (nmM && !/^\d/.test(nmM[1])) meta.name = nmM[1];
+  }
+  if (!meta.gender) {
+    meta.gender = /Female/i.test(tail) ? '女' : (/Male/i.test(tail) ? '男' : '');
+  }
+  if (!meta.soc) {
+    const socM = tail.match(/SOC\s+(\d+)/i) || tail.match(/(\d+)\s+(?:中国|CHINA)/);
+    // Don't override cluster-found soc
+  }
+
+  // Practitioner: PDF.js loses quotes, look for English name patterns near "检测师"
   for (let i = 0; i < Math.min(5, pageTexts.length); i++) {
     const pg = (pageTexts[i] || '');
-    const pm = pg.match(/Jasmine|Shen|[A-Z][a-z]+\s+[A-Z][a-z]+/g);
-    if (pm && /检测师|从业者/.test(pg)) {
-      meta.practitioner = pm.filter(n => n.length > 3 && !/^(Female|Male|CHINA|SOC)$/i.test(n)).join(' ');
+    if (/检测师|从业者/.test(pg)) {
+      // Look for CamelCase words that could be names
+      const words = pg.split(/\s+/);
+      const names = [];
+      for (const w of words) {
+        if (/^[A-Z][a-z]{2,20}$/.test(w) && !/^(Female|Male|CHINA|SOC|Varhop|Volt|Amper)$/i.test(w)) {
+          names.push(w);
+        }
+      }
+      meta.practitioner = names.join(' ');
+      console.log('Found names near 检测师:', names);
       if (meta.practitioner) break;
     }
   }
