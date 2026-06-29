@@ -158,7 +158,7 @@ async function extractTextFromPDF(file) {
 function extractValues(fullText) {
   const valueMap = {};
 
-  // VARHOP patterns
+  // VARHOP patterns (page-level, unchanged)
   const patterns = {
     volt: /Volt\\s+(\\d+)/i, amper: /Amper\\s+(\\d+)/i,
     resistance: /Resistance\\s+(\\d+)/i, hydration: /Hydration\\s+(\\d+)/i,
@@ -182,23 +182,22 @@ function extractValues(fullText) {
     }
   }
 
-  // Extract all label-value pairs
-  const lines = fullText.split('\\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.length > 200) continue;
-    if (/^\\d+\\s*\\/\\s*\\d+$/.test(trimmed)) continue;
-    if (/^(\\u00a9|QX WORLD|\\u4fdd\\u7559\\u6240\\u6709)/.test(trimmed)) continue;
-
-    const m = trimmed.match(/^(.+?)\\s+(\\d{1,4})\\b/);
-    if (m) {
-      const name = m[1].trim().toLowerCase();
-      const val = parseInt(m[2]);
-      if (val >= 0 && val <= 2000 && name.length >= 2) {
-        valueMap[name] = val;
-      }
+  // PDF.js joins text per page with spaces - need word-based extraction
+  // Match patterns like: "Word1 Word2 123" or "Word (description) 123"
+  // Use global regex to find all "name number" pairs
+  const pairRegex = /([A-Za-z][\\w\\s,().&+\\-]{2,80}?)\\s+(\\d{2,4})\\b/g;
+  let m;
+  while ((m = pairRegex.exec(fullText)) !== null) {
+    const name = m[1].trim().toLowerCase();
+    const val = parseInt(m[2]);
+    if (val >= 0 && val <= 2000 && name.length >= 2 &&
+        !/^\\d+\\s*\/\\s*\\d+$/.test(name) &&
+        !/^(page|of|carbon|silver|gold|tin|boron)$/i.test(name)) {
+      valueMap[name] = val;
     }
   }
+  console.log('Extracted values:', Object.keys(valueMap).length);
+
   return valueMap;
 }
 
@@ -277,21 +276,23 @@ function extractMeta(pageTexts) {
     // Don't override cluster-found soc
   }
 
-  // Practitioner: PDF.js loses quotes, look for English name patterns near "检测师"
+  // Practitioner: PDF.js loses quotes and names. Search ALL pages for English names
   for (let i = 0; i < Math.min(5, pageTexts.length); i++) {
     const pg = (pageTexts[i] || '');
-    if (/检测师|从业者/.test(pg)) {
-      // Look for CamelCase words that could be names
-      const words = pg.split(/\\s+/);
-      const names = [];
-      for (const w of words) {
-        if (/^[A-Z][a-z]{2,20}$/.test(w) && !/^(Female|Male|CHINA|SOC|Varhop|Volt|Amper)$/i.test(w)) {
-          names.push(w);
-        }
+    // Look for "Jasmine" or "Shen" or any capitalized name near 检测师/从业者
+    const namePattern = /\\b([A-Z][a-z]{2,20})\\b/g;
+    const allNames = [];
+    let nm;
+    while ((nm = namePattern.exec(pg)) !== null) {
+      const w = nm[1];
+      if (!/^(Female|Male|CHINA|SOC|Varhop|Volt|Amper|QX|WORLD|Ltd|All|Rights)$/i.test(w)) {
+        allNames.push(w);
       }
-      meta.practitioner = names.join(' ');
-      console.log('Found names near 检测师:', names);
-      if (meta.practitioner) break;
+    }
+    if (allNames.length >= 2) {
+      meta.practitioner = allNames.join(' ');
+      console.log('Practitioner from page', i, ':', allNames);
+      break;
     }
   }
 
