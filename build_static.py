@@ -156,6 +156,13 @@ async function extractTextFromPDF(file) {
     // Save raw items from page 3-4 for practitioner extraction
     if (i === 3 || i === 4) {
       pageRawItems.push({page: i, items: items});
+      console.log('Page ' + i + ' has ' + items.length + ' raw text items');
+      for (let j = 0; j < Math.min(items.length, 80); j++) {
+        const it = items[j];
+        if (it.str && it.str.trim()) {
+          console.log('  [' + j + '] str="' + it.str + '"');
+        }
+      }
     }
   }
   return { fullText: fullText, pageTexts: pageTexts, numPages: pdf.numPages, rawItems: pageRawItems };
