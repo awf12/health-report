@@ -203,7 +203,7 @@ td.normal { color: #2e7d32; }
     <div class="meta-item"><label>出生日期</label><span>${M.birthDate||''}</span></div>
     <div class="meta-item"><label>检测日期</label><span>${M.testDate||''}</span></div>
     <div class="meta-item"><label>就诊编号</label><span>${M.visitNumber||''}</span></div>
-    <div class="meta-item"><label>检测师</label><span>${M.practitioner||'—'}</span></div>
+    <div class="meta-item"><label>检测师</label><span>${M.practitioner||''}</span></div>
   </div>
   <p style="color:#999;font-size:13px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
 </div>
