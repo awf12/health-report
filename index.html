@@ -529,39 +529,53 @@ function extractMeta(pageTexts) {
   const meta = {name:'', gender:'', birthDate:'', testDate:'', visitNumber:'', soc:'',
     practitioner:'', clinic:'', address:'', phone:'', country:'中国', reportDate:''};
 
-  // PDF.js joins text with spaces, combine first 4 pages for robust search
+  // PDF.js loses quotes, meta ends with: 姓名 日期 Female 出生日 SOC 编号 国家
   let combined = '';
   for (let i = 0; i < Math.min(4, pageTexts.length); i++) {
     combined += (pageTexts[i] || '') + ' ';
   }
   const t = combined.replace(/\s+/g, ' ');
-  console.log('Meta text:', t.substring(0, 300));
+  console.log('Meta text:', t.substring(0, 400));
 
-  // Name
-  let nameM = t.match(/(?:报告创建对象|对象)[：:\s]+(\S+?)\s+会话日期/);
-  if (!nameM) nameM = t.match(/(\S{2,15})\s+会话日期/);
-  if (!nameM) nameM = t.match(/\b([A-Z][a-z]+)\s+(?:Female|Male)\b/);
-  const nc = nameM ? nameM[1] : '';
-  meta.name = /^\d/.test(nc) ? '' : nc;
+  // Format: ...报告创建对象： ... 刘惠 2026/6/25 Female 1972/3/30 1 62 中国
+  // Or:    ...报告创建对象： Lily 会话日期 2026/6/22 Female ...
+  // Find the tail section after "报告创建对象"
+  const tail = t.split(/报告创建对象[：:\s]+/)[1] || t;
 
-  meta.gender = /Female/i.test(t) ? '女' : (/Male/i.test(t) ? '男' : '');
+  // Find name + date + Female/Male cluster
+  // Pattern: WordWord  dddd/d/d  Female/Male  dddd/d/d  number  number
+  const clusterM = tail.match(/(\S{2,15})\s+(\d{4}\/\d{1,2}\/\d{1,2})\s+(Female|Male)\s+(\d{4}\/\d{1,2}\/\d{1,2})\s+(\d{1,4})\s+(\d{1,4})/i);
+  if (clusterM) {
+    meta.name = clusterM[1];
+    meta.testDate = clusterM[2];
+    meta.gender = clusterM[3].toLowerCase() === 'female' ? '女' : '男';
+    meta.birthDate = clusterM[4];
+    meta.soc = clusterM[5];
+    meta.visitNumber = clusterM[6];
+    console.log('Cluster match:', clusterM[1], clusterM[2], clusterM[3], clusterM[4], clusterM[5], clusterM[6]);
+  } else {
+    console.log('Cluster NOT matched, trying fallbacks...');
+    // Fallbacks
+    const allDates = tail.match(/\d{4}\/\d{1,2}\/\d{1,2}/g) || [];
+    meta.testDate = allDates[0] || '';
+    meta.birthDate = allDates[1] || '';
+    meta.gender = /Female/i.test(tail) ? '女' : (/Male/i.test(tail) ? '男' : '');
+    const viM = tail.match(/(\d+)\s*(?:中国|CHINA)/);
+    if (viM) meta.visitNumber = viM[1];
+    const nameAfterObj = tail.match(/(\S{2,15})\s+\d{4}\/\d{1,2}/);
+    if (nameAfterObj && !/^\d/.test(nameAfterObj[1])) meta.name = nameAfterObj[1];
+    const socM = tail.match(/(\d+)\s+(?:\d+)\s+(?:中国|CHINA)/);
+  }
 
-  // All dates in text
-  const allDates = t.match(/\d{4}\/\d{1,2}\/\d{1,2}/g) || [];
-  console.log('All dates:', allDates);
-
-  const dtM = t.match(/会话日期\s*(\d{4}\/\d{1,2}\/\d{1,2})/);
-  meta.testDate = dtM ? dtM[1] : (allDates[0] || '');
-
-  const bdM = t.match(/出生日[期]?\s*(\d{4}\/\d{1,2}\/\d{1,2})/);
-  meta.birthDate = bdM ? bdM[1] : (allDates[1] || '');
-
-  const viM = t.match(/就诊编号\s*(\d+)/) || t.match(/编号\s*(\d+)/);
-  meta.visitNumber = viM ? viM[1] : '';
-
-  const pracM = t.match(/'检测师'\s*'([^']+)'\s*'([^']+)'/) ||
-                t.match(/'检测师'[^']*'([^']+)'/);
-  if (pracM) meta.practitioner = pracM[2] ? pracM[1] + ' ' + pracM[2] : pracM[1];
+  // Practitioner: search all pages for quoted names near "检测师"
+  for (let i = 0; i < Math.min(5, pageTexts.length); i++) {
+    const pg = (pageTexts[i] || '');
+    const pm = pg.match(/Jasmine|Shen|[A-Z][a-z]+\s+[A-Z][a-z]+/g);
+    if (pm && /检测师|从业者/.test(pg)) {
+      meta.practitioner = pm.filter(n => n.length > 3 && !/^(Female|Male|CHINA|SOC)$/i.test(n)).join(' ');
+      if (meta.practitioner) break;
+    }
+  }
 
   meta.reportDate = meta.testDate;
   console.log('Meta result:', JSON.stringify(meta));
