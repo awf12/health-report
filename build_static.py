@@ -393,9 +393,7 @@ async function processAll() {
       console.log('提取值:', Object.keys(valueMap).length, '个映射');
       const meta = extractMeta(result.pageTexts, result.rawItems);
       console.log('Meta:', meta.name, meta.testDate, '| practitioner:', meta.practitioner);
-      const name = file.name.replace(/\\.pdf$/i, '');
-      meta.name = name;
-
+      const name = meta.name || file.name.replace(/\\.pdf$/i, '');
       const processed = processTemplate(valueMap, meta);
       console.log('更新了', processed.updated, '个数值');
       saveCustomer(name, processed.data, file.name);
