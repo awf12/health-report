@@ -70,6 +70,7 @@ body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f
   <div class="card">
     <h2>👥 已有报告（浏览器本地存储）</h2>
     <div class="customer-list" id="customerList"><p style="color:#999;">暂无报告</p></div>
+    <div id="pager"></div>
   </div>
   </div>
 
@@ -790,18 +791,45 @@ function downloadReport(name) {
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
 }
 
-function refreshList() {
+let currentPage = 1;
+const PAGE_SIZE = 6;
+
+function refreshList(page) {
   const customers = getCustomers();
   const names = Object.keys(customers).sort(function(a,b){ return customers[b].savedAt.localeCompare(customers[a].savedAt); });
   const list = document.getElementById('customerList');
-  if (!names.length) { list.innerHTML = '<p style="color:#999;">暂无报告，上传PDF开始</p>'; return; }
-  list.innerHTML = names.map(function(n){
+  const pager = document.getElementById('pager');
+  if (!names.length) { list.innerHTML = '<p style="color:#999;">暂无报告，上传PDF开始</p>'; pager.innerHTML = ''; return; }
+
+  if (page) currentPage = page;
+  const totalPages = Math.ceil(names.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageNames = names.slice(start, start + PAGE_SIZE);
+
+  list.innerHTML = pageNames.map(function(n){
     const c = customers[n];
     return '<div class="customer-card"><div class="info"><strong>'+n+'</strong><span>'+(c.date||'')+' · '+(c.filename||'')+'</span></div>' +
       '<div class="actions"><button class="btn-sm btn-view" onclick="viewReport(\''+n+'\')">👁 查看</button>' +
       '<button class="btn-sm btn-dl" onclick="downloadReport(\''+n+'\')">⬇ 下载</button>' +
       '<button class="btn-sm btn-del" onclick="deleteCustomer(\''+n+'\')">🗑</button></div></div>';
   }).join('');
+
+  // Pagination controls
+  pager.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap;">' +
+    '<button class="btn-sm" style="background:#e0e0e0;" onclick="refreshList(1)" '+(currentPage===1?'disabled':'')+'>⏮ 首页</button>' +
+    '<button class="btn-sm" style="background:#e0e0e0;" onclick="refreshList('+(currentPage-1)+')" '+(currentPage===1?'disabled':'')+'>◀ 上一页</button>' +
+    '<span style="font-size:13px;">第 <input type="number" id="pageInput" value="'+currentPage+'" min="1" max="'+totalPages+'" style="width:50px;text-align:center;padding:4px;border:1px solid #ccc;border-radius:4px;" onchange="goToPage()"> / '+totalPages+' 页（共 '+names.length+' 份）</span>' +
+    '<button class="btn-sm" style="background:#e0e0e0;" onclick="refreshList('+(currentPage+1)+')" '+(currentPage===totalPages?'disabled':'')+'>下一页 ▶</button>' +
+    '<button class="btn-sm" style="background:#e0e0e0;" onclick="refreshList('+totalPages+')" '+(currentPage===totalPages?'disabled':'')+'>末页 ⏭</button>' +
+    '</div>';
+}
+
+function goToPage() {
+  const p = parseInt(document.getElementById('pageInput').value);
+  if (p >= 1) refreshList(p);
 }
 
 // Init
