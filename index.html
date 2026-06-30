@@ -222,30 +222,53 @@ function renderFullReport(data) {
     const M = data.meta;
     const S = data.sections;
 
-    // Build sidebar nav
-    const navItems = [
-        ['cover','📄 封面'],['varhop','⚡ 基本体质'],['risk','⚠️ 风险概况'],
-        ['vitamins','💊 维生素家族'],['vita','  └ A族'],['vitb','  └ B族'],
-        ['vitc','  └ C族'],['vitd','  └ D族'],['vite','  └ E族'],
-        ['vitf','  └ F族'],['vitk','  └ K族'],['vitu','  └ U族'],
-        ['amino','🧬 氨基酸'],['minerals','🪨 矿物质'],['aroma','🌸 芳香疗法'],
-        ['digestion','🫄 消化系统'],['carb','🍚 碳水代谢'],['fat','🧈 脂肪消化'],
-        ['protein','🥩 蛋白质消化'],['spine','🦴 脊柱'],
-        ['xeno','🧪 外源物质'],['addfactors','➕ 额外因素'],
-        ['causes','🔍 疾病原因'],['aggrav','📈 加重因素'],
-        ['miasms','🧫 体质'],['nosodes','🦠 病原体'],
-        ['herbs','🌿 草药'],['emotions','💭 情绪'],
-        ['organs','🫀 器官'],['neuro','🧠 神经递质'],
+    // Build sidebar nav with collapsible groups
+    const navGroups = [
+        {id:'cover', label:'📄 封面'},
+        {id:'varhop', label:'⚡ 基本体质'},
+        {id:'risk', label:'⚠️ 风险概况'},
+        {label:'💊 维生素家族', children:[
+            'vitamins','vita','vitb','vitc','vitd','vite','vitf','vitk','vitu'
+        ], childLabels:['总览','A族','B族','C族','D族','E族','F族','K族','U族']},
+        {label:'🧬 消化代谢', children:[
+            'amino','minerals','digestion','carb','fat','protein','aroma'
+        ], childLabels:['氨基酸','矿物质','消化系统','碳水代谢','脂肪消化','蛋白质消化','芳香疗法']},
+        {id:'spine', label:'🦴 脊柱'},
+        {label:'🛡️ 外源与疾病', children:[
+            'xeno','addfactors','causes','aggrav','miasms','nosodes','herbs'
+        ], childLabels:['外源物质','额外因素','疾病原因','加重因素','体质','病原体','草药']},
+        {id:'emotions', label:'💭 情绪'},
+        {id:'organs', label:'🫀 器官'},
+        {id:'neuro', label:'🧠 神经递质'},
     ];
-    const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
+    let sidebar = '';
+    for (const g of navGroups) {
+        if (g.children) {
+            sidebar += `<a href="javascript:void(0)" class="nav-group" onclick="this.classList.toggle('open')">▸ ${g.label}</a>`;
+            sidebar += '<div class="nav-sub">';
+            for (let i = 0; i < g.children.length; i++) {
+                sidebar += `<a href="#${g.children[i]}">  ${g.childLabels[i]}</a>`;
+            }
+            sidebar += '</div>';
+        } else {
+            sidebar += `<a href="#${g.id}">${g.label}</a>`;
+        }
+    }
 
     let html = `
 <style>
 .report-body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f0e8; color: #333; line-height: 1.7; }
 .r-sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100vh; background: #1a1a2e; color: #ccc; overflow-y: auto; z-index: 100; font-size: 12px; }
 .r-sidebar h2 { color: #fff; padding: 16px 18px; font-size: 15px; border-bottom: 1px solid #333; margin: 0; position: sticky; top: 0; background: #1a1a2e; }
-.r-sidebar a { display: block; padding: 5px 20px; color: #aaa; text-decoration: none; border-left: 3px solid transparent; }
+.r-sidebar a { display: block; padding: 5px 20px; color: #aaa; text-decoration: none; border-left: 3px solid transparent; cursor: pointer; }
 .r-sidebar a:hover, .r-sidebar a.active { color: #fff; background: #16213e; border-left-color: #4caf50; }
+.r-sidebar .nav-group { color: #ddd; font-weight: 600; padding: 6px 16px; }
+.r-sidebar .nav-group.open { color: #4caf50; }
+.r-sidebar .nav-group.open::before { content: '▾ '; }
+.r-sidebar .nav-group::before { content: '▸ '; }
+.r-sidebar .nav-sub { display: none; padding-left: 12px; }
+.r-sidebar .nav-group.open + .nav-sub { display: block; }
+.r-sidebar .nav-sub a { font-size: 11px; padding: 3px 20px; }
 .r-main { margin-left: 240px; padding: 24px 32px; max-width: 1100px; }
 .report-cover { text-align: center; padding: 50px 20px; background: #fff; border-radius: 12px; margin-bottom: 20px; }
 .report-cover h1 { font-size: 30px; color: #1a3a1a; margin-bottom: 6px; }
