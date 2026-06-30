@@ -242,15 +242,15 @@ function renderFullReport(data) {
     let html = `
 <style>
 .report-body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f0e8; color: #333; line-height: 1.7; }
-.r-sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100vh; background: #1a1a2e; color: #ccc; overflow-y: auto; z-index: 100; font-size: 12px; }
-.r-sidebar h2 { color: #fff; padding: 16px 18px; font-size: 15px; border-bottom: 1px solid #333; margin: 0; position: sticky; top: 0; background: #1a1a2e; }
-.r-sidebar a { display: block; padding: 5px 20px; color: #aaa; text-decoration: none; border-left: 3px solid transparent; }
+.r-sidebar { position: fixed; left: 0; top: 0; width: 200px; height: 100vh; background: #1a1a2e; color: #ccc; overflow-y: auto; z-index: 100; font-size: 12px; }
+.r-sidebar h2 { color: #fff; padding: 14px 16px; font-size: 14px; border-bottom: 1px solid #333; margin: 0; position: sticky; top: 0; background: #1a1a2e; }
+.r-sidebar a { display: block; padding: 4px 18px; color: #aaa; text-decoration: none; border-left: 3px solid transparent; }
 .r-sidebar a:hover, .r-sidebar a.active { color: #fff; background: #16213e; border-left-color: #4caf50; }
-.r-main { margin-left: 240px; padding: 24px 32px; max-width: 1100px; }
+.r-main { margin-left: 200px; padding: 20px 28px; max-width: 1400px; }
 .report-cover { text-align: center; padding: 50px 20px; background: #fff; border-radius: 12px; margin-bottom: 20px; }
 .report-cover h1 { font-size: 30px; color: #1a3a1a; margin-bottom: 6px; }
 .report-cover h3 { font-weight: 400; color: #666; margin-bottom: 24px; font-size: 16px; }
-.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 10px; max-width: 580px; margin: 0 auto 24px; text-align: left; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 10px; max-width: 700px; margin: 0 auto 24px; text-align: left; }
 .meta-item { background: #fff; padding: 8px 14px; border-radius: 8px; border: 1px solid #ddd; }
 .meta-item label { font-size: 11px; color: #999; display: block; }
 .meta-item span { font-size: 14px; font-weight: 600; }
@@ -261,8 +261,8 @@ function renderFullReport(data) {
 .r-low { background: #ffe0e0; color: #c0392b; padding: 2px 8px; border-radius: 4px; }
 .r-high { background: #fff8e1; color: #b8860b; padding: 2px 8px; border-radius: 4px; }
 .r-normal { background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 4px; }
-.chart-wrap { margin: 12px 0; width: 100%; max-height: 380px; }
-.chart-wrap canvas { max-height: 380px; }
+.chart-wrap { margin: 12px 0; width: 100%; max-height: 450px; }
+.chart-wrap canvas { max-height: 450px; }
 table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 8px 0; }
 thead th { background: #f0f0f0; padding: 7px 8px; text-align: left; font-weight: 600; font-size: 12px; }
 tbody td { padding: 6px 8px; border-bottom: 1px solid #eee; }
@@ -271,7 +271,7 @@ td.low { background: #ffe0e0; font-weight: 700; color: #c0392b; }
 td.high { background: #fff8e1; font-weight: 700; color: #b8860b; }
 td.normal { color: #2e7d32; }
 .r-scroll-top { position: fixed; bottom: 30px; right: 30px; width: 40px; height: 40px; background: #2c5f2d; color: #fff; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 200; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
-@media (max-width: 768px) { .r-sidebar { display: none; } .r-main { margin-left: 0; padding: 12px; } }
+@media (max-width: 768px) { .r-sidebar { display: none; } .r-main { margin-left: 0; padding: 10px; } }
 @media print { .r-sidebar,.r-scroll-top { display: none !important; } .r-main { margin-left: 0; } .report-card { break-inside: avoid; } }
 </style>
 
