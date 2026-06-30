@@ -65,6 +65,10 @@ function makeBarChart(chartId, items, labelKey='name') {
     const colors = values.map((_, i) => PALETTE[i % PALETTE.length]);
     const borders = colors.map(c => c.replace('0.85','1'));
 
+    // Collect chart config for download
+    if (!window._chartConfigs) window._chartConfigs = [];
+    window._chartConfigs.push({ chartId, labels, values, colors, borders });
+
     setTimeout(() => {
         const canvas = document.getElementById(chartId);
         if (!canvas) return;
