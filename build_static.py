@@ -396,7 +396,7 @@ async function processAll() {
       }
       const meta = extractMeta(result.pageTexts, result.rawItems);
       console.log('Meta:', meta.name, meta.testDate, '| practitioner:', meta.practitioner);
-      const name = meta.name || file.name.replace(/\\.pdf$/i, '');
+      const name = meta.name || file.name.replace(/\\.pdf$/i, '') || '未命名';
       const processed = processTemplate(valueMap, meta);
       console.log('更新了', processed.updated, '个数值');
       saveCustomer(name, processed.data, file.name);
