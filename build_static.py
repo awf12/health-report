@@ -473,10 +473,33 @@ function downloadReport(name) {
   const c = customers[name];
   if (!c) return;
   const reportHTML = renderFullReport(c.data);
+  // Generate chart init script for downloaded file
+  let chartInitJS = '<script>\\nvar _c=document.querySelectorAll("canvas[id]");\\n';
+  chartInitJS += 'var _d=' + JSON.stringify(c.data) + ';\\n';
+  chartInitJS += 'var _P=' + JSON.stringify(PALETTE) + ';\\n';
+  chartInitJS += `_c.forEach(function(cv){
+    var id=cv.id; var key=id.replace("chart_","");
+    var items=_d.sections[key]||_d.sections[key.replace("vitamins","vitamin_families").replace("amino","amino_acids").replace("minerals","minerals").replace("aroma","aromatherapy").replace("digestion","general_digestion").replace("carb","carbohydrate_digestion").replace("fat","fat_digestion").replace("protein","protein_digestion").replace("xeno","xenobiotics").replace("addfactors","additional_factors").replace("causes","disease_causes").replace("aggrav","disease_aggravations").replace("miasms","miasms").replace("nosodes","nosodes").replace("herbs","oriental_herbs").replace("emotions","emotions").replace("organs","organ_sarcodes").replace("neuro","neurotransmitters")];
+    if(!items||!items.length) return;
+    var labels=items.map(function(i){return i.name||"";});
+    var values=items.map(function(i){return i.value||0;});
+    var colors=values.map(function(_,i){return _P[i%_P.length];});
+    var borders=colors.map(function(c){return c.replace("0.85","1");});
+    new Chart(cv,{type:"bar",data:{labels:labels,datasets:[{data:values,backgroundColor:colors,borderColor:borders,borderWidth:1}]},
+    options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
+    scales:{y:{min:0,max:160,grid:{color:"#e0e0e0"}},x:{ticks:{maxRotation:60,font:{size:9}}}}},
+    plugins:[{id:"bl_"+id,afterDraw:function(ch){
+      var ctx=ch.ctx,m=ch.getDatasetMeta(0);ctx.save();
+      ctx.font="bold 11px PingFang SC,Microsoft YaHei,sans-serif";ctx.textAlign="center";ctx.textBaseline="bottom";
+      m.data.forEach(function(b,i){var v=values[i],x=b.x,y=b.y-4;
+      ctx.fillStyle=v<=50?"#c0392b":v>=100?"#d4a017":"#2c5f2d";ctx.fillText(v,x,y);});
+      ctx.restore();
+    }}]})});\\n`;
+  chartInitJS += '<\\/script>';
   const fullHTML = '<!DOCTYPE html>\\n<html lang="zh-CN">\\n<head>\\n<meta charset="UTF-8">\\n<title>'+name+' - 健康报告</title>\\n' +
     '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\\/script>\\n' +
     '<style>body{font-family:PingFang SC,Microsoft YaHei,sans-serif;background:#f5f0e8;}</style>\\n</head>\\n<body class="report-body">\\n' +
-    reportHTML + '\\n</body>\\n</html>';
+    reportHTML + '\\n' + chartInitJS + '\\n</body>\\n</html>';
   const blob = new Blob([fullHTML], {type:'text/html;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
