@@ -68,7 +68,7 @@ body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f
 
   <div id="listSection">
   <div class="card">
-    <h2>👥 已有报告（浏览器本地存储，最多3份）</h2>
+    <h2>👥 已有报告（浏览器本地存储）</h2>
     <div class="customer-list" id="customerList"><p style="color:#999;">暂无报告</p></div>
   </div>
   </div>
@@ -401,7 +401,6 @@ if (typeof module !== 'undefined') { module.exports = { renderFullReport, PALETT
 
 // ============ APP STATE ============
 let pendingFiles = [];
-const MAX_REPORTS = 3;
 
 // ============ UI HELPERS ============
 function msg(text, type) {
@@ -731,13 +730,7 @@ function saveCustomer(name, data, filename) {
     savedAt: new Date().toISOString()
   };
 
-  // Keep only latest MAX_REPORTS
-  const sorted = Object.entries(customers).sort(function(a,b){ return b[1].savedAt.localeCompare(a[1].savedAt); });
-  const trimmed = {};
-  for (let i = 0; i < Math.min(sorted.length, MAX_REPORTS); i++) {
-    trimmed[sorted[i][0]] = sorted[i][1];
-  }
-  localStorage.setItem('health_reports', JSON.stringify(trimmed));
+  localStorage.setItem('health_reports', JSON.stringify(customers));
 }
 
 function deleteCustomer(name) {
