@@ -688,7 +688,7 @@ async function processAll() {
   const total = pendingFiles.length;
   for (let i = 0; i < pendingFiles.length; i++) {
     const file = pendingFiles[i];
-    setProgress(i / total * 100);
+    setProgress((i) / total * 100);
     msg('正在处理 ' + (i+1) + '/' + total + ': ' + file.name + '...', 'info');
 
     try {
@@ -697,6 +697,9 @@ async function processAll() {
       console.log('PDF页数:', result.numPages, '文本长度:', result.fullText.length);
       const valueMap = extractValues(result.fullText);
       console.log('提取值:', Object.keys(valueMap).length, '个映射');
+      if (Object.keys(valueMap).length < 10) {
+        console.warn('⚠️ 提取值太少，PDF可能格式不兼容');
+      }
       const meta = extractMeta(result.pageTexts, result.rawItems);
       console.log('Meta:', meta.name, meta.testDate, '| practitioner:', meta.practitioner);
       const name = meta.name || file.name.replace(/\.pdf$/i, '');
@@ -704,9 +707,10 @@ async function processAll() {
       console.log('更新了', processed.updated, '个数值');
       saveCustomer(name, processed.data, file.name);
       msg('✅ ' + name + ' 处理完成 (' + Object.keys(valueMap).length + '值, ' + processed.updated + '更新)', 'success');
+      refreshList();
     } catch(e) {
       msg('❌ ' + file.name + ' 失败: ' + e.message, 'error');
-      console.error('处理错误:', e);
+      console.error('处理错误:', e, e.stack);
     }
   }
 
