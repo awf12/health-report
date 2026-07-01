@@ -377,6 +377,7 @@ function processTemplate(valueMap, meta) {
 
 // ============ PROCESS ALL ============
 async function processAll() {
+  if (typeof pdfjsLib === 'undefined') { msg('❌ PDF组件加载失败，请刷新页面重试', 'error'); return; }
   if (!pendingFiles.length) { msg('请先选择PDF文件', 'error'); return; }
 
   const total = pendingFiles.length;
@@ -557,7 +558,11 @@ function goToPage() {
 }
 
 // Init
-refreshList();
+if (typeof pdfjsLib === 'undefined') {
+  document.getElementById('customerList').innerHTML = '<p style=\"color:#c0392b;\">⚠️ PDF组件加载失败，请检查网络后刷新页面</p>';
+} else {
+  refreshList();
+}
 </script>
 </body>
 </html>'''
