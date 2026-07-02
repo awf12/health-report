@@ -16,7 +16,8 @@ html = '''<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>营养与健康检测报告系统</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root { --accent: #2c5f2d; --danger: #c0392b; --warn: #d4a017; }
@@ -92,7 +93,7 @@ body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f
 <script>
 // ============ EMBEDDED DATA ============
 const TEMPLATE = ''' + TEMPLATE_JS + ''';
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// workerSrc already set in HTML script tag above
 window._charts = {};
 
 // ============ RENDER ENGINE (from render_report.js) ============
