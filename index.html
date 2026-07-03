@@ -643,16 +643,20 @@ function processTemplate(valueMap, meta) {
   console.log('After merge practitioner:', data.meta.practitioner);
 
   let updated = 0;
-  for (const [sectionKey, items] of Object.entries(data.sections)) {
-    if (!Array.isArray(items)) continue;
-    for (const item of items) {
-      const cn = item.cn || '';
-      const name = item.name || '';
-      const oldVal = item.value;
-      const v = lookupValue(valueMap, cn, name);
-      if (v !== null && v !== oldVal) {
-        item.value = v;
-        updated++;
+  for (const [sectionKey, sections] of Object.entries(data.sections)) {
+    if (!Array.isArray(sections)) continue;
+    for (const sec of sections) {
+      const items = sec.indicators || sec;  // Handle both flat and nested structures
+      if (!Array.isArray(items)) continue;
+      for (const item of items) {
+        const cn = item.cn || '';
+        const name = item.name || '';
+        const oldVal = item.value;
+        const v = lookupValue(valueMap, cn, name);
+        if (v !== null && v !== oldVal) {
+          item.value = v;
+          updated++;
+        }
       }
     }
   }
