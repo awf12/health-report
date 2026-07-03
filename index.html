@@ -526,7 +526,7 @@ function extractValues(fullText) {
     'phase response react': /Phase response react\s+(\d+)/i,
     impedance: /Impedance\s+(\d+)/i,
     'parts per seconds for reaction speed': /Parts per seconds[^\d]*(\d+)/i,
-    'body fat': /body\s*fat[^\d]*(\d+)%?/i,
+    'body fat': /body\W*fat\W*(\d+)/i,
     'cellular vitality index (6 + normal, below 3 chronic)': /Cellular vitality[^\d]*(\d+)/i,
   };
   for (const [k, pat] of Object.entries(patterns)) {
@@ -562,9 +562,20 @@ function extractValues(fullText) {
       valueMap[name] = val;
     }
   }
+  // Fallback: search for body fat anywhere in text
+  if (valueMap['body fat'] === undefined) {
+    const bfMatch = fullText.match(/body\W*fat\W*(\d+)/i);
+    if (bfMatch) { valueMap['body fat'] = parseInt(bfMatch[1]); console.log('✅ body fat fallback:', bfMatch[1]); }
+  }
   console.log('Extracted values:', Object.keys(valueMap).length);
   if (valueMap['body fat'] !== undefined) console.log('✅ body fat captured:', valueMap['body fat']);
-  else console.log('❌ body fat NOT in valueMap. All keys with fat:', Object.keys(valueMap).filter(function(k){return k.indexOf('fat')>=0;}));
+  else {
+    console.log('❌ body fat NOT in valueMap');
+    // Print first 500 chars to see what's around 'fat'
+    var fatIdx = fullText.toLowerCase().indexOf('fat');
+    if (fatIdx >= 0) console.log('First fat context:', fullText.substring(Math.max(0,fatIdx-30), fatIdx+50));
+    else console.log('NO fat found in fullText at all!');
+  }
   return valueMap;
 }
 
