@@ -37,10 +37,11 @@ function valBg(v) {
     return '';
 }
 
-function makeDataTable(items, cols) {
-    const colLabels = {name:'检测项目',value:'反应值',desc:'说明解释',food:'食物来源',cn:'英文名'};
+function makeDataTable(items, cols, labels) {
+    const defaultLabels = {name:'检测项目',value:'反应值',desc:'详解',food:'食物来源',cn:'英文名'};
+    const L = Object.assign({}, defaultLabels, labels || {});
     let html = '<div style="overflow-x:auto;"><table><thead><tr>';
-    for (const c of cols) html += `<th>${colLabels[c]||c}</th>`;
+    for (const c of cols) html += `<th>${L[c]||c}</th>`;
     html += '</tr></thead><tbody>';
     for (const it of items) {
         html += '<tr>';
@@ -123,15 +124,15 @@ function makeBarChart(chartId, items, labelKey='name') {
     }, 150);
 }
 
-function makeSection(id, title, items, chartId, cols='name,value,desc,food') {
+function makeSection(id, title, items, chartId, cols, labels) {
     if (!items || !items.length) return '';
-    const colsArr = cols.split(',');
+    const colsArr = (cols || 'name,value,desc,food').split(',');
     const summary = statSummary(items);
     let html = `<div class="report-card" id="${id}"><h3>${title}</h3>`;
     if (summary) html += `<div class="summary-box">${summary}</div>`;
     html += '<div class="legend"><span class="r-low">■ ≤50 长期压力</span><span class="r-normal">■ 50-100 平衡</span><span class="r-high">■ ≥100 近期压力</span></div>';
     html += `<div class="chart-wrap"><canvas id="${chartId}"></canvas></div>`;
-    html += makeDataTable(items, colsArr);
+    html += makeDataTable(items, colsArr, labels);
     html += '</div>';
     if (chartId) makeBarChart(chartId, items);
     return html;
@@ -299,22 +300,27 @@ td.normal { color: #2e7d32; }
                 const high10 = items.slice(10, 20);
                 const rest = items.slice(20);
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
+                const emoLabels = {name:'检测项目',value:'反应值'};
                 if (low10.length) {
                     html += '<h4 style="margin-top:10px;">📉 反应值最低的10项</h4>';
-                    html += makeDataTable(low10, ['name','value']);
+                    html += makeDataTable(low10, ['name','value'], emoLabels);
                 }
                 if (high10.length) {
                     html += '<h4 style="margin-top:10px;">📈 反应值最高的10项</h4>';
-                    html += makeDataTable(high10, ['name','value']);
+                    html += makeDataTable(high10, ['name','value'], emoLabels);
                 }
                 if (rest.length) {
                     html += '<h4 style="margin-top:10px;">📊 全部情绪特征</h4>';
-                    html += makeDataTable(rest, ['name','value']);
+                    html += makeDataTable(rest, ['name','value'], emoLabels);
                 }
                 html += '</div>';
             } else {
                 const cols = getOptimalCols(items);
-                html += makeSection(id, title, items, chartId, cols);
+                // Column labels per sheet type
+                const labels = {};
+                if (key.includes('基本体质') || key.includes('压力指数')) labels.desc = '数值说明';
+                else if (key.includes('脊柱')) labels.desc = '压力状态';
+                html += makeSection(id, title, items, chartId, cols, labels);
             }
         }
     }
