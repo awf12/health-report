@@ -167,9 +167,9 @@ function renderFullReport(data) {
     const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
 
     let html = `
-<div style="text-align:center;margin:0 auto;" id="cover">
-  <img src="covers/cover1.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封面1">
-  <img src="covers/cover2.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封面2">
+<div style="text-align:center;" id="cover">
+  <img src="covers/cover1.png" style="width:100%;display:block;" alt="封面1">
+  <img src="covers/cover2.png" style="width:100%;display:block;" alt="封面2">
   <div style="text-align:center;padding:20px;">
     <p style="color:#666;font-size:14px;">姓名: ${M.name||''} &nbsp;|&nbsp; 性别: ${M.gender||''} &nbsp;|&nbsp; 检测日期: ${M.testDate||''}</p>
     <p style="color:#999;font-size:12px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
@@ -277,6 +277,7 @@ td.normal { color: #2e7d32; }
             } else if (key.includes('情绪')) {
                 const low10 = items.slice(0, 10);
                 const high10 = items.slice(10, 20);
+                const rest = items.slice(20);
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
                 const emoLabels = {name:'检测项目',value:'反应值'};
                 if (low10.length) {
@@ -286,6 +287,10 @@ td.normal { color: #2e7d32; }
                 if (high10.length) {
                     html += '<h4 style="margin-top:10px;">📈 反应值最高的10项</h4>';
                     html += makeDataTable(high10, ['name','value'], emoLabels);
+                }
+                if (rest.length) {
+                    html += '<h4 style="margin-top:10px;">📊 全部情绪特征</h4>';
+                    html += makeDataTable(rest, ['name','value'], emoLabels);
                 }
                 html += '</div>';
             } else {
