@@ -63,8 +63,8 @@ function makeBarChart(chartId, items, labelKey='name') {
     const labels = items.map(i => i[labelKey] || '');
     const values = items.map(i => i.value || 0);
     const n = values.length;
-    const colors = values.map((_, i) => PALETTE[i % PALETTE.length]);
-    const borders = colors.map(c => c.replace('0.85','1'));
+    const colors = values.map(v => v <= 50 ? 'rgba(192,57,43,0.85)' : v >= 100 ? 'rgba(212,160,23,0.85)' : 'rgba(65,105,225,0.85)');
+    const borders = values.map(v => v <= 50 ? 'rgba(192,57,43,1)' : v >= 100 ? 'rgba(212,160,23,1)' : 'rgba(65,105,225,1)');
 
     // Collect chart config for download
     if (!window._chartConfigs) window._chartConfigs = [];

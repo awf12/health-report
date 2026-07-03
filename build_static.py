@@ -500,7 +500,8 @@ function downloadReport(name) {
   chartInitJS += `_cfgs.forEach(function(cfg){
     var cv=document.getElementById(cfg.chartId);
     if(!cv) return;
-    var colors=cfg.colors, borders=cfg.borders, values=cfg.values;
+    var colors=values.map(function(v){return v<=50?'rgba(192,57,43,0.85)':v>=100?'rgba(212,160,23,0.85)':'rgba(65,105,225,0.85)';});
+    var borders=values.map(function(v){return v<=50?'rgba(192,57,43,1)':v>=100?'rgba(212,160,23,1)':'rgba(65,105,225,1)';});
     new Chart(cv,{type:"bar",data:{labels:cfg.labels,datasets:[{data:values,backgroundColor:colors,borderColor:borders,borderWidth:1}]},
     options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
     scales:{y:{min:0,max:160,grid:{color:"#e0e0e0"}},x:{ticks:{maxRotation:60,font:{size:9}}}}},
