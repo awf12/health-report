@@ -582,7 +582,7 @@
           },
           {
             "name": "雪松香精油",
-            "cn": "Cedar aroma oil skin irritations, dermatosis, dny skin eczema",
+            "cn": "Cedar aroma oil skin irritations, dermatosis, dry skin eczema skin eczema",
             "value": 65,
             "desc": "65",
             "food": "用于皮肤刺激、皮炎、干燥皮肤和湿疹"
@@ -701,7 +701,7 @@
           },
           {
             "name": "迷迭香精油",
-            "cn": "Rosemany aroma oil, tonifier, revitalizes livergallbladder",
+            "cn": "Rosemary aroma oil, tonifier, revitalizes livergallbladder",
             "value": 75,
             "desc": "75",
             "food": "滋补剂，激活肝脏胆囊"
@@ -729,7 +729,7 @@
           },
           {
             "name": "依兰芳香油",
-            "cn": "Ylang ylang aroma oil,hypertension,aphrodisiac",
+            "cn": "Ylang ylang aroma oil,hypertension, aphrodisiac",
             "value": 96,
             "desc": "96",
             "food": "高血压，壮阳药"
