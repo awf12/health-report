@@ -198,7 +198,7 @@ function extractValues(fullText) {
 
   // PDF.js text: "Name (desc) VALUE 0 % NextName (desc) VALUE2 0 %"
   // Match VALUE skipping the "0 %" improvement percentage
-  const pairRegex = /([A-Za-z][A-Za-z\\s,().&+\\-]{2,80}?)\\s+(\\d{2,4})\\s+\\d+\\s*%/g;
+  const pairRegex = /([A-Za-z][A-Za-z0-9\\s,().&+\\-:]{2,80}?)\\s+(\\d{2,4})\\s+\\d+\\s*%/g;
   let m;
   while ((m = pairRegex.exec(fullText)) !== null) {
     const name = m[1].trim().toLowerCase();
@@ -208,7 +208,7 @@ function extractValues(fullText) {
     }
   }
   // Also match values without trailing "0 %" (risk scores, etc)
-  const simpleRegex = /([A-Z][A-Z\\s]{1,30})\\s+(\\d{1,3})\\b/g;
+  const simpleRegex = /([A-Z][A-Z0-9\\s]{1,30})\\s+(\\d{1,3})\\b/g;
   while ((m = simpleRegex.exec(fullText)) !== null) {
     const name = m[1].trim().toLowerCase();
     const val = parseInt(m[2]);
