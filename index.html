@@ -254,12 +254,7 @@ function renderFullReport(data) {
     const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
 
     let html = `
-</style>
-
-<nav class="r-sidebar"><h2>📋 报告目录</h2>${sidebar}</nav>
-<button class="r-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-<div class="r-main">
-<div style="text-align:center;" id="cover">
+<div style="max-width:100%;margin:0;padding-left:200px;" id="cover">
   <img src="covers/cover1.png" style="width:100%;display:block;" alt="封面1">
   <img src="covers/cover2.png" style="width:100%;display:block;" alt="封面2">
   <div style="text-align:center;padding:20px;">
@@ -305,6 +300,11 @@ td.normal { color: #2e7d32; }
 .r-scroll-top { position: fixed; bottom: 30px; right: 30px; width: 40px; height: 40px; background: #2c5f2d; color: #fff; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 200; display: none; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
 @media (max-width: 768px) { .r-sidebar { display: none; } .r-main { margin-left: 0; padding: 10px; } }
 @media print { .r-sidebar,.r-scroll-top { display: none !important; } .r-main { margin-left: 0; } .report-card { break-inside: avoid; } }
+</style>
+
+<nav class="r-sidebar"><h2>📋 报告目录</h2>${sidebar}</nav>
+<button class="r-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<div class="r-main">
 `;
 
 
