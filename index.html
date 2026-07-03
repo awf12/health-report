@@ -380,7 +380,38 @@ td.normal { color: #2e7d32; }
                 }
                 html += '</tbody></table></div></div>';
             } else if (key.includes('神经递质')) {
-                html += makeSection(id, title, items, chartId, 'name,value,cn');
+                // Neuro: two-column paired layout, no English, no chart
+                html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
+                html += '<div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>检测项目</th><th>反应值</th></tr></thead><tbody>';
+                for (let ni = 0; ni < items.length; ni += 2) {
+                    const a = items[ni] || {};
+                    const b = items[ni + 1] || {};
+                    html += `<tr>
+                      <td>${a.name||''}</td><td class="${valClass(a.value)}" style="${valBg(a.value)}">${a.value!=null?a.value:'-'}</td>
+                      <td>${b.name||''}</td><td class="${valClass(b.value)}" style="${valBg(b.value)}">${b.value!=null?b.value:'-'}</td>
+                    </tr>`;
+                }
+                html += '</tbody></table></div></div>';
+            } else if (key.includes('情绪')) {
+                // Emotions: split into 3 groups, no chart for groups
+                const half = Math.floor(items.length / 2);
+                const low10 = items.slice(0, 10);
+                const high10 = items.slice(10, 20);
+                const rest = items.slice(20);
+                html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
+                if (low10.length) {
+                    html += '<h4 style="margin-top:10px;">📉 反应值最低的10项</h4>';
+                    html += makeDataTable(low10, ['name','value']);
+                }
+                if (high10.length) {
+                    html += '<h4 style="margin-top:10px;">📈 反应值最高的10项</h4>';
+                    html += makeDataTable(high10, ['name','value']);
+                }
+                if (rest.length) {
+                    html += '<h4 style="margin-top:10px;">📊 全部情绪特征</h4>';
+                    html += makeDataTable(rest, ['name','value']);
+                }
+                html += '</div>';
             } else {
                 html += makeSection(id, title, items, chartId);
             }
