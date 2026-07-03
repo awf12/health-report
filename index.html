@@ -254,7 +254,7 @@ function renderFullReport(data) {
     const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
 
     let html = `
-<div style="text-align:center;margin-left:-200px;width:calc(100% + 200px);" id="cover">
+<div style="max-width:100%;margin:0;padding:0;" id="cover">
   <img src="covers/cover1.png" style="width:100%;display:block;" alt="封面1">
   <img src="covers/cover2.png" style="width:100%;display:block;" alt="封面2">
   <div style="text-align:center;padding:20px;">
@@ -349,9 +349,10 @@ td.normal { color: #2e7d32; }
                 }
                 html += '</tbody></table></div></div>';
             } else if (key.includes('神经递质')) {
-                // Neuro: two-column paired layout, no English, no chart
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
+                html += `<div class="chart-wrap"><canvas id="chart_neuro"></canvas></div>`;
                 html += '<div style="overflow-x:auto;"><table><thead><tr><th>检测项目</th><th>反应值</th><th>检测项目</th><th>反应值</th></tr></thead><tbody>';
+                makeBarChart('chart_neuro', items);
                 for (let ni = 0; ni < items.length; ni += 2) {
                     const a = items[ni] || {};
                     const b = items[ni + 1] || {};
@@ -377,9 +378,11 @@ td.normal { color: #2e7d32; }
                 }
                 if (rest.length) {
                     html += '<h4 style="margin-top:10px;">📊 全部情绪特征</h4>';
+                    html += `<div class="chart-wrap"><canvas id="chart_emotions"></canvas></div>`;
                     html += makeDataTable(rest, ['name','value'], emoLabels);
                 }
                 html += '</div>';
+                makeBarChart('chart_emotions', rest);
             } else {
                 // 列配置完全按模板
                 let cols = 'name,value,desc,food';
