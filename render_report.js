@@ -159,6 +159,22 @@ function renderFullReport(data) {
     const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
 
     let html = `
+<div class="report-cover" id="cover">
+  <div style="position:relative;background:linear-gradient(135deg,#1a3a1a,#2c5f2d);color:#fff;padding:60px 40px;border-radius:16px;text-align:center;margin-bottom:30px;">
+    <h1 style="font-size:36px;margin:0 0 8px;">营养与健康检测报告</h1>
+    <h3 style="font-weight:400;opacity:.8;margin:0 0 30px;font-size:18px;">Nutrition and Wellness Assessment Report</h3>
+    <div class="meta-grid">
+      <div class="meta-item-cover"><label>姓名</label><span>${M.name||''}</span></div>
+      <div class="meta-item-cover"><label>性别</label><span>${M.gender||''}</span></div>
+      <div class="meta-item-cover"><label>出生日期</label><span>${M.birthDate||''}</span></div>
+      <div class="meta-item-cover"><label>检测日期</label><span>${M.testDate||''}</span></div>
+      <div class="meta-item-cover"><label>就诊编号</label><span>${M.visitNumber||''}</span></div>
+      <div class="meta-item-cover"><label>检测师</label><span>${M.practitioner||''}</span></div>
+    </div>
+  </div>
+  <p style="color:#999;font-size:13px;margin-bottom:30px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
+  <div style="page-break-after:always;"></div>
+</div>
 <style>
 .report-body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f0e8; color: #333; line-height: 1.7; }
 .r-sidebar { position: fixed; left: 0; top: 0; width: 200px; height: 100vh; background: #1a1a2e; color: #ccc; overflow-y: auto; z-index: 100; font-size: 12px; }
@@ -169,6 +185,9 @@ function renderFullReport(data) {
 .report-cover { text-align: center; padding: 50px 20px; background: #fff; border-radius: 12px; margin-bottom: 20px; }
 .report-cover h1 { font-size: 30px; color: #1a3a1a; margin-bottom: 6px; }
 .report-cover h3 { font-weight: 400; color: #666; margin-bottom: 24px; font-size: 16px; }
+.meta-item-cover { background:rgba(255,255,255,.15); padding:10px 14px; border-radius:8px; }
+.meta-item-cover label { font-size:11px; opacity:.7; display:block; }
+.meta-item-cover span { font-size:15px; font-weight:600; }
 .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 10px; max-width: 700px; margin: 0 auto 24px; text-align: left; }
 .meta-item { background: #fff; padding: 8px 14px; border-radius: 8px; border: 1px solid #ddd; }
 .meta-item label { font-size: 11px; color: #999; display: block; }
@@ -197,20 +216,6 @@ td.normal { color: #2e7d32; }
 <nav class="r-sidebar"><h2>📋 报告目录</h2>${sidebar}</nav>
 <button class="r-scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <div class="r-main">
-
-<div class="report-cover" id="cover">
-  <h1>营养与健康检测报告</h1>
-  <h3>Nutrition and Wellness Assessment Report</h3>
-  <div class="meta-grid">
-    <div class="meta-item"><label>姓名</label><span>${M.name||''}</span></div>
-    <div class="meta-item"><label>性别</label><span>${M.gender||''}</span></div>
-    <div class="meta-item"><label>出生日期</label><span>${M.birthDate||''}</span></div>
-    <div class="meta-item"><label>检测日期</label><span>${M.testDate||''}</span></div>
-    <div class="meta-item"><label>就诊编号</label><span>${M.visitNumber||''}</span></div>
-    <div class="meta-item"><label>检测师</label><span>${M.practitioner||'<span style="color:#999;">（未提取到）</span>'}</span></div>
-  </div>
-  <p style="color:#999;font-size:13px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
-</div>
 `;
 
     // VARHOP
@@ -294,7 +299,16 @@ td.normal { color: #2e7d32; }
 
     html += `<div style="text-align:center;padding:32px;color:#999;font-size:12px;">
       <p>营养与健康检测报告 · ${M.name||''} · 检测日期: ${M.testDate||''}</p>
-      <p>仅供健康管理参考，不作为医学诊断依据</p></div></div>`;
+      <p>仅供健康管理参考，不作为医学诊断依据</p></div>
+<div style="page-break-before:always;"></div>
+<div class="report-back-cover" style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:80px 40px;border-radius:16px;text-align:center;margin-top:30px;">
+  <h2 style="font-size:28px;margin-bottom:20px;">感谢阅读</h2>
+  <p style="font-size:16px;opacity:.8;margin-bottom:10px;">Thank You</p>
+  <div style="width:60px;height:2px;background:rgba(255,255,255,.3);margin:30px auto;"></div>
+  <p style="font-size:13px;opacity:.6;">本报告基于生物反馈检测技术生成</p>
+  <p style="font-size:13px;opacity:.6;">报告日期: ${M.testDate||''}</p>
+  <p style="font-size:13px;opacity:.6;margin-top:20px;">心澄养昱身心健康管理中心</p>
+</div></div>`;
 
     // Add scroll behavior for sidebar
     html += `<script>
