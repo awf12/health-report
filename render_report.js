@@ -244,28 +244,31 @@ td.normal { color: #2e7d32; }
 
     for (let i = 0; i < sectionKeys.length; i++) {
         const key = sectionKeys[i];
-        const id = 's' + (i + 1);
-        const title = key;
-        const chartId = 'chart_' + id;
-        const items = S[key];
-        if (items && Array.isArray(items) && items.length > 0) {
+        const sections = S[key];
+        if (!sections || !Array.isArray(sections) || !sections.length) continue;
+
+        // Handle sheets with sub-sections (e.g., 3.矿物质 has 2)
+        for (let si = 0; si < sections.length; si++) {
+            const sec = sections[si];
+            const items = sec.indicators || sec;
+            if (!items || !Array.isArray(items) || !items.length) continue;
+
+            const id = 's' + (i + 1) + (sections.length > 1 ? '_' + (si + 1) : '');
+            const title = sections.length > 1 ? sec.title || key : key;
+            const chartId = 'chart_' + id;
+
             if (key.includes('脊柱')) {
-                // Special spine rendering
-                html += `<div class="report-card" id="${id}"><h3>${title}</h3><div class="summary-box">共 ${items.length} 个椎位</div>`;
+                html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
                 html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">';
                 for (const it of items) {
-                    const st = it.status || '';
-                    let stCls = '';
-                    if (['已校正','Corrected','正常'].includes(st)) stCls = 'status-green';
-                    else if (['未校正','Not Corrected','困难','Difficult'].includes(st)) stCls = 'status-orange';
-                    else if (['炎症','inflammation','暂时性神经压迫','Temp Nerve Comp'].includes(st)) stCls = 'status-yellow';
-                    else if (['神经压迫','NervCompression','退化','Degeneration','半脱位','subluxation'].includes(st)) stCls = 'status-red';
                     html += `<div style="padding:8px 12px;border-radius:8px;border:1px solid #ddd;font-size:12px;">
-                      <strong style="font-size:14px;">${it.vertebra||''} · ${it.region||''}</strong>
-                      <span class="${stCls}" style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;margin-left:4px;">${st}</span>
-                      <div style="margin-top:4px;font-size:11px;color:#666;">${it.body||''}</div></div>`;
+                      <strong style="font-size:14px;">${it.name||''}</strong>
+                      <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;margin-left:4px;">${it.cn||''}</span>
+                      <div style="margin-top:4px;font-size:11px;color:#666;">${it.desc||''}</div></div>`;
                 }
                 html += '</div></div>';
+            } else if (key.includes('神经递质')) {
+                html += makeSection(id, title, items, chartId, 'name,value,cn');
             } else {
                 html += makeSection(id, title, items, chartId);
             }
