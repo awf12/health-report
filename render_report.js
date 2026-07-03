@@ -277,7 +277,18 @@ td.normal { color: #2e7d32; }
                 html += '</tbody></table></div></div>';
             } else if (key.includes('情绪')) {
                 const low10 = items.slice(0, 10);
-                const fullList = items.slice(20);
+                // Deduplicate: skip items 10-19 (duplicates of low10 without values)
+                // and items 30-39 (duplicates of high10 without values)
+                let fullList = items.slice(20).filter(function(item, idx) {
+                    return item.value !== null && item.value !== undefined;
+                });
+                // Also deduplicate by name
+                const seen = {};
+                fullList = fullList.filter(function(item) {
+                    if (seen[item.name]) return false;
+                    seen[item.name] = true;
+                    return true;
+                });
                 const sorted = [].concat(fullList).sort(function(a,b){ return (b.value||0) - (a.value||0); });
                 const high10 = sorted.slice(0, 10);
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
