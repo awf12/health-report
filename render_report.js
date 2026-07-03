@@ -167,7 +167,7 @@ function renderFullReport(data) {
     const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
 
     let html = `
-<div style="text-align:center;margin-bottom:20px;" id="cover">
+<div style="text-align:center;margin:0 auto;" id="cover">
   <img src="covers/cover1.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封面1">
   <img src="covers/cover2.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封面2">
   <div style="text-align:center;padding:20px;">
@@ -246,38 +246,19 @@ td.normal { color: #2e7d32; }
 
             if (key.includes('脊柱')) {
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
-                html += '<div style="overflow-x:auto;"><table><thead><tr><th>脊柱名称</th><th>区域</th><th>压力状态</th><th>对应身体部位</th></tr></thead><tbody>';
-                // Body part mapping from template
-                const bodyMap = {
-                    'C1':'头部血液供应，脑垂体，头皮，脸部骨骼，大脑，内耳及中耳，交感神经系统',
-                    'C2':'双耳，视神经，听觉神经，额窦，乳突，舌，前额',
-                    'C3':'脸颊，外耳，面部骨骼，牙，三叉神经',
-                    'C4':'鼻，唇，嘴，耳咽',
-                    'C5':'声带，腺体，咽',
-                    'C6':'颈部肌肉，肩，扁桃体',
-                    'C7':'甲状腺，肩关节，肘关节',
-                    'T1':'前臂，包括手、腕及手指，食管，气管',
-                    'T2':'心，包括瓣膜及心包，冠状动脉',
-                    'T3':'肺，支气管，胸膜，胸廓，乳房',
-                    'T4':'胆囊，胆总管',
-                    'T5':'肝，腹腔神经丛，总循环系统',
-                    'T6':'胃','T7':'胰腺，十二指肠','T8':'脾','T9':'肾上腺',
-                    'T10':'肾脏','T11':'输尿管','T12':'小肠，输卵管',
-                    'L1':'大肠，腹股沟','L2':'阑尾，腹部，大腿',
-                    'L3':'生殖器官，膀胱，膝','L4':'坐骨神经，腰部','L5':'小腿，脚踝，脚'
-                };
+                html += '<div style="overflow-x:auto;"><table><thead><tr><th>脊柱名称</th><th>压力状态</th><th>对应身体部位</th></tr></thead><tbody>';
                 for (const it of items) {
-                    const st = it.desc || '';
+                    const parts = (it.desc || '').split('|');
+                    const region = (parts[0] || '').trim();
+                    const st = (parts[1] || '').trim();
                     let stColor = '#2e7d32', stBg = '#e8f5e9';
                     if (/神经压迫|退化|重度/.test(st)) { stColor = '#c0392b'; stBg = '#ffe0e0'; }
                     else if (/炎症|中度|暂时/.test(st)) { stColor = '#f57f17'; stBg = '#fff8e1'; }
                     else if (/未校正|困难|半脱位|轻度/.test(st)) { stColor = '#e65100'; stBg = '#fff3e0'; }
-                    const body = bodyMap[it.name] || it.desc || '';
                     html += `<tr>
-                      <td><strong>${it.name||''}</strong></td>
-                      <td>${it.cn||''}</td>
+                      <td><strong>${it.name||''}</strong> <span style="color:#999;font-size:11px;">${region}</span></td>
                       <td><span style="background:${stBg};color:${stColor};padding:2px 8px;border-radius:4px;font-weight:600;">${st}</span></td>
-                      <td style="font-size:11px;color:#666;">${body}</td></tr>`;
+                      <td style="font-size:11px;color:#666;">${it.food||''}</td></tr>`;
                 }
                 html += '</tbody></table></div></div>';
             } else if (key.includes('神经递质')) {
@@ -294,11 +275,8 @@ td.normal { color: #2e7d32; }
                 }
                 html += '</tbody></table></div></div>';
             } else if (key.includes('情绪')) {
-                // Emotions: split into 3 groups, no chart for groups
-                const half = Math.floor(items.length / 2);
                 const low10 = items.slice(0, 10);
                 const high10 = items.slice(10, 20);
-                const rest = items.slice(20);
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
                 const emoLabels = {name:'检测项目',value:'反应值'};
                 if (low10.length) {
@@ -308,10 +286,6 @@ td.normal { color: #2e7d32; }
                 if (high10.length) {
                     html += '<h4 style="margin-top:10px;">📈 反应值最高的10项</h4>';
                     html += makeDataTable(high10, ['name','value'], emoLabels);
-                }
-                if (rest.length) {
-                    html += '<h4 style="margin-top:10px;">📊 全部情绪特征</h4>';
-                    html += makeDataTable(rest, ['name','value'], emoLabels);
                 }
                 html += '</div>';
             } else {
