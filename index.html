@@ -556,21 +556,21 @@ function extractValues(fullText) {
   while ((m = re1.exec(fullText)) !== null) {
     const name = m[1].trim().toLowerCase();
     const val = parseInt(m[2]);
-    if (val >= 10 && val <= 2000 && name.length >= 2) valueMap[name] = val;
+    if (val >= 0 && val <= 30000 && name.length >= 2) valueMap[name] = val;
   }
   // Format 2: "LABEL DIGITS" (risk scores, simple names)
-  const re2 = /([A-Z][A-Z0-9\s\-]{1,30})\s+(\d{1,3})\b/g;
+  const re2 = /([A-Z][A-Z0-9\s\-]{1,30})\s+(\d{1,5})\b/g;
   while ((m = re2.exec(fullText)) !== null) {
     const name = m[1].trim().toLowerCase();
     const val = parseInt(m[2]);
-    if (val >= 10 && val <= 200 && !(name in valueMap)) valueMap[name] = val;
+    if (val >= 0 && val <= 30000 && !(name in valueMap)) valueMap[name] = val;
   }
   // Format 3: Broader catch for any English label followed by a number
-  const re3 = /\b([A-Za-z][A-Za-z0-9\s,().&+\-:\/]{3,60}?)\s+(\d{2,4})\b/g;
+  const re3 = /\b([A-Za-z][A-Za-z0-9\s,().&+\-:\/]{3,60}?)\s+(\d{1,5})\b/g;
   while ((m = re3.exec(fullText)) !== null) {
     const name = m[1].trim().toLowerCase();
     const val = parseInt(m[2]);
-    if (val >= 10 && val <= 2000 && name.length >= 2 && !(name in valueMap) && !/^\d+\s*\/\s*\d+$/.test(name)) {
+    if (val >= 0 && val <= 30000 && name.length >= 2 && !(name in valueMap) && !/^\d+\s*\/\s*\d+$/.test(name)) {
       valueMap[name] = val;
     }
   }
