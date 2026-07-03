@@ -174,7 +174,9 @@ function renderFullReport(data) {
 .r-sidebar h2 { color: #fff; padding: 14px 16px; font-size: 14px; border-bottom: 1px solid #333; margin: 0; position: sticky; top: 0; background: #1a1a2e; }
 .r-sidebar a { display: block; padding: 4px 18px; color: #aaa; text-decoration: none; border-left: 3px solid transparent; }
 .r-sidebar a:hover, .r-sidebar a.active { color: #fff; background: #16213e; border-left-color: #4caf50; }
-.r-main { margin-left: 200px; padding: 20px 28px; max-width: 1400px; }
+.r-main { margin-left: 200px; padding: 0; max-width: none; }
+.r-main .report-card { margin: 0 20px 20px 20px; }
+.r-main .report-cover, .r-main .report-back-cover { margin: 0; }
 .report-cover { text-align: center; padding: 50px 20px; background: #fff; border-radius: 12px; margin-bottom: 20px; }
 .report-cover h1 { font-size: 30px; color: #1a3a1a; margin-bottom: 6px; }
 .report-cover h3 { font-weight: 400; color: #666; margin-bottom: 24px; font-size: 16px; }
