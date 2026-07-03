@@ -363,11 +363,12 @@ td.normal { color: #2e7d32; }
                 }
                 html += '</tbody></table></div></div>';
             } else if (key.includes('情绪')) {
-                const low10 = items.slice(0, 10);
-                // All items after low10 are the full emotion list (already deduped in template)
-                const allEmotions = items.slice(10);
-                const sorted = [].concat(allEmotions).sort(function(a,b){ return (b.value||0) - (a.value||0); });
-                const high10 = sorted.slice(0, 10);
+                // All items are already deduped. Sort by value for low/high
+                const withVals = items.filter(function(i){ return i.value != null; });
+                const sortedAsc = [].concat(withVals).sort(function(a,b){ return (a.value||0) - (b.value||0); });
+                const sortedDesc = [].concat(withVals).sort(function(a,b){ return (b.value||0) - (a.value||0); });
+                const low10 = sortedAsc.slice(0, 10);
+                const high10 = sortedDesc.slice(0, 10);
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
                 const emoLabels = {name:'检测项目',value:'反应值'};
                 if (low10.length) {
@@ -382,13 +383,13 @@ td.normal { color: #2e7d32; }
                     html += makeDataTable(high10, ['name','value'], emoLabels);
                     makeBarChart('chart_emo_high', high10);
                 }
-                if (allEmotions.length) {
+                if (withVals.length) {
                     html += '<h4>📊 全部情绪特征</h4>';
                     html += `<div class="chart-wrap"><canvas id="chart_emotions"></canvas></div>`;
-                    html += makeDataTable(allEmotions, ['name','value'], emoLabels);
+                    html += makeDataTable(withVals, ['name','value'], emoLabels);
                 }
                 html += '</div>';
-                makeBarChart('chart_emotions', allEmotions);
+                makeBarChart('chart_emotions', withVals);
             } else {
                 // 列配置完全按模板
                 let cols = 'name,value,desc,food';
