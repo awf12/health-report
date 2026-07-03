@@ -318,8 +318,8 @@ td.normal { color: #2e7d32; }
                 // 列配置完全按模板
                 let cols = 'name,value,desc,food';
                 const labels = {};
-                if (key.includes('基本体质')) { cols = 'name,value,desc'; labels.desc = '数值说明'; }
-                else if (key.includes('压力指数')) { cols = 'name,value,desc'; labels.desc = '数值说明'; }
+                if (key.includes('基本体质') || key.includes('压力指数')) {
+                    cols = 'name,value,desc,food'; labels.desc = '数值说明'; labels.food = '身体反应与症状'; }
                 else if (key.includes('氨基酸') || key.includes('矿物质') || key.includes('水溶性') || key.includes('脂溶性')) {
                     cols = 'name,value,desc,food'; labels.desc = '详解'; labels.food = '食物来源'; }
                 else if (key.includes('芳香') || key.includes('消化') || key.includes('碳水') || key.includes('蛋白质') || key.includes('外源性') || key.includes('额外因素') || key.includes('导致健康')) {
