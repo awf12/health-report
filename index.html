@@ -306,28 +306,6 @@ td.normal { color: #2e7d32; }
 <div class="r-main">
 `;
 
-    // VARHOP
-    const vh = S.varhop || {};
-    const varhopItems = [
-        {name:'电压指数(Volt)',value:vh.volt,desc:'体力指数，100-80正常',food:''},
-        {name:'电流强度(Amper)',value:vh.amper,desc:'脑力指数，100-80正常',food:''},
-        {name:'电阻(Resistance)',value:vh.resistance,desc:'免疫力指数',food:''},
-        {name:'水合指数(Hydration)',value:vh.hydration,desc:'细胞水分',food:''},
-        {name:'氧化指数(Oxidation)',value:vh.oxidation,desc:'血液携氧能力',food:''},
-        {name:'质子压力',value:vh.proton_pressure,desc:'能量代谢/ATP生产',food:''},
-        {name:'电子压力',value:vh.electron_pressure,desc:'能量转换/ATP合成',food:''},
-        {name:'相角指数',value:vh.phase_angle,desc:'细胞再生/老化指标',food:''},
-        {name:'相反应指数',value:vh.phase_response,desc:'各系统协同能力',food:''},
-        {name:'阻抗指数',value:vh.impedance,desc:'能量流通指标',food:''},
-        {name:'反应速度',value:vh.reaction_speed,desc:'<19正常，100重度迟钝',food:''},
-        {name:'细胞活力指数',value:vh.cellular_vitality,desc:'≥6正常',food:''},
-    ];
-    html += makeSection('varhop', '⚡ VARHOP 数值 — 身体基本体质评估', varhopItems, 'chart_varhop');
-
-    // Risk profile
-    const risk = S.risk_profile || {};
-    const riskItems = Object.entries(risk).map(([k,v]) => ({name: k.replace(/_/g,' '), value: v, desc:'', food:''}));
-    html += makeSection('risk', '⚠️ 风险概况', riskItems, 'chart_risk');
 
     // Section configs matching new template (改5)
     const sectionKeys = [
