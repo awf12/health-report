@@ -249,7 +249,7 @@ function renderFullReport(data) {
 <div class="report-cover" id="cover">
   <img src="covers/cover1.png" style="width:100%;display:block;margin:0 auto 10px;" alt="封面1">
   <img src="covers/cover2.png" style="width:100%;display:block;margin:0 auto 10px;" alt="封面2">
-  <div style="text-align:center;padding:30px;">
+  <div style="text-align:center;padding:20px 20px 30px;">
     <p style="color:#666;font-size:14px;">姓名: ${M.name||''} | 性别: ${M.gender||''} | 检测日期: ${M.testDate||''}</p>
     <p style="color:#999;font-size:12px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
   </div>
@@ -264,7 +264,7 @@ function renderFullReport(data) {
 .r-main { margin-left: 200px; padding: 0; max-width: none; }
 .r-main .report-card { margin: 0 20px 20px 20px; }
 .r-main .report-cover, .r-main .report-back-cover { margin: 0; }
-.report-cover { text-align: center; padding: 50px 20px; background: #fff; border-radius: 12px; margin-bottom: 20px; }
+.report-cover { text-align: center; padding: 0; background: #fff; border-radius: 12px; margin-bottom: 0; }
 .report-cover h1 { font-size: 30px; color: #1a3a1a; margin-bottom: 6px; }
 .report-cover h3 { font-weight: 400; color: #666; margin-bottom: 24px; font-size: 16px; }
 .meta-item-cover { background:rgba(255,255,255,.15); padding:10px 14px; border-radius:8px; }
@@ -383,7 +383,7 @@ td.normal { color: #2e7d32; }
       <p>营养与健康检测报告 · ${M.name||''} · 检测日期: ${M.testDate||''}</p>
       <p>仅供健康管理参考，不作为医学诊断依据</p></div>
 <div style="page-break-before:always;"></div>
-<div class="report-back-cover" style="text-align:center;margin-top:30px;">
+<div class="report-back-cover" style="text-align:center;">
   <img src="covers/back0.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底">
   <img src="covers/back1.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底1">
   <img src="covers/back2.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底2">
