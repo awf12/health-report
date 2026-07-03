@@ -143,18 +143,16 @@ function renderFullReport(data) {
 
     // Build sidebar nav
     const navItems = [
-        ['cover','📄 封面'],['varhop','⚡ 基本体质'],['risk','⚠️ 风险概况'],
-        ['vitamins','💊 维生素家族'],['vita','  └ A族'],['vitb','  └ B族'],
-        ['vitc','  └ C族'],['vitd','  └ D族'],['vite','  └ E族'],
-        ['vitf','  └ F族'],['vitk','  └ K族'],['vitu','  └ U族'],
-        ['amino','🧬 氨基酸'],['minerals','🪨 矿物质'],['aroma','🌸 芳香疗法'],
-        ['digestion','🫄 消化系统'],['carb','🍚 碳水代谢'],['fat','🧈 脂肪消化'],
-        ['protein','🥩 蛋白质消化'],['spine','🦴 脊柱'],
-        ['xeno','🧪 外源物质'],['addfactors','➕ 额外因素'],
-        ['causes','🔍 疾病原因'],['aggrav','📈 加重因素'],
-        ['miasms','🧫 体质'],['nosodes','🦠 病原体'],
-        ['herbs','🌿 草药'],['emotions','💭 情绪'],
-        ['organs','🫀 器官'],['neuro','🧠 神经递质'],
+        ['cover','📄 封面'],
+        ['s1','1. 基本体质'],['s2','2. 氨基酸'],['s3','3. 矿物质'],
+        ['s4','4. 芳香疗法'],['s5','5. 脊柱反应性'],
+        ['s6','6. 水溶性维生素'],['s7','7. 脂溶性维生素'],
+        ['s8','8. 一般消化系统'],['s9','9. 碳水化合物代谢'],
+        ['s10','10. 蛋白质和脂类代谢'],['s11','11. 外源性物质'],
+        ['s12','12. 外源性物质额外因素'],
+        ['s13','13. 导致健康风险和健康恶化的原因'],
+        ['s14','14. 74项情绪'],['s15','15. 压力指数和来源'],
+        ['s16','16. 神经递质'],
     ];
     const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
 
@@ -236,40 +234,22 @@ td.normal { color: #2e7d32; }
     const riskItems = Object.entries(risk).map(([k,v]) => ({name: k.replace(/_/g,' '), value: v, desc:'', food:''}));
     html += makeSection('risk', '⚠️ 风险概况', riskItems, 'chart_risk');
 
-    // Sections config - matching build_html.py
-    const sectionConfigs = [
-        ['vitamins','vitamin_families','💊 维生素家族反应值','chart_vitamins'],
-        ['vita','vitamin_a_detail','维生素A族详细','chart_vita'],
-        ['vitb','vitamin_b_detail','维生素B族详细','chart_vitb'],
-        ['vitc','vitamin_c_detail','维生素C族详细','chart_vitc'],
-        ['vitd','vitamin_d_detail','维生素D族详细','chart_vitd'],
-        ['vite','vitamin_e_detail','维生素E族详细','chart_vite'],
-        ['vitf','vitamin_f_detail','维生素F（脂肪酸）详细','chart_vitf'],
-        ['vitk','vitamin_k_detail','维生素K族详细','chart_vitk'],
-        ['vitu','vitamin_u_detail','维生素U族（辅酶Q）详细','chart_vitu'],
-        ['amino','amino_acids','🧬 氨基酸平衡性评估','chart_amino'],
-        ['minerals','minerals','🪨 矿物质平衡性评估','chart_minerals'],
-        ['aroma','aromatherapy','🌸 芳香疗法反应性评估','chart_aroma'],
-        ['digestion','general_digestion','🫄 一般消化系统评估','chart_digestion'],
-        ['carb','carbohydrate_digestion','🍚 碳水化合物代谢反应性评估','chart_carb'],
-        ['fat','fat_digestion','🧈 脂肪消化评估','chart_fat'],
-        ['protein','protein_digestion','🥩 蛋白质消化评估','chart_protein'],
-        ['xeno','xenobiotics','🧪 外源性物质反应性评估','chart_xeno'],
-        ['addfactors','additional_factors','➕ 外源性物质额外因素评估','chart_addfactors'],
-        ['causes','disease_causes','🔍 导致健康风险和健康恶化的原因','chart_causes'],
-        ['aggrav','disease_aggravations','📈 疾病加重因素','chart_aggrav'],
-        ['miasms','miasms','🧫 体质特征反应性','chart_miasms'],
-        ['nosodes','nosodes','🦠 病原体特征反应性','chart_nosodes'],
-        ['herbs','oriental_herbs','🌿 东方草药反应性','chart_herbs'],
-        ['emotions','emotions','💭 74项数字化多元情绪压力评估','chart_emotions'],
-        ['organs','organ_sarcodes','🫀 器官拟态剂','chart_organs'],
-        ['neuro','neurotransmitters','🧠 神经递质平衡性评估','chart_neuro'],
+    // Section configs matching new template (改5)
+    const sectionKeys = [
+        '1.基本体质','2.氨基酸','3.矿物质','4.芳香疗法','5.脊柱反应性',
+        '6.水溶性维生素','7.脂溶性维生素','8.一般消化系统','9.碳水化合物代谢',
+        '10.蛋白质和脂类代谢','11.外源性物质','12.外源性物质额外因素',
+        '13.导致健康风险和健康恶化的原因','14.74项情绪','15.压力指数和来源','16.神经递质'
     ];
 
-    for (const [id, key, title, chartId] of sectionConfigs) {
+    for (let i = 0; i < sectionKeys.length; i++) {
+        const key = sectionKeys[i];
+        const id = 's' + (i + 1);
+        const title = key;
+        const chartId = 'chart_' + id;
         const items = S[key];
         if (items && Array.isArray(items) && items.length > 0) {
-            if (key === 'spine') {
+            if (key.includes('脊柱')) {
                 // Special spine rendering
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3><div class="summary-box">共 ${items.length} 个椎位</div>`;
                 html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">';
