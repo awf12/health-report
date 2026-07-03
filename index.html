@@ -516,16 +516,16 @@ function extractValues(fullText) {
     volt: /Volt\s+(\d+)/i, amper: /Amper\s+(\d+)/i,
     resistance: /Resistance\s+(\d+)/i, hydration: /Hydration\s+(\d+)/i,
     oxidation: /Oxidation\s+(\d+)/i,
-    proton_pressure: /Proton pressure\s+(\d+)/i,
-    electron_pressure: /Electron pressure\s+(\d+)/i,
-    resonant_frequency: /Major resonant frequency[^\d]*(\d+)/i,
-    reactance_speed: /Reactance speed index\s+(\d+)/i,
-    phase_angle: /Phase angle\s+(\d+)/i,
-    phase_response: /Phase response react\s+(\d+)/i,
+    'proton pressure': /Proton pressure\s+(\d+)/i,
+    'electron pressure': /Electron pressure\s+(\d+)/i,
+    'major resonant frequency of the client': /Major resonant frequency[^\d]*(\d+)/i,
+    'reactance speed index': /Reactance speed index\s+(\d+)/i,
+    'phase angle': /Phase angle\s+(\d+)/i,
+    'phase response react': /Phase response react\s+(\d+)/i,
     impedance: /Impedance\s+(\d+)/i,
-    reaction_speed: /Parts per seconds[^\d]*(\d+)/i,
-    body_fat: /Body fat\s+(\d+%?)/i,
-    cellular_vitality: /Cellular vitality[^\d]*(\d+)/i,
+    'parts per seconds for reaction speed': /Parts per seconds[^\d]*(\d+)/i,
+    'body fat': /Body fat\s+(\d+%?)/i,
+    'cellular vitality index (6 + normal, below 3 chronic)': /Cellular vitality[^\d]*(\d+)/i,
   };
   for (const [k, pat] of Object.entries(patterns)) {
     const m = fullText.match(pat);
@@ -570,6 +570,9 @@ function lookupValue(valueMap) {
     if (!name) continue;
     const key = name.toLowerCase().trim();
     if (valueMap[key] !== undefined) return valueMap[key];
+    // Also try underscore version
+    const key_underscore = key.replace(/\s+/g, '_');
+    if (valueMap[key_underscore] !== undefined) return valueMap[key_underscore];
 
     // Key without parentheses
     const cleanKey = key.replace(/\s*\(.*/, '').trim();
