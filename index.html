@@ -224,6 +224,15 @@ function makeSection(id, title, items, chartId, cols='name,value,desc,food') {
     return html;
 }
 
+function getOptimalCols(items) {
+    const hasFood = items.some(function(i){ return i.food && i.food.length > 3; });
+    const hasDesc = items.some(function(i){ return i.desc && i.desc.length > 3; });
+    if (hasDesc && hasFood) return 'name,value,desc,food';
+    if (hasDesc) return 'name,value,desc';
+    if (hasFood) return 'name,value,food';
+    return 'name,value';
+}
+
 function renderFullReport(data) {
     const M = data.meta;
     const S = data.sections;
@@ -413,7 +422,8 @@ td.normal { color: #2e7d32; }
                 }
                 html += '</div>';
             } else {
-                html += makeSection(id, title, items, chartId);
+                const cols = getOptimalCols(items);
+                html += makeSection(id, title, items, chartId, cols);
             }
         }
     }
