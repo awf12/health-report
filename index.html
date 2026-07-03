@@ -46,7 +46,7 @@ body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f
 <body>
 <div class="header">
   <h1>📋 营养与健康检测报告系统</h1>
-  <span style="font-size:12px;opacity:.7;">v3.0-封面封底 · 纯浏览器版 · 不限量</span>
+  <span style="font-size:12px;opacity:.7;">v2.2 · 纯浏览器版 · 不限量</span>
 </div>
 <div class="container">
   <div id="msgBox"></div>
@@ -247,19 +247,12 @@ function renderFullReport(data) {
 
     let html = `
 <div class="report-cover" id="cover">
-  <div style="position:relative;background:linear-gradient(135deg,#1a3a1a,#2c5f2d);color:#fff;padding:60px 40px;border-radius:16px;text-align:center;margin-bottom:30px;">
-    <h1 style="font-size:36px;margin:0 0 8px;">营养与健康检测报告</h1>
-    <h3 style="font-weight:400;opacity:.8;margin:0 0 30px;font-size:18px;">Nutrition and Wellness Assessment Report</h3>
-    <div class="meta-grid">
-      <div class="meta-item-cover"><label>姓名</label><span>${M.name||''}</span></div>
-      <div class="meta-item-cover"><label>性别</label><span>${M.gender||''}</span></div>
-      <div class="meta-item-cover"><label>出生日期</label><span>${M.birthDate||''}</span></div>
-      <div class="meta-item-cover"><label>检测日期</label><span>${M.testDate||''}</span></div>
-      <div class="meta-item-cover"><label>就诊编号</label><span>${M.visitNumber||''}</span></div>
-      <div class="meta-item-cover"><label>检测师</label><span>${M.practitioner||''}</span></div>
-    </div>
+  <img src="covers/cover1.png" style="width:100%;max-width:800px;display:block;margin:0 auto 10px;" alt="封面1">
+  <img src="covers/cover2.png" style="width:100%;max-width:800px;display:block;margin:0 auto 10px;" alt="封面2">
+  <div style="text-align:center;padding:30px;">
+    <p style="color:#666;font-size:14px;">姓名: ${M.name||''} | 性别: ${M.gender||''} | 检测日期: ${M.testDate||''}</p>
+    <p style="color:#999;font-size:12px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
   </div>
-  <p style="color:#999;font-size:13px;margin-bottom:30px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
   <div style="page-break-after:always;"></div>
 </div>
 <style>
@@ -388,13 +381,12 @@ td.normal { color: #2e7d32; }
       <p>营养与健康检测报告 · ${M.name||''} · 检测日期: ${M.testDate||''}</p>
       <p>仅供健康管理参考，不作为医学诊断依据</p></div>
 <div style="page-break-before:always;"></div>
-<div class="report-back-cover" style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:80px 40px;border-radius:16px;text-align:center;margin-top:30px;">
-  <h2 style="font-size:28px;margin-bottom:20px;">感谢阅读</h2>
-  <p style="font-size:16px;opacity:.8;margin-bottom:10px;">Thank You</p>
-  <div style="width:60px;height:2px;background:rgba(255,255,255,.3);margin:30px auto;"></div>
-  <p style="font-size:13px;opacity:.6;">本报告基于生物反馈检测技术生成</p>
-  <p style="font-size:13px;opacity:.6;">报告日期: ${M.testDate||''}</p>
-  <p style="font-size:13px;opacity:.6;margin-top:20px;">心澄养昱身心健康管理中心</p>
+<div class="report-back-cover" style="text-align:center;margin-top:30px;">
+  <img src="covers/back0.png" style="width:100%;max-width:800px;display:block;margin:0 auto 5px;" alt="封底">
+  <img src="covers/back1.png" style="width:100%;max-width:800px;display:block;margin:0 auto 5px;" alt="封底1">
+  <img src="covers/back2.png" style="width:100%;max-width:800px;display:block;margin:0 auto 5px;" alt="封底2">
+  <img src="covers/back3.png" style="width:100%;max-width:800px;display:block;margin:0 auto 5px;" alt="封底3">
+  <img src="covers/back4.png" style="width:100%;max-width:800px;display:block;margin:0 auto 5px;" alt="封底4">
 </div></div>`;
 
     // Add scroll behavior for sidebar
