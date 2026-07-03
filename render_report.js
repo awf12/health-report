@@ -321,12 +321,11 @@ td.normal { color: #2e7d32; }
       <p>营养与健康检测报告 · ${M.name||''} · 检测日期: ${M.testDate||''}</p>
       <p>仅供健康管理参考，不作为医学诊断依据</p></div>
 <div style="page-break-before:always;"></div>
-<div style="text-align:center;margin-top:20px;margin-left:-200px;width:calc(100% + 200px);">
   <img src="covers/back0.png" style="width:100%;display:block;" alt="封底">
-  <img src="covers/back1.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底1">
-  <img src="covers/back2.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底2">
-  <img src="covers/back3.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底3">
-  <img src="covers/back4.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底4">
+  <img src="covers/back1.png" style="width:100%;display:block;" alt="封底1">
+  <img src="covers/back2.png" style="width:100%;display:block;" alt="封底2">
+  <img src="covers/back3.png" style="width:100%;display:block;" alt="封底3">
+  <img src="covers/back4.png" style="width:100%;display:block;" alt="封底4">
 </div></div>`;
 
     // Add scroll behavior for sidebar
