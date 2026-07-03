@@ -157,14 +157,13 @@ function renderFullReport(data) {
     const sidebar = navItems.map(([id,label]) => `<a href="#${id}">${label}</a>`).join('');
 
     let html = `
-<div class="report-cover" id="cover">
-  <img src="covers/cover1.png" style="width:100%;display:block;margin:0 auto 10px;" alt="封面1">
-  <img src="covers/cover2.png" style="width:100%;display:block;margin:0 auto 10px;" alt="封面2">
-  <div style="text-align:center;padding:20px 20px 30px;">
-    <p style="color:#666;font-size:14px;">姓名: ${M.name||''} | 性别: ${M.gender||''} | 检测日期: ${M.testDate||''}</p>
+<div style="text-align:center;margin-bottom:20px;" id="cover">
+  <img src="covers/cover1.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封面1">
+  <img src="covers/cover2.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封面2">
+  <div style="text-align:center;padding:20px;">
+    <p style="color:#666;font-size:14px;">姓名: ${M.name||''} &nbsp;|&nbsp; 性别: ${M.gender||''} &nbsp;|&nbsp; 检测日期: ${M.testDate||''}</p>
     <p style="color:#999;font-size:12px;">本报告基于生物反馈检测数据，反应值仅供参考，不作为医学诊断依据。</p>
   </div>
-  <div style="page-break-after:always;"></div>
 </div>
 <style>
 .report-body { font-family: 'PingFang SC','Microsoft YaHei',sans-serif; background: #f5f0e8; color: #333; line-height: 1.7; }
@@ -259,14 +258,40 @@ td.normal { color: #2e7d32; }
 
             if (key.includes('脊柱')) {
                 html += `<div class="report-card" id="${id}"><h3>${title}</h3>`;
-                html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;">';
+                html += '<div style="overflow-x:auto;"><table><thead><tr><th>脊柱名称</th><th>区域</th><th>压力状态</th><th>对应身体部位</th></tr></thead><tbody>';
+                // Body part mapping from template
+                const bodyMap = {
+                    'C1':'头部血液供应，脑垂体，头皮，脸部骨骼，大脑，内耳及中耳，交感神经系统',
+                    'C2':'双耳，视神经，听觉神经，额窦，乳突，舌，前额',
+                    'C3':'脸颊，外耳，面部骨骼，牙，三叉神经',
+                    'C4':'鼻，唇，嘴，耳咽',
+                    'C5':'声带，腺体，咽',
+                    'C6':'颈部肌肉，肩，扁桃体',
+                    'C7':'甲状腺，肩关节，肘关节',
+                    'T1':'前臂，包括手、腕及手指，食管，气管',
+                    'T2':'心，包括瓣膜及心包，冠状动脉',
+                    'T3':'肺，支气管，胸膜，胸廓，乳房',
+                    'T4':'胆囊，胆总管',
+                    'T5':'肝，腹腔神经丛，总循环系统',
+                    'T6':'胃','T7':'胰腺，十二指肠','T8':'脾','T9':'肾上腺',
+                    'T10':'肾脏','T11':'输尿管','T12':'小肠，输卵管',
+                    'L1':'大肠，腹股沟','L2':'阑尾，腹部，大腿',
+                    'L3':'生殖器官，膀胱，膝','L4':'坐骨神经，腰部','L5':'小腿，脚踝，脚'
+                };
                 for (const it of items) {
-                    html += `<div style="padding:8px 12px;border-radius:8px;border:1px solid #ddd;font-size:12px;">
-                      <strong style="font-size:14px;">${it.name||''}</strong>
-                      <span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;margin-left:4px;">${it.cn||''}</span>
-                      <div style="margin-top:4px;font-size:11px;color:#666;">${it.desc||''}</div></div>`;
+                    const st = it.desc || '';
+                    let stColor = '#2e7d32', stBg = '#e8f5e9';
+                    if (/神经压迫|退化|重度/.test(st)) { stColor = '#c0392b'; stBg = '#ffe0e0'; }
+                    else if (/炎症|中度|暂时/.test(st)) { stColor = '#f57f17'; stBg = '#fff8e1'; }
+                    else if (/未校正|困难|半脱位|轻度/.test(st)) { stColor = '#e65100'; stBg = '#fff3e0'; }
+                    const body = bodyMap[it.name] || it.desc || '';
+                    html += `<tr>
+                      <td><strong>${it.name||''}</strong></td>
+                      <td>${it.cn||''}</td>
+                      <td><span style="background:${stBg};color:${stColor};padding:2px 8px;border-radius:4px;font-weight:600;">${st}</span></td>
+                      <td style="font-size:11px;color:#666;">${body}</td></tr>`;
                 }
-                html += '</div></div>';
+                html += '</tbody></table></div></div>';
             } else if (key.includes('神经递质')) {
                 html += makeSection(id, title, items, chartId, 'name,value,cn');
             } else {
@@ -279,12 +304,12 @@ td.normal { color: #2e7d32; }
       <p>营养与健康检测报告 · ${M.name||''} · 检测日期: ${M.testDate||''}</p>
       <p>仅供健康管理参考，不作为医学诊断依据</p></div>
 <div style="page-break-before:always;"></div>
-<div class="report-back-cover" style="text-align:center;">
-  <img src="covers/back0.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底">
-  <img src="covers/back1.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底1">
-  <img src="covers/back2.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底2">
-  <img src="covers/back3.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底3">
-  <img src="covers/back4.png" style="width:100%;display:block;margin:0 auto 5px;" alt="封底4">
+<div style="text-align:center;margin-top:20px;">
+  <img src="covers/back0.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底">
+  <img src="covers/back1.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底1">
+  <img src="covers/back2.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底2">
+  <img src="covers/back3.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底3">
+  <img src="covers/back4.png" style="width:100%;max-width:100%;display:block;margin:0 auto;" alt="封底4">
 </div></div>`;
 
     // Add scroll behavior for sidebar
