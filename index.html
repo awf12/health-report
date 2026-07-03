@@ -563,6 +563,8 @@ function extractValues(fullText) {
     }
   }
   console.log('Extracted values:', Object.keys(valueMap).length);
+  if (valueMap['body fat'] !== undefined) console.log('✅ body fat captured:', valueMap['body fat']);
+  else console.log('❌ body fat NOT in valueMap. All keys with fat:', Object.keys(valueMap).filter(function(k){return k.indexOf('fat')>=0;}));
   return valueMap;
 }
 
@@ -707,6 +709,9 @@ function processTemplate(valueMap, meta) {
         if (v !== null && v !== oldVal) {
           item.value = v;
           updated++;
+          if (item.name && item.name.indexOf('体脂') >= 0) console.log('✅ 体脂率 updated:', oldVal, '→', v);
+        } else if (item.name && item.name.indexOf('体脂') >= 0) {
+          console.log('❌ 体脂率 NOT updated: oldVal=' + oldVal + ' lookup=' + v + ' cn=' + item.cn);
         }
       }
     }
