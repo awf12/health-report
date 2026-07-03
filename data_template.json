@@ -745,176 +745,176 @@
             "name": "C1",
             "cn": "Cervical Nervcompression",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "颈椎 | 神经压迫",
+            "food": "头部血液供应，脑垂体，头皮，脸部骨骼，大脑，内耳及中耳，交感神经系统。"
           },
           {
             "name": "C2",
             "cn": "Cervical Not corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "颈椎 | 未校正",
+            "food": "双耳，视神经，听觉神经，额窦，乳突，舌，前额。"
           },
           {
             "name": "C3",
             "cn": "Cervical Temp nerve comp",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "颈椎 | 暂时性神经压迫",
+            "food": "脸颊，外耳，面部骨骼，牙，三叉神经。"
           },
           {
             "name": "C4",
             "cn": "Cervical Degeneration",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "颈椎 | 退化",
+            "food": "鼻，唇，嘴，耳咽。"
           },
           {
             "name": "C5",
             "cn": "Cervical Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "颈椎 | 已校正",
+            "food": "声带，腺体，咽。"
           },
           {
             "name": "C6",
             "cn": "Cervical Not corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "颈椎 | 未校正",
+            "food": "颈部肌肉，肩，扁桃体"
           },
           {
             "name": "C7",
             "cn": "Cervical Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "颈椎 | 已校正",
+            "food": "甲状腺，肩关节，肘关节"
           },
           {
             "name": "T1",
             "cn": "Thoracic Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 已校正",
+            "food": "前臂，包括手、腕及手指，食管，气管。"
           },
           {
             "name": "T2",
             "cn": "Thoracic Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 已校正",
+            "food": "心，包括瓣膜及心包，冠状动脉。"
           },
           {
             "name": "T3",
             "cn": "Thoracic Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 已校正",
+            "food": "肺，支气管，胸膜，胸廓，乳房"
           },
           {
             "name": "T4",
             "cn": "Thoracic Not corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 未校正",
+            "food": "胆囊，胆总管"
           },
           {
             "name": "T5",
             "cn": "Thoracic Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 已校正",
+            "food": "肝，腹腔神经丛，总循环系统。"
           },
           {
             "name": "T6",
             "cn": "Thoracic Not corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 未校正",
+            "food": "胃"
           },
           {
             "name": "T7",
             "cn": "Thoracic Nervcompression",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 神经压迫",
+            "food": "胰腺，十二指肠"
           },
           {
             "name": "T8",
             "cn": "Thoracic Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 已校正",
+            "food": "脾"
           },
           {
             "name": "T9",
             "cn": "Thoracic Inflammation",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 炎症",
+            "food": "肾上腺"
           },
           {
             "name": "T10",
             "cn": "Thoracic Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 已校正",
+            "food": "肾"
           },
           {
             "name": "T11",
             "cn": "Thoracic Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 已校正",
+            "food": "肾，输尿管"
           },
           {
             "name": "T12",
             "cn": "Thoracic Not corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "胸锥 | 炎症",
+            "food": "小肠，淋巴循环系统"
           },
           {
             "name": "L1",
             "cn": "Lumbar Not corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "腰椎 | 退化",
+            "food": "大肠，腹股沟环"
           },
           {
             "name": "L2",
             "cn": "Lumbar Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "腰椎 | 未校正",
+            "food": "阑尾，腹，大腿"
           },
           {
             "name": "L3",
             "cn": "Lumbar Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "腰椎 | 未校正",
+            "food": "性器官，子宫，膀胱，膝"
           },
           {
             "name": "L4",
             "cn": "Lumbar Not corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "腰椎 | 已校正",
+            "food": "前列腺，下背部肌肉，坐骨神经"
           },
           {
             "name": "L5",
             "cn": "Lumbar Corrected",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "腰椎 | 已校正",
+            "food": "小腿，踝，足"
           },
           {
             "name": "骶骨",
             "cn": "Sacral Difficult",
             "value": null,
-            "desc": "",
-            "food": ""
+            "desc": "骶骨 | 已校正",
+            "food": "股骨，臀部"
           }
         ]
       }
