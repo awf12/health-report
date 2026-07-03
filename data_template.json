@@ -925,56 +925,56 @@
         "indicators": [
           {
             "name": "B1-硫胺素",
-            "cn": "B1-thiamine: supports metabolism, nerve function, mood, and detoxification",
+            "cn": "B1-thiamine",
             "value": 81,
             "desc": "81",
             "food": "支持新陈代谢、神经功能、情绪和解毒"
           },
           {
             "name": "B2-核黄素",
-            "cn": "B2-riboflavin: energy/carbohydrate metabolism, nervous sys, migraines, cataracts",
+            "cn": "B2-riboflavin",
             "value": 75,
             "desc": "75",
             "food": "能量/碳水化合物代谢、神经系统、偏头痛、白内障"
           },
           {
             "name": "B3-烟酸",
-            "cn": "B3-niacin: enzymes, anxiety, add/adhd,schizophrenia, oa, ra, diabetes, insomnia",
+            "cn": "B3-niacin",
             "value": 84,
             "desc": "84",
             "food": "酶功能、焦虑、ADHD、关节炎、糖尿病、失眠"
           },
           {
             "name": "烟酰胺",
-            "cn": "Niacinamide: function of fats and sugars in the body, maintaining healthy cells",
+            "cn": "Niacinamide",
             "value": 82,
             "desc": "82",
             "food": "体内脂肪和糖的功能，维持健康细胞"
           },
           {
             "name": "B5-泛酸",
-            "cn": "B5-pantothenic acid: co.a production,cholesterol, neural/cognitive function, detox",
+            "cn": "B5-pantothenic acid",
             "value": 86,
             "desc": "86",
             "food": "辅酶A生成、胆固醇、神经/认知功能、解毒"
           },
           {
             "name": "B6-吡哆醇",
-            "cn": "B6-pyridoxine: protein/aminoacid metabolism, immune and nervous system health",
+            "cn": "B6-pyridoxine",
             "value": 108,
             "desc": "108",
             "food": "蛋白质/氨基酸代谢，免疫和神经系统健康"
           },
           {
             "name": "B7-生物素",
-            "cn": "B7-biotin: qlucose/fa metabolism,immune/nervous systems, hair/nail health candida",
+            "cn": "B7-biotin",
             "value": 72,
             "desc": "72",
             "food": "葡萄糖/脂肪酸代谢，免疫/神经系统 头发/指甲健康，念珠菌"
           },
           {
             "name": "辅酶a",
-            "cn": "Coenzyme a-coa: metabolic processes of carbs/fats/proteins for energy production",
+            "cn": "Coenzyme a-coa",
             "value": 45,
             "desc": "45",
             "food": "碳水化合物/脂肪/蛋白质代谢过程，用于 能量产生"
@@ -988,77 +988,77 @@
           },
           {
             "name": "Paba",
-            "cn": "Paba: vitiligo, pemphigus, dermatomyositis,hair/skin rejuvenation, phototoxicity",
+            "cn": "Paba",
             "value": 110,
             "desc": "110",
             "food": "白癜风、天疱疮、皮肌炎、头发/皮肤 rejuvenation，光毒性"
           },
           {
             "name": "肌醇",
-            "cn": "Inositol: lipids, hypocholesterolemic,anti-hypertensive, lipotropic, vascular",
+            "cn": "Inositol",
             "value": 79,
             "desc": "79",
             "food": "脂质、降胆固醇、抗高血压、促脂质代谢、 血管健康"
           },
           {
             "name": "B12-甲钴胺",
-            "cn": "B12-methylcobalamin: vital in cell division, blood formation, neuro function",
+            "cn": "B12-methylcobalamin",
             "value": 56,
             "desc": "56",
             "food": "细胞分裂、血液形成、神经功能至关重要"
           },
           {
             "name": "胆碱",
-            "cn": "Choline: nerve transmission, cognitive disorders, liver detox, liver concerns",
+            "cn": "Choline",
             "value": 52,
             "desc": "52",
             "food": "神经传递、认知障碍、肝脏解毒、肝脏问题"
           },
           {
             "name": "甜菜碱",
-            "cn": "Betaine: blood, bones, eyes, heart, muscles nerves, brain",
+            "cn": "Betaine",
             "value": 63,
             "desc": "63",
             "food": "血液、骨骼、眼睛、心脏、肌肉、神经、 大脑"
           },
           {
             "name": "潘盖酸",
-            "cn": "Pangamic acid: detoxification, skin conditions nerve pain, liver",
+            "cn": "Pangamic acid",
             "value": 89,
             "desc": "89",
             "food": "解毒、皮肤状况、神经痛、肝脏"
           },
           {
             "name": "氧硫胺素",
-            "cn": "Oxythiamine: inhibits the transition of thiamine to its active form",
+            "cn": "Oxythiamine",
             "value": 74,
             "desc": "74",
             "food": "抑制硫胺素向其活性形式的转化"
           },
           {
             "name": "Laetrile",
-            "cn": "Laetrile: degeneration, regulation of oxygenation",
+            "cn": "Laetrile",
             "value": 70,
             "desc": "70",
             "food": "退化、氧合调节"
           },
           {
             "name": "Fad",
-            "cn": "Fad: metabolism, electron transport, amino acid catabolism",
+            "cn": "Fad",
             "value": 59,
             "desc": "59",
             "food": "代谢、电子传递、氨基酸分解代谢"
           },
           {
             "name": "黄素单核苷酸",
-            "cn": "Flavin mononucleotide: restores riboflavin in anemia, migraine, alcoholism",
+            "cn": "Flavin mononucleotide",
             "value": 68,
             "desc": "68",
             "food": "恢复贫血、偏头痛、酒精中毒中的 核黄素"
           },
           {
             "name": "肉碱",
-            "cn": "Carnitine: energy production, body weight, muscles, fat oxidation",
+            "cn": "Carnitine",
             "value": 79,
             "desc": "79",
             "food": "能量产生、体重、肌肉、脂肪氧化"
