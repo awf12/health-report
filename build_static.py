@@ -185,7 +185,7 @@ function extractValues(fullText) {
     'phase response react': /Phase response react\\s+(\\d+)/i,
     impedance: /Impedance\\s+(\\d+)/i,
     'parts per seconds for reaction speed': /Parts per seconds[^\\d]*(\\d+)/i,
-    'body fat': /Body fat\\s+(\\d+%?)/i,
+    'body fat': /body\\s*fat[^\\d]*(\\d+)%?/i,
     'cellular vitality index (6 + normal, below 3 chronic)': /Cellular vitality[^\\d]*(\\d+)/i,
   };
   for (const [k, pat] of Object.entries(patterns)) {
