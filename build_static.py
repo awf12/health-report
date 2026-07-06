@@ -504,18 +504,14 @@ function closeReport() {
   window.scrollTo(0,0);
 }
 
-function downloadReport(name) {
-  const customers = getCustomers();
-  const c = customers[name];
-  if (!c) return;
-  const reportHTML = renderFullReport(c.data);
-  const w = window.open('', '_blank', 'width=1000,height=800');
-  w.document.write('<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>健康报告 - '+name+'</title>');
-  w.document.write('<script src=\"https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js\"><\/script>');
-  w.document.write('<style>body{font-family:PingFang SC,Microsoft YaHei,sans-serif;background:#f5f0e8;padding:10px;}@media print{body{background:#fff;}.r-sidebar,.r-scroll-top{display:none!important;}.r-main{margin-left:0!important;}}</style></head>');
-  w.document.write('<body class=\"report-body\">' + reportHTML + '</body>');
-  w.document.write('<script>setTimeout(function(){window.print();},2000);<\/script></html>');
-  w.document.close();
+function downloadPDF(name) {
+  viewReport(name);
+  // Show print hint
+  setTimeout(function(){
+    var bar = document.createElement('div');
+    bar.innerHTML = '<div style=\"position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2c5f2d;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;cursor:pointer;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.3);\" onclick=\"window.print();this.remove();\">🖨 点击此处打印 / 另存为PDF</div>';
+    document.body.appendChild(bar);
+  }, 2000);
 }
 
 let currentPage = 1;
