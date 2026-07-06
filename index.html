@@ -845,88 +845,9 @@ function closeReport() {
   window.scrollTo(0,0);
 }
 
-async function downloadPDF(name) {
+function downloadReport(name) {
   viewReport(name);
   setTimeout(function(){ window.print(); }, 2500);
-}
-function downloadReport(name) {
-  const customers = getCustomers();
-  const c = customers[name];
-  if (!c) return;
-  // Render first for charts
-  viewReport(name);
-  await new Promise(function(r){ setTimeout(r, 2000); });
-  const data = c.data; const M = data.meta;
-
-  const wb = XLSX.utils.book_new();
-
-  function cellStyle(v) {
-    if (v == null) return {};
-    if (v <= 50) return {fill:{fgColor:{rgb:'FFE0E0'}}};
-    if (v >= 100) return {fill:{fgColor:{rgb:'FFF8E1'}}};
-    return {};
-  }
-
-  // Cover
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
-    ['营养与健康检测报告'],[],
-    ['姓名',M.name||'','性别',M.gender||''],
-    ['出生日期',M.birthDate||'','检测日期',M.testDate||''],
-    ['就诊编号',M.visitNumber||'','检测师',M.practitioner||'']
-  ]), '封面');
-
-  const sheetOrder = ['1.基本体质','2.氨基酸','3.矿物质','4.芳香疗法','5.脊柱反应性',
-    '6.水溶性维生素','7.脂溶性维生素','8.一般消化系统','9.碳水化合物代谢',
-    '10.蛋白质和脂类代谢','11.外源性物质','12.外源性物质额外因素',
-    '13.导致健康风险和健康恶化的原因','14.74项情绪','15.压力指数和来源','16.神经递质'];
-
-  for (const key of sheetOrder) {
-    const sections = data.sections[key];
-    if (!Array.isArray(sections)) continue;
-    for (const sec of sections) {
-      const items = sec.indicators || [];
-      if (!items.length) continue;
-      const title = (sec.title||key).substring(0,31).replace(/[\/:*?"<>|]/g, '-');
-      if (key === '5.脊柱反应性') {
-        const rows = [['脊柱名称','压力状态','对应身体部位']];
-        for (const item of items) {
-          const parts = (item.desc||'').split('|');
-          rows.push([item.name||'', (parts[1]||'').trim(), item.food||'']);
-        }
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!cols'] = [{wch:10},{wch:15},{wch:60}];
-        XLSX.utils.book_append_sheet(wb, ws, title);
-      } else if (key === '16.神经递质') {
-        const rows = [['检测项目','反应值','检测项目','反应值']];
-        for (let ni = 0; ni < items.length; ni += 2) {
-          const a = items[ni]||{}, b = items[ni+1]||{};
-          rows.push([a.name||'', a.value!=null?a.value:'', b.name||'', b.value!=null?b.value:'']);
-        }
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        ws['!cols'] = [{wch:25},{wch:8},{wch:25},{wch:8}];
-        XLSX.utils.book_append_sheet(wb, ws, title);
-      } else {
-        const headers = (key.includes('基本体质')||key.includes('压力指数')) ? ['检测项目','反应值','数值说明','身体反应与症状'] :
-          (key.includes('氨基酸')||key.includes('矿物质')||key.includes('水溶性')||key.includes('脂溶性')||key.includes('碳水')||key.includes('蛋白质')) ? ['检测项目','反应值','详解','食物来源'] :
-          ['检测项目','反应值','详解'];
-        const rows = [headers];
-        for (const item of items) {
-          const row = [item.name||'', item.value!=null?item.value:'', item.desc||''];
-          if (headers.length >= 4) row.push(item.food||'');
-          rows.push(row);
-        }
-        const ws = XLSX.utils.aoa_to_sheet(rows);
-        for (let r = 1; r <= items.length; r++) {
-          const cr = XLSX.utils.encode_cell({r:r, c:1});
-          if (ws[cr]) ws[cr].s = cellStyle(items[r-1].value);
-        }
-        ws['!cols'] = headers.map(function(h,i){ return {wch: i===0?20:i===1?10:i===2?40:40}; });
-        XLSX.utils.book_append_sheet(wb, ws, title);
-      }
-    }
-  }
-
-  XLSX.writeFile(wb, name + '_健康检测报告.xlsx');
 }
 
 let currentPage = 1;
