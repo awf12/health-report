@@ -1,0 +1,32 @@
+name: Build Executables
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install pyinstaller openpyxl
+      - run: pyinstaller --onefile --name 健康报告填表工具 fill_app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 健康报告填表工具-Windows
+          path: dist/健康报告填表工具.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install pyinstaller openpyxl
+      - run: pyinstaller --onefile --name 健康报告填表工具 fill_app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 健康报告填表工具-macOS
+          path: dist/健康报告填表工具
