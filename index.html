@@ -848,63 +848,45 @@ function downloadReport(name) {
   const customers = getCustomers();
   const c = customers[name];
   if (!c) return;
-  const data = c.data;
-  const M = data.meta;
-
-  // Capture all canvas charts as images
-  const canvases = document.querySelectorAll('canvas');
-  const chartImages = {};
-  canvases.forEach(function(cv) {
-    if (cv.id) {
-      try { chartImages[cv.id] = cv.toDataURL('image/png'); } catch(e) {}
-    }
-  });
-
-  // Build HTML with embedded chart images
-  let html = '<html><head><meta charset="UTF-8"><style>table{border-collapse:collapse;margin:10px 0;}td,th{border:1px solid #ccc;padding:4px 8px;font-size:12px;}th{background:#f0f0f0;}h3{color:#2c5f2d;}</style></head><body>';
-
-  // Cover
-  html += '<h1>营养与健康检测报告</h1>';
-  html += '<table><tr><td>姓名:</td><td>'+(M.name||'')+'</td><td>性别:</td><td>'+(M.gender||'')+'</td></tr>';
-  html += '<tr><td>出生日期:</td><td>'+(M.birthDate||'')+'</td><td>检测日期:</td><td>'+(M.testDate||'')+'</td></tr>';
-  html += '<tr><td>就诊编号:</td><td>'+(M.visitNumber||'')+'</td><td>检测师:</td><td>'+(M.practitioner||'')+'</td></tr></table><br>';
-
-  // Data sections with chart images
-  for (const key of Object.keys(data.sections)) {
-    const sections = data.sections[key];
-    if (!Array.isArray(sections)) continue;
-    for (let si = 0; si < sections.length; si++) {
-      const sec = sections[si];
-      const items = sec.indicators || [];
-      if (!items.length) continue;
-      html += '<h3>' + (sec.title||key) + '</h3>';
-      // Chart image
-      const chartId = 'chart_s' + (Array.from(Object.keys(data.sections)).indexOf(key)+1) + (sections.length>1?'_'+(si+1):'');
-      if (chartImages[chartId]) {
-        html += '<img src="' + chartImages[chartId] + '" style="max-width:700px;"><br>';
+  // Redirect to report view first, then download from there
+  viewReport(name);
+  setTimeout(function() {
+    // Now charts are rendered, build HTML with embedded chart images
+    const chartImages = {};
+    document.querySelectorAll('canvas').forEach(function(cv) {
+      if (cv.id) { try { chartImages[cv.id] = cv.toDataURL('image/png'); } catch(e) {} }
+    });
+    const data = c.data; const M = data.meta;
+    let html = '<html><head><meta charset="UTF-8"><style>table{border-collapse:collapse;margin:10px 0;}td,th{border:1px solid #ccc;padding:4px 8px;font-size:12px;}th{background:#f0f0f0;}h3{color:#2c5f2d;}img{max-width:700px;}</style></head><body>';
+    html += '<h1>营养与健康检测报告 - '+ (M.name||'') + '</h1>';
+    html += '<p>姓名:'+(M.name||'')+' | 性别:'+(M.gender||'')+' | 日期:'+(M.testDate||'')+'</p><br>';
+    for (const key of Object.keys(data.sections)) {
+      const sections = data.sections[key];
+      if (!Array.isArray(sections)) continue;
+      for (let si = 0; si < sections.length; si++) {
+        const sec = sections[si]; const items = sec.indicators || [];
+        if (!items.length) continue;
+        html += '<h3>' + (sec.title||key) + '</h3>';
+        const chartId = 'chart_s' + (Array.from(Object.keys(data.sections)).indexOf(key)+1) + (sections.length>1?'_'+(si+1):'');
+        if (chartImages[chartId]) html += '<img src="' + chartImages[chartId] + '"><br>';
+        html += '<table><tr><th>检测项目</th><th>反应值</th><th>说明</th><th>食物来源</th></tr>';
+        for (const item of items) {
+          const v = item.value; let bg = '';
+          if (v != null && v <= 50) bg = 'background:#ffe0e0;';
+          else if (v != null && v >= 100) bg = 'background:#fff8e1;';
+          html += '<tr><td>'+(item.name||'')+'</td><td style="'+bg+'">'+(v!=null?v:'')+'</td><td>'+(item.desc||'')+'</td><td>'+(item.food||'')+'</td></tr>';
+        }
+        html += '</table><br>';
       }
-      // Data table
-      html += '<table><tr><th>检测项目</th><th>反应值</th><th>说明</th><th>食物来源</th></tr>';
-      for (const item of items) {
-        const v = item.value;
-        let bg = '';
-        if (v != null && v <= 50) bg = 'background:#ffe0e0;';
-        else if (v != null && v >= 100) bg = 'background:#fff8e1;';
-        html += '<tr><td>'+(item.name||'')+'</td><td style="'+bg+'">'+(v!=null?v:'')+'</td><td>'+(item.desc||'')+'</td><td>'+(item.food||'')+'</td></tr>';
-      }
-      html += '</table><br>';
     }
-  }
-  html += '</body></html>';
-
-  const blob = new Blob([html], {type:'application/vnd.ms-excel'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name + '_健康检测报告.xls';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+    html += '</body></html>';
+    const blob = new Blob([html], {type:'application/vnd.ms-excel'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + '_健康检测报告.xls';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }, 2000);
 }
 
 let currentPage = 1;
