@@ -845,7 +845,11 @@ function closeReport() {
   window.scrollTo(0,0);
 }
 
-async function downloadReport(name) {
+async function downloadPDF(name) {
+  viewReport(name);
+  setTimeout(function(){ window.print(); }, 2500);
+}
+function downloadReport(name) {
   const customers = getCustomers();
   const c = customers[name];
   if (!c) return;
@@ -947,7 +951,7 @@ function refreshList(page) {
     const c = customers[n];
     return '<div class="customer-card"><div class="info"><strong>'+n+'</strong><span>'+(c.date||'')+' · '+(c.filename||'')+'</span></div>' +
       '<div class="actions"><button class="btn-sm btn-view" onclick="viewReport(\''+n+'\')">👁 查看</button>' +
-      '<button class="btn-sm btn-dl" onclick="downloadReport(\''+n+'\')">⬇ 下载</button>' +
+      '<button class="btn-sm btn-dl" onclick="downloadPDF(\''+n+'\')">📄 PDF</button>' +
       '<button class="btn-sm btn-del" onclick="deleteCustomer(\''+n+'\')">🗑</button></div></div>';
   }).join('');
 
