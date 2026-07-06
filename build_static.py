@@ -507,45 +507,94 @@ function downloadReport(name) {
   const customers = getCustomers();
   const c = customers[name];
   if (!c) return;
-  // Redirect to report view first, then download from there
-  viewReport(name);
-  setTimeout(function() {
-    // Now charts are rendered, build HTML with embedded chart images
-    const chartImages = {};
-    document.querySelectorAll('canvas').forEach(function(cv) {
-      if (cv.id) { try { chartImages[cv.id] = cv.toDataURL('image/png'); } catch(e) {} }
-    });
-    const data = c.data; const M = data.meta;
-    let html = '<html><head><meta charset=\"UTF-8\"><style>table{border-collapse:collapse;margin:10px 0;}td,th{border:1px solid #ccc;padding:4px 8px;font-size:12px;}th{background:#f0f0f0;}h3{color:#2c5f2d;}img{max-width:700px;}</style></head><body>';
-    html += '<h1>营养与健康检测报告 - '+ (M.name||'') + '</h1>';
-    html += '<p>姓名:'+(M.name||'')+' | 性别:'+(M.gender||'')+' | 日期:'+(M.testDate||'')+'</p><br>';
-    for (const key of Object.keys(data.sections)) {
-      const sections = data.sections[key];
-      if (!Array.isArray(sections)) continue;
-      for (let si = 0; si < sections.length; si++) {
-        const sec = sections[si]; const items = sec.indicators || [];
-        if (!items.length) continue;
-        html += '<h3>' + (sec.title||key) + '</h3>';
-        const chartId = 'chart_s' + (Array.from(Object.keys(data.sections)).indexOf(key)+1) + (sections.length>1?'_'+(si+1):'');
-        if (chartImages[chartId]) html += '<img src=\"' + chartImages[chartId] + '\"><br>';
-        html += '<table><tr><th>检测项目</th><th>反应值</th><th>说明</th><th>食物来源</th></tr>';
-        for (const item of items) {
-          const v = item.value; let bg = '';
-          if (v != null && v <= 50) bg = 'background:#ffe0e0;';
-          else if (v != null && v >= 100) bg = 'background:#fff8e1;';
-          html += '<tr><td>'+(item.name||'')+'</td><td style=\"'+bg+'\">'+(v!=null?v:'')+'</td><td>'+(item.desc||'')+'</td><td>'+(item.food||'')+'</td></tr>';
+  const data = c.data; const M = data.meta;
+
+  // Sheet names match template
+  const sheetOrder = ['1.基本体质','2.氨基酸','3.矿物质','4.芳香疗法','5.脊柱反应性',
+    '6.水溶性维生素','7.脂溶性维生素','8.一般消化系统','9.碳水化合物代谢',
+    '10.蛋白质和脂类代谢','11.外源性物质','12.外源性物质额外因素',
+    '13.导致健康风险和健康恶化的原因','14.74项情绪','15.压力指数和来源','16.神经递质'];
+
+  // Column headers per sheet (matching template)
+  const colHeaders = {
+    '1.基本体质': ['检测项目','反应值','数值说明','身体反应与症状'],
+    '15.压力指数和来源': ['检测项目','反应值','数值说明','身体反应与症状'],
+    '2.氨基酸': ['检测项目','反应值','详解','食物来源'],
+    '3.矿物质': ['检测项目','反应值','详解','食物来源'],
+    '6.水溶性维生素': ['检测项目','反应值','详解','食物来源'],
+    '7.脂溶性维生素': ['检测项目','反应值','详解','食物来源'],
+    '9.碳水化合物代谢': ['检测项目','反应值','详解','食物来源'],
+    '10.蛋白质和脂类代谢': ['检测项目','反应值','详解','食物来源'],
+    '5.脊柱反应性': ['脊柱名称','压力状态','对应身体部位'],
+    '14.74项情绪': ['检测项目','反应值'],
+    '16.神经递质': ['检测项目','反应值','检测项目','反应值'],
+  };
+
+  // Capture chart images from current view
+  const chartImages = {};
+  document.querySelectorAll('canvas').forEach(function(cv) {
+    if (cv.id) { try { chartImages[cv.id] = cv.toDataURL('image/png'); } catch(e) {} }
+  });
+
+  let html = '<html><head><meta charset="UTF-8"><style>';
+  html += 'body{font-family:SimSun;margin:20px;}';
+  html += 'table{border-collapse:collapse;width:100%;margin:8px 0;page-break-inside:avoid;}';
+  html += 'td,th{border:1px solid #999;padding:5px 8px;font-size:11px;}';
+  html += 'th{background:#d9e8f7;font-weight:bold;text-align:center;}';
+  html += '.title{font-size:18px;font-weight:bold;text-align:center;margin:10px 0;}';
+  html += '.subtitle{font-size:14px;text-align:center;color:#666;margin:5px 0;}';
+  html += '.section-title{font-size:14px;font-weight:bold;color:#2c5f2d;margin:16px 0 6px;border-bottom:2px solid #2c5f2d;padding-bottom:4px;}';
+  html += 'img{max-width:100%;margin:8px 0;}';
+  html += '.meta-table td{border:none;padding:3px 8px;}';
+  html += '</style></head><body>';
+
+  // Title page
+  html += '<div class="title">营养与健康检测报告</div>';
+  html += '<div class="subtitle">Nutrition and Wellness Assessment Report</div>';
+  html += '<table class="meta-table"><tr><td>姓名：'+(M.name||'')+'</td><td>性别：'+(M.gender||'')+'</td></tr>';
+  html += '<tr><td>出生日期：'+(M.birthDate||'')+'</td><td>检测日期：'+(M.testDate||'')+'</td></tr>';
+  html += '<tr><td>就诊编号：'+(M.visitNumber||'')+'</td><td>检测师：'+(M.practitioner||'')+'</td></tr></table>';
+  html += '<div style="page-break-after:always;"></div>';
+
+  // Sections in template order
+  for (const key of sheetOrder) {
+    const sections = data.sections[key];
+    if (!sections || !Array.isArray(sections)) continue;
+    for (let si = 0; si < sections.length; si++) {
+      const sec = sections[si]; const items = sec.indicators || [];
+      if (!items.length) continue;
+      html += '<div class="section-title">' + (sec.title||key) + '</div>';
+      // Chart image
+      const chartId = 'chart_s' + (sheetOrder.indexOf(key)+1) + (sections.length>1?'_'+(si+1):'');
+      if (chartImages[chartId]) html += '<img src="' + chartImages[chartId] + '">';
+      // Data table
+      const headers = colHeaders[key] || ['检测项目','反应值','说明','食物来源'];
+      html += '<table><tr>' + headers.map(function(h){ return '<th>'+h+'</th>'; }).join('') + '</tr>';
+      for (const item of items) {
+        const v = item.value; let bg = '';
+        if (v != null && v <= 50) bg = 'background:#ffe0e0;';
+        else if (v != null && v >= 100) bg = 'background:#fff8e1;';
+        if (key === '16.神经递质') {
+          // Two-column layout for neuro
+        } else if (key === '5.脊柱反应性') {
+          const parts = (item.desc||'').split('|'); const region = (parts[0]||'').trim(); const st = (parts[1]||'').trim();
+          html += '<tr><td>'+(item.name||'')+' '+region+'</td><td>'+st+'</td><td>'+(item.food||'')+'</td></tr>';
+        } else {
+          html += '<tr><td>'+(item.name||'')+'</td><td style="'+bg+'">'+(v!=null?v:'')+'</td><td>'+(item.desc||'')+'</td><td>'+(item.food||'')+'</td></tr>';
         }
-        html += '</table><br>';
       }
+      html += '</table>';
     }
-    html += '</body></html>';
-    const blob = new Blob([html], {type:'application/vnd.ms-excel'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name + '_健康检测报告.xls';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
-  }, 2000);
+  }
+
+  html += '<div style="text-align:center;margin-top:30px;color:#999;">---- 报告结束 ----</div></body></html>';
+
+  const blob = new Blob([html], {type:'application/vnd.ms-excel'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name + '_健康检测报告.xls';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
 }
 
 let currentPage = 1;
