@@ -19,7 +19,6 @@ html = '''<!DOCTYPE html>
 <script src="pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc='pdf.worker.min.js';</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 :root { --accent: #2c5f2d; --danger: #c0392b; --warn: #d4a017; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -509,47 +508,65 @@ function downloadReport(name) {
   const c = customers[name];
   if (!c) return;
   const data = c.data;
-
-  // Build Excel workbook
-  const wb = XLSX.utils.book_new();
-
-  // Cover sheet
   const M = data.meta;
-  const coverRows = [
-    ['营养与健康检测报告'],
-    ['姓名', M.name||'', '性别', M.gender||''],
-    ['出生日期', M.birthDate||'', '检测日期', M.testDate||''],
-    ['就诊编号', M.visitNumber||'', '检测师', M.practitioner||''],
-    [],
-    ['本报告基于生物反馈检测数据，仅供健康管理参考']
-  ];
-  const coverWs = XLSX.utils.aoa_to_sheet(coverRows);
-  XLSX.utils.book_append_sheet(wb, coverWs, '封面');
 
-  // Data sheets
+  // Build Excel-compatible HTML (Excel opens .xls HTML files)
+  let excelHTML = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+  excelHTML += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>';
+
+  // Worksheet names
+  const sheetNames = ['封面'];
   for (const key of Object.keys(data.sections)) {
     const sections = data.sections[key];
     if (!Array.isArray(sections)) continue;
     for (const sec of sections) {
-      const items = sec.indicators || sec;
-      if (!Array.isArray(items) || !items.length) continue;
-      const title = sec.title || key;
-      const sheetName = title.substring(0, 31).replace(/[:\\/\\[\\]\\*\\?]/g, '');
-      const rows = [['检测项目', '反应值', '说明', '食物来源']];
+      const items = sec.indicators || [];
+      if (items.length) sheetNames.push((sec.title||key).substring(0,31));
+    }
+  }
+  for (let i = 0; i < sheetNames.length; i++) {
+    excelHTML += '<x:ExcelWorksheet><x:Name>' + sheetNames[i] + '</x:Name></x:ExcelWorksheet>';
+  }
+  excelHTML += '</x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>';
+
+  // Cover sheet
+  excelHTML += '<table><tr><td colspan="4"><h2>营养与健康检测报告</h2></td></tr>';
+  excelHTML += '<tr><td>姓名:</td><td>'+(M.name||'')+'</td><td>性别:</td><td>'+(M.gender||'')+'</td></tr>';
+  excelHTML += '<tr><td>出生日期:</td><td>'+(M.birthDate||'')+'</td><td>检测日期:</td><td>'+(M.testDate||'')+'</td></tr>';
+  excelHTML += '<tr><td>就诊编号:</td><td>'+(M.visitNumber||'')+'</td><td>检测师:</td><td>'+(M.practitioner||'')+'</td></tr>';
+  excelHTML += '<tr><td colspan="4">仅供健康管理参考</td></tr></table><br>';
+
+  // Data sheets as tables with color coding
+  for (const key of Object.keys(data.sections)) {
+    const sections = data.sections[key];
+    if (!Array.isArray(sections)) continue;
+    for (const sec of sections) {
+      const items = sec.indicators || [];
+      if (!items.length) continue;
+      excelHTML += '<h3>' + (sec.title||key) + '</h3>';
+      excelHTML += '<table border="1" cellpadding="3">';
+      excelHTML += '<tr style="background:#f0f0f0;"><th>检测项目</th><th>反应值</th><th>说明</th><th>食物来源</th></tr>';
       for (const item of items) {
-        rows.push([
-          item.name || '',
-          item.value != null ? item.value : '',
-          item.desc || '',
-          item.food || ''
-        ]);
+        const v = item.value;
+        let bg = '';
+        if (v != null && v <= 50) bg = 'background:#ffe0e0;';
+        else if (v != null && v >= 100) bg = 'background:#fff8e1;';
+        excelHTML += '<tr><td>'+(item.name||'')+'</td><td style="'+bg+'">'+(v!=null?v:'')+'</td><td>'+(item.desc||'')+'</td><td>'+(item.food||'')+'</td></tr>';
       }
-      const ws = XLSX.utils.aoa_to_sheet(rows);
-      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      excelHTML += '</table><br>';
     }
   }
 
-  XLSX.writeFile(wb, name + '_健康检测报告.xlsx');
+  excelHTML += '</body></html>';
+
+  const blob = new Blob([excelHTML], {type:'application/vnd.ms-excel'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name + '_健康检测报告.xls';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
 }
 
 let currentPage = 1;
