@@ -844,10 +844,13 @@ function closeReport() {
   window.scrollTo(0,0);
 }
 
-function downloadReport(name) {
+async function downloadReport(name) {
   const customers = getCustomers();
   const c = customers[name];
   if (!c) return;
+  // First open report to render charts
+  viewReport(name);
+  await new Promise(function(r){ setTimeout(r, 2000); });
   const data = c.data; const M = data.meta;
 
   // Sheet names match template
