@@ -882,7 +882,7 @@ async function downloadReport(name) {
     for (const sec of sections) {
       const items = sec.indicators || [];
       if (!items.length) continue;
-      const title = (sec.title||key).substring(0,31).replace(/[:*?\[\]\/\]/g, '-');
+      const title = (sec.title||key).substring(0,31).replace(/[\/:*?"<>|]/g, '-');
       if (key === '5.脊柱反应性') {
         const rows = [['脊柱名称','压力状态','对应身体部位']];
         for (const item of items) {
