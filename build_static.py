@@ -504,9 +504,28 @@ function closeReport() {
   window.scrollTo(0,0);
 }
 
+function downloadExcel(name) {
+  const customers = getCustomers();
+  const c = customers[name];
+  if (!c) return;
+  // Try local server first
+  fetch('/fill', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(c.data)})
+    .then(function(r){ if(r.ok) return r.blob(); throw new Error('no server'); })
+    .then(function(blob){
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+      a.download=name+'_模板原样.xlsx'; a.click();
+    })
+    .catch(function(){
+      // Fallback: show data export instructions
+      var d=JSON.stringify(c.data);
+      var blob=new Blob([d],{type:'application/json'});
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+      a.download=name+'_data.json'; a.click();
+      msg('📥 已下载数据文件。请用"填表工具"打开此文件生成Excel','info');
+    });
+}
 function downloadPDF(name) {
   viewReport(name);
-  // Show print hint
   setTimeout(function(){
     var bar = document.createElement('div');
     bar.innerHTML = '<div style=\"position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#2c5f2d;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;cursor:pointer;font-size:15px;box-shadow:0 4px 12px rgba(0,0,0,.3);\" onclick=\"window.print();this.remove();\">🖨 点击此处打印 / 另存为PDF</div>';

@@ -8,7 +8,9 @@ import os
 import re
 import shutil
 import subprocess
+import io
 import pdfplumber
+import openpyxl
 from datetime import datetime
 from flask import Flask, request, jsonify, send_file
 
@@ -280,6 +282,49 @@ def delete_customer(customer_id):
         if os.path.exists(p):
             os.remove(p)
     return jsonify({'success': True})
+
+@app.route('/fill', methods=['POST'])
+def fill_template():
+    """接收JSON数据，返回填好的模板Excel"""
+    import io
+    data = request.get_json()
+    template_path = '【报告模板-改5】.xlsx'
+    if not os.path.exists(template_path):
+        return '模板文件不存在', 500
+
+    wb = openpyxl.load_workbook(template_path)
+    sections = data.get('sections', data)
+    sheet_map = {
+        '1.基本体质': '1.基本体质', '2.氨基酸': '2.氨基酸',
+        '3.矿物质': '3.矿物质', '4.芳香疗法': '4.芳香疗法',
+        '5.脊柱反应性': '5.脊柱反应性',
+        '6.水溶性维生素': '6.水溶性维生素', '7.脂溶性维生素': '7.脂溶性维生素',
+        '8.一般消化系统': '8.一般消化系统',
+        '9.碳水化合物代谢': '9.碳水化合物代谢',
+        '10.蛋白质和脂类代谢': '10.蛋白质和脂类代谢',
+        '11.外源性物质': '11.外源性物质',
+        '12.外源性物质额外因素': '12.外源性物质额外因素',
+        '13.导致健康风险和健康恶化的原因': '13.导致健康风险和健康恶化的原因',
+        '14.74项情绪': '14.74项情绪', '15.压力指数和来源': '15.压力指数和来源',
+        '16.神经递质': '16.神经递质',
+    }
+    for data_key, sheet_name in sheet_map.items():
+        secs = sections.get(data_key, [])
+        ws = wb[sheet_name]
+        row_offset = 0
+        for sec in secs:
+            items = sec.get('indicators', [])
+            for i, item in enumerate(items):
+                row = row_offset + i + 18 if data_key == '1.基本体质' else row_offset + i + 22
+                if row > ws.max_row: break
+                if item.get('value') is not None:
+                    ws.cell(row=row, column=3).value = item['value']
+            row_offset += len(items)
+    out = io.BytesIO()
+    wb.save(out)
+    out.seek(0)
+    return send_file(out, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                     as_attachment=True, download_name='健康检测报告_模板原样.xlsx')
 
 if __name__ == '__main__':
     import os as _os
