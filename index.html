@@ -897,6 +897,7 @@ function refreshList(page) {
     return '<div class="customer-card"><div class="info"><strong>'+n+'</strong><span>'+(c.date||'')+' · '+(c.filename||'')+'</span></div>' +
       '<div class="actions"><button class="btn-sm btn-view" onclick="viewReport(\''+n+'\')">👁 查看</button>' +
       '<button class="btn-sm btn-dl" onclick="downloadPDF(\''+n+'\')">📄 PDF</button>' +
+      '<button class="btn-sm btn-dl" onclick="downloadExcel(\''+n+'\')" style="background:#e67e22;color:#fff;">📥 Excel模板</button>' +
       '<button class="btn-sm btn-del" onclick="deleteCustomer(\''+n+'\')">🗑</button></div></div>';
   }).join('');
 
