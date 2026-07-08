@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>博士伦润洁 2026 H1 销售数据分析</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--accent:#1a73e8;--bg:#f8f9fa;--card:#fff;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:#333;}
+.header{background:linear-gradient(135deg,#1a237e,#0d47a1);color:#fff;padding:24px 32px}
+.header h1{font-size:24px;margin-bottom:4px}
+.header p{opacity:.8;font-size:14px}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+.kpi{background:var(--card);border-radius:12px;padding:20px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.kpi .val{font-size:28px;font-weight:700;color:var(--accent)}
+.kpi .lbl{font-size:12px;color:#999;margin-top:4px}
+.card{background:var(--card);border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card h2{font-size:18px;color:#1a237e;margin-bottom:16px;border-bottom:2px solid #e8eaf6;padding-bottom:8px}
+.chart-wrap{position:relative;height:400px}
+.chart-wrap.tall{height:500px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
+th{background:#f5f5f5;padding:8px 10px;text-align:left;font-weight:600}
+td{padding:6px 10px;border-bottom:1px solid #eee}
+.positive{color:#2e7d32}
+.negative{color:#c62828}
+@media(max-width:768px){.row2,.row3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>博士伦润洁 · 2026年H1销售数据分析</h1>
+  <p>淘闪 & 美团 | 2026年1-6月 | OTC/RX</p>
+</div>
+<div class="container">
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <!-- View 1: Platform x Month -->
+  <div class="card">
+    <h2>📊 一、By平台 By月 销售额/销量/环比/平台占比</h2>
+    <div class="chart-wrap"><canvas id="c1_sales"></canvas></div>
+    <div class="row2">
+      <div class="chart-wrap"><canvas id="c1_volume"></canvas></div>
+      <div class="chart-wrap"><canvas id="c1_mom"></canvas></div>
+    </div>
+    <div class="chart-wrap"><canvas id="c1_share"></canvas></div>
+    <table id="t1"></table>
+  </div>
+
+  <!-- View 2: Platform x OTC/RX x Month -->
+  <div class="card">
+    <h2>📊 二、By平台 By(OTC/RX) By月 销售额/销量/环比/平台占比</h2>
+    <div class="chart-wrap tall"><canvas id="c2_sales"></canvas></div>
+    <div class="row2">
+      <div class="chart-wrap"><canvas id="c2_taobao"></canvas></div>
+      <div class="chart-wrap"><canvas id="c2_meituan"></canvas></div>
+    </div>
+    <table id="t2"></table>
+  </div>
+
+  <!-- View 4: Top 15 Cities -->
+  <div class="card">
+    <h2>📊 四、By平台 26H1 OTC/RX 销售额TOP15城市</h2>
+    <div class="row2">
+      <div class="chart-wrap tall"><canvas id="c4_taobao"></canvas></div>
+      <div class="chart-wrap tall"><canvas id="c4_meituan"></canvas></div>
+    </div>
+  </div>
+
+  <!-- View 5: Product User Share -->
+  <div class="card">
+    <h2>📊 五、By平台 By(OTC/RX) By单品 26H1用户数占比</h2>
+    <div class="row2">
+      <div class="chart-wrap tall"><canvas id="c5_taobao"></canvas></div>
+      <div class="chart-wrap tall"><canvas id="c5_meituan"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {"meta": {"total_sales": 109121343, "period": "2026年1-6月(H1)"}, "v1_platform_monthly": {"淘闪": {"01": {"sales": 5640536, "volume": 218521, "orders": 207650, "users": 204681, "mom": 0}, "02": {"sales": 4266434, "volume": 165368, "orders": 156423, "users": 154441, "mom": -24.4}, "03": {"sales": 5695752, "volume": 217689, "orders": 205647, "users": 202558, "mom": 33.5}, "04": {"sales": 5583001, "volume": 216560, "orders": 205077, "users": 202021, "mom": -2.0}, "05": {"sales": 5643798, "volume": 220746, "orders": 208224, "users": 205064, "mom": 1.1}, "06": {"sales": 5178637, "volume": 205465, "orders": 193983, "users": 191010, "mom": -8.2}, "_total": 32008157, "_months": ["01", "02", "03", "04", "05", "06"], "_share": 29.3}, "美团": {"01": {"sales": 12344672, "volume": 508774, "orders": 481688, "users": 466738, "mom": 0}, "02": {"sales": 10391925, "volume": 429962, "orders": 405931, "users": 393944, "mom": -15.8}, "03": {"sales": 13411629, "volume": 548626, "orders": 519352, "users": 502274, "mom": 29.1}, "04": {"sales": 13729369, "volume": 564494, "orders": 535783, "users": 518624, "mom": 2.4}, "05": {"sales": 14112418, "volume": 574690, "orders": 544566, "users": 527129, "mom": 2.8}, "06": {"sales": 13123172, "volume": 527890, "orders": 497920, "users": 481191, "mom": -7.0}, "_total": 77113186, "_months": ["01", "02", "03", "04", "05", "06"], "_share": 70.7}}, "v2_otc_rx_monthly": {"淘闪|OTC系列": {"01": {"sales": 5030386, "volume": 190775}, "02": {"sales": 3901437, "volume": 147665}, "03": {"sales": 5304285, "volume": 198879}, "04": {"sales": 5185465, "volume": 197582}, "05": {"sales": 5262079, "volume": 201986}, "06": {"sales": 4853226, "volume": 189287}, "_total": 29536877, "_months": ["01", "02", "03", "04", "05", "06"]}, "淘闪|Rx系列": {"01": {"sales": 402071, "volume": 19676}, "02": {"sales": 283793, "volume": 14498}, "03": {"sales": 331571, "volume": 16408}, "04": {"sales": 344681, "volume": 16899}, "05": {"sales": 331658, "volume": 16888}, "06": {"sales": 279165, "volume": 14463}, "_total": 1972940, "_months": ["01", "02", "03", "04", "05", "06"]}, "淘闪|海普林": {"01": {"sales": 195770, "volume": 7547}, "02": {"sales": 69422, "volume": 2718}, "03": {"sales": 44993, "volume": 1794}, "04": {"sales": 36572, "volume": 1484}, "05": {"sales": 33598, "volume": 1338}, "06": {"sales": 29373, "volume": 1182}, "_total": 409727, "_months": ["01", "02", "03", "04", "05", "06"]}, "淘闪|#N/A": {"01": {"sales": 12309, "volume": 523}, "02": {"sales": 11783, "volume": 487}, "03": {"sales": 14903, "volume": 608}, "04": {"sales": 16282, "volume": 595}, "05": {"sales": 16463, "volume": 534}, "06": {"sales": 16873, "volume": 533}, "_total": 88612, "_months": ["01", "02", "03", "04", "05", "06"]}, "美团|即时零售": {"01": {"sales": 12344672, "volume": 508774}, "02": {"sales": 10391925, "volume": 429962}, "03": {"sales": 13411629, "volume": 548626}, "04": {"sales": 13729369, "volume": 564494}, "05": {"sales": 14112418, "volume": 574690}, "06": {"sales": 13123172, "volume": 527890}, "_total": 77113186, "_months": ["01", "02", "03", "04", "05", "06"]}}, "v4_top15_cities": {"淘闪": [{"city": "上海", "sales": 3173864}, {"city": "成都", "sales": 1439082}, {"city": "杭州", "sales": 1362038}, {"city": "苏州", "sales": 1159150}, {"city": "深圳", "sales": 1022362}, {"city": "北京", "sales": 944982}, {"city": "广州", "sales": 921771}, {"city": "沈阳", "sales": 715716}, {"city": "南京", "sales": 706511}, {"city": "合肥", "sales": 652919}, {"city": "无锡", "sales": 644206}, {"city": "重庆", "sales": 637849}, {"city": "西安", "sales": 634179}, {"city": "宁波", "sales": 625794}, {"city": "大连", "sales": 597359}], "美团": [{"city": "深圳", "sales": 5066825}, {"city": "北京", "sales": 4277796}, {"city": "上海", "sales": 4014278}, {"city": "成都", "sales": 3546420}, {"city": "广州", "sales": 3398607}, {"city": "沈阳", "sales": 1909741}, {"city": "杭州", "sales": 1879092}, {"city": "重庆", "sales": 1846288}, {"city": "昆明", "sales": 1825658}, {"city": "苏州", "sales": 1698105}, {"city": "西安", "sales": 1517561}, {"city": "南京", "sales": 1171765}, {"city": "长沙", "sales": 1171038}, {"city": "南宁", "sales": 1118384}, {"city": "大连", "sales": 1104845}]}, "v5_product_users": {"淘闪": [{"product": "润洁萘敏维滴眼液15ml/支/盒", "users": 520371, "share": 44.9}, {"product": "润洁萘敏维滴眼液10ml/盒", "users": 216770, "share": 18.7}, {"product": "润洁复方硫酸软骨素滴眼液10ml/盒", "users": 89849, "share": 7.7}, {"product": "润洁萘敏维滴眼液0.4ml*10支/盒", "users": 72610, "share": 6.3}, {"product": "润洁玻璃酸钠滴眼液0.8ml*10支/盒", "users": 67313, "share": 5.8}, {"product": "润洁复方硫酸软骨素滴眼液15ml/瓶/盒", "users": 31797, "share": 2.7}, {"product": "润舒氯霉素滴眼液10ml/盒", "users": 24249, "share": 2.1}, {"product": "海伦盐酸左氧氟沙星滴眼液5ml:15mg/盒", "users": 21001, "share": 1.8}, {"product": "润洁氯化钠滴眼液0.4ml:2.2mg*10支/盒", "users": 18101, "share": 1.6}, {"product": "海普林肝素钠乳膏20g/盒", "users": 15153, "share": 1.3}, {"product": "润舒盐酸左氧氟沙星滴眼液(0.4ml:1.2mg)*10支/盒", "users": 13229, "share": 1.1}, {"product": "润洁萘非滴眼液10ml/盒", "users": 12633, "share": 1.1}, {"product": "润洁氯化钠滴眼液0.4ml*2支/盒", "users": 9285, "share": 0.8}, {"product": "润舒氧氟沙星滴眼液(8ml:24mg)/支/盒", "users": 7259, "share": 0.6}, {"product": "润舒氯霉素滴眼液(5ml:12.5mg)*5ml/盒", "users": 7245, "share": 0.6}], "美团": [{"product": "[博士伦润洁]萘敏维滴眼液15ml/瓶/盒", "users": 917200, "share": 31.7}, {"product": "[博士伦润洁]萘敏维滴眼液10ml/瓶/盒", "users": 719374, "share": 24.9}, {"product": "[博士伦润洁]复方硫酸软骨素滴眼液10ml/支/盒", "users": 205451, "share": 7.1}, {"product": "[博士伦润洁]玻璃酸钠滴眼液0.1%(0.8ml:0.8mg)*0.8", "users": 189598, "share": 6.6}, {"product": "[博士伦润舒]氧氟沙星滴眼液(8ml:24mg)*8ml/支/盒", "users": 166785, "share": 5.8}, {"product": "[博士伦润洁]萘敏维滴眼液0.4ml*10支/盒", "users": 84230, "share": 2.9}, {"product": "[博士伦润洁]复方硫酸软骨素滴眼液15ml/支/盒", "users": 82947, "share": 2.9}, {"product": "[博士伦润舒]盐酸左氧氟沙星滴眼液0.4ml*10支/盒", "users": 75197, "share": 2.6}, {"product": "[博士伦润舒]氯霉素滴眼液(5ml:12.5mg)*5ml/支/盒", "users": 74031, "share": 2.6}, {"product": "[博士伦海伦]盐酸左氧氟沙星滴眼液(5ml:15mg)*5ml/支/盒", "users": 62466, "share": 2.2}, {"product": "[博士伦润洁]萘非滴眼液10ml/瓶/盒", "users": 60081, "share": 2.1}, {"product": "[博士伦润舒]氯霉素滴眼液(10ml:25mg)*10ml/瓶/盒", "users": 55345, "share": 1.9}, {"product": "[博士伦润洁]氯化钠滴眼液(不含防腐剂)0.4ml*10支/盒", "users": 51209, "share": 1.8}, {"product": "[博士伦正大捷普]阿昔洛韦滴眼液(8ml:8mg)*8ml/支/盒", "users": 36271, "share": 1.3}, {"product": "[博士伦海普林]肝素钠乳膏20g/支/盒", "users": 34123, "share": 1.2}]}};
+
+// KPI Row
+(function(){
+  const m = DATA.meta;
+  const v1 = DATA.v1_platform_monthly;
+  let h = '';
+  h += '<div class="kpi"><div class="val">'+(m.total_sales/10000).toFixed(0)+'万</div><div class="lbl">H1总销售额</div></div>';
+  for (const p of Object.keys(v1)) {
+    h += '<div class="kpi"><div class="val">'+(v1[p]._total/10000).toFixed(0)+'万</div><div class="lbl">'+p+'销售额</div></div>';
+    h += '<div class="kpi"><div class="val">'+v1[p]._share+'%</div><div class="lbl">'+p+'占比</div></div>';
+  }
+  document.getElementById('kpiRow').innerHTML = h;
+})();
+
+function chart(id, type, labels, datasets, options) {
+  new Chart(document.getElementById(id), {type, data:{labels, datasets}, options: Object.assign({responsive:true,maintainAspectRatio:false}, options||{})});
+}
+
+const MONTHS = ['01','02','03','04','05','06'];
+const MONTH_LABELS = ['1月','2月','3月','4月','5月','6月'];
+
+// ===== View 1 =====
+(function(){
+  const v1 = DATA.v1_platform_monthly;
+  const platforms = Object.keys(v1);
+  const colors = {'淘闪':'#ff6f00','美团':'#1a73e8'};
+
+  // Sales
+  chart('c1_sales', 'bar', MONTH_LABELS, platforms.map(p=>({
+    label:p, data:MONTHS.map(m=>(v1[p][m]?v1[p][m].sales/10000:0)),
+    backgroundColor:colors[p]+'aa', borderColor:colors[p], borderWidth:1
+  })), {plugins:{title:{text:'月销售额（万元）',display:true}}});
+
+  // Volume
+  chart('c1_volume', 'bar', MONTH_LABELS, platforms.map(p=>({
+    label:p, data:MONTHS.map(m=>(v1[p][m]?v1[p][m].volume/10000:0)),
+    backgroundColor:colors[p]+'aa', borderColor:colors[p], borderWidth:1
+  })), {plugins:{title:{text:'月销量（万件）',display:true}}});
+
+  // MoM
+  chart('c1_mom', 'line', MONTH_LABELS, platforms.map(p=>({
+    label:p+'环比', data:MONTHS.map(m=>(v1[p][m]?v1[p][m].mom||0:0)),
+    borderColor:colors[p], backgroundColor:colors[p]+'33', fill:false, tension:.3
+  })), {plugins:{title:{text:'月销售额环比(%)',display:true}},scales:{y:{beginAtZero:true}}});
+
+  // Platform Share (pie)
+  chart('c1_share', 'doughnut', platforms, [{
+    data: platforms.map(p=>v1[p]._share),
+    backgroundColor: platforms.map(p=>colors[p]+'cc'),
+    borderColor: platforms.map(p=>colors[p]), borderWidth:2
+  }], {plugins:{title:{text:'平台销售额占比',display:true}}});
+
+  // Table
+  let th='<tr><th>月份</th>';
+  for(const p of platforms) th+='<th>'+p+'销售额</th><th>'+p+'环比</th><th>'+p+'销量</th>';
+  th+='</tr>';
+  let tb='';
+  for(let i=0;i<6;i++){
+    const m=MONTHS[i];
+    tb+='<tr><td><strong>'+MONTH_LABELS[i]+'</strong></td>';
+    for(const p of platforms){
+      const d=v1[p][m]||{};
+      tb+='<td>'+(d.sales/10000).toFixed(0)+'万</td>';
+      const mom=d.mom||0;
+      tb+='<td class="'+(mom>=0?'positive':'negative')+'">'+(mom>=0?'+':'')+mom+'%</td>';
+      tb+='<td>'+(d.volume/10000).toFixed(1)+'万</td>';
+    }
+    tb+='</tr>';
+  }
+  document.getElementById('t1').innerHTML=th+tb;
+})();
+
+// ===== View 2 =====
+(function(){
+  const v2 = DATA.v2_otc_rx_monthly;
+  const keys = Object.keys(v2).sort();
+  const colors2 = ['#e91e63','#ff9800','#4caf50','#2196f3','#9c27b0','#00bcd4'];
+
+  let th2='<tr><th>平台/品类</th>';
+  for(const m of MONTHS) th2+='<th>'+MONTH_LABELS[parseInt(m)-1]+'销售额</th><th>'+MONTH_LABELS[parseInt(m)-1]+'销量</th>';
+  th2+='<th>H1合计</th></tr>';
+  let tb2='';
+  for(let i=0;i<keys.length;i++){
+    const k=keys[i]; const d=v2[k];
+    tb2+='<tr><td><strong>'+k+'</strong></td>';
+    let total=0;
+    for(const m of MONTHS){
+      const md=d[m]||{};
+      tb2+='<td>'+(md.sales/10000).toFixed(0)+'万</td>';
+      tb2+='<td>'+(md.volume/10000).toFixed(1)+'万</td>';
+      total+=md.sales;
+    }
+    tb2+='<td><strong>'+(d._total/10000).toFixed(0)+'万</strong></td></tr>';
+  }
+  document.getElementById('t2').innerHTML=th2+tb2;
+
+  // Combined chart
+  chart('c2_sales', 'bar', MONTH_LABELS, keys.map((k,i)=>({
+    label:k, data:MONTHS.map(m=>((v2[k][m]||{}).sales/10000||0)),
+    backgroundColor:colors2[i%6]+'aa', borderColor:colors2[i%6], borderWidth:1
+  })), {plugins:{title:{text:'各平台/品类月销售额（万元）',display:true}}});
+
+  // Split by platform
+  const taobaoKeys = keys.filter(k=>k.startsWith('淘闪'));
+  const mtKeys = keys.filter(k=>k.startsWith('美团'));
+  if(taobaoKeys.length) chart('c2_taobao','bar',MONTH_LABELS, taobaoKeys.map((k,i)=>({label:k.split('|')[1],data:MONTHS.map(m=>((v2[k][m]||{}).sales/10000||0)),backgroundColor:colors2[i]+'aa',borderColor:colors2[i],borderWidth:1})), {plugins:{title:{text:'淘闪-各品类月销售额（万元）',display:true}}});
+  if(mtKeys.length) chart('c2_meituan','bar',MONTH_LABELS, mtKeys.map((k,i)=>({label:k.split('|')[1],data:MONTHS.map(m=>((v2[k][m]||{}).sales/10000||0)),backgroundColor:colors2[i+2]+'aa',borderColor:colors2[i+2],borderWidth:1})), {plugins:{title:{text:'美团-各品类月销售额（万元）',display:true}}});
+})();
+
+// ===== View 4: Top 15 Cities =====
+(function(){
+  const v4 = DATA.v4_top15_cities;
+  for(const p of Object.keys(v4)){
+    const cities = v4[p];
+    const id = p==='淘闪'?'c4_taobao':'c4_meituan';
+    chart(id, 'bar', cities.map(c=>c.city).reverse(), [{
+      label:p+'销售额', data: cities.map(c=>c.sales/10000).reverse(),
+      backgroundColor: (p==='淘闪'?'#ff6f00':'#1a73e8')+'aa',
+      borderColor: p==='淘闪'?'#ff6f00':'#1a73e8', borderWidth:1
+    }], {indexAxis:'y', plugins:{title:{text:p+' TOP15城市销售额（万元）',display:true}}});
+  }
+})();
+
+// ===== View 5: Product User Share =====
+(function(){
+  const v5 = DATA.v5_product_users;
+  for(const p of Object.keys(v5)){
+    const prods = v5[p].slice(0,10);
+    const id = p==='淘闪'?'c5_taobao':'c5_meituan';
+    chart(id, 'bar', prods.map(p=>p.product).reverse(), [{
+      label:'用户数', data: prods.map(p=>p.users/10000).reverse(),
+      backgroundColor: (p==='淘闪'?'#ff6f00':'#1a73e8')+'aa',
+      borderColor: p==='淘闪'?'#ff6f00':'#1a73e8', borderWidth:1
+    }], {indexAxis:'y', plugins:{title:{text:p+' TOP10单品用户数（万）',display:true}}});
+  }
+})();
+</script>
+</body>
+</html>
