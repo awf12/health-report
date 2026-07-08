@@ -857,15 +857,16 @@ function downloadReport(name) {
   chartInitJS += `_cfgs.forEach(function(cfg){
     var cv=document.getElementById(cfg.chartId);
     if(!cv) return;
-    var colors=values.map(function(v){return v<=50?'rgba(192,57,43,0.85)':v>=100?'rgba(212,160,23,0.85)':'rgba(65,105,225,0.85)';});
-    var borders=values.map(function(v){return v<=50?'rgba(192,57,43,1)':v>=100?'rgba(212,160,23,1)':'rgba(65,105,225,1)';});
-    new Chart(cv,{type:"bar",data:{labels:cfg.labels,datasets:[{data:values,backgroundColor:colors,borderColor:borders,borderWidth:1}]},
+    var vals=cfg.values;
+    var colors=vals.map(function(v){return v<=50?'rgba(192,57,43,0.85)':v>=100?'rgba(212,160,23,0.85)':'rgba(65,105,225,0.85)';});
+    var borders=vals.map(function(v){return v<=50?'rgba(192,57,43,1)':v>=100?'rgba(212,160,23,1)':'rgba(65,105,225,1)';});
+    new Chart(cv,{type:"bar",data:{labels:cfg.labels,datasets:[{data:vals,backgroundColor:colors,borderColor:borders,borderWidth:1}]},
     options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},
     scales:{y:{min:0,max:160,grid:{color:"#e0e0e0"}},x:{ticks:{maxRotation:60,font:{size:9}}}}},
     plugins:[{id:"bl_"+cfg.chartId,afterDraw:function(ch){
       var ctx=ch.ctx,m=ch.getDatasetMeta(0);ctx.save();
       ctx.font="bold 11px PingFang SC,Microsoft YaHei,sans-serif";ctx.textAlign="center";ctx.textBaseline="bottom";
-      m.data.forEach(function(b,i){var v=values[i],x=b.x,y=b.y-4;
+      m.data.forEach(function(b,i){var v=vals[i],x=b.x,y=b.y-4;
       ctx.fillStyle=v<=50?"#c0392b":v>=100?"#d4a017":"#2c5f2d";ctx.fillText(v,x,y);});
       ctx.restore();
     }}]})});\n`;
