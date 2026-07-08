@@ -531,10 +531,12 @@ function downloadReport(name) {
   chartInitJS += '<\\/script>';
   window._chartConfigs = [];
 
+  // Replace relative image paths with absolute GitHub URLs
+  const reportWithImages = reportHTML.replace(/src=\"covers\\//g, 'src=\"https://awf12.github.io/health-report/covers/');
   const fullHTML = '<!DOCTYPE html>\\n<html lang="zh-CN">\\n<head>\\n<meta charset="UTF-8">\\n<title>'+name+' - 健康报告</title>\\n' +
     '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\\/script>\\n' +
-    '<style>body{font-family:PingFang SC,Microsoft YaHei,sans-serif;background:#f5f0e8;max-width:1200px;margin:0 auto;}</style>\\n</head>\\n<body class="report-body">\\n' +
-    reportHTML + '\\n' + chartInitJS + '\\n</body>\\n</html>';
+    '<style>body{font-family:PingFang SC,Microsoft YaHei,sans-serif;background:#f5f0e8;max-width:1200px;margin:0 auto;}</style>\\n</head>\\n<body class=\"report-body\">\\n' +
+    reportWithImages + '\\n' + chartInitJS + '\\n</body>\\n</html>';
   const blob = new Blob([fullHTML], {type:'text/html;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
