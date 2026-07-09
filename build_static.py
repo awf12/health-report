@@ -538,15 +538,14 @@ function downloadReport(name) {
     '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\\/script>\\n' +
     '<style>body{font-family:PingFang SC,Microsoft YaHei,sans-serif;background:#f5f0e8;max-width:1200px;margin:0 auto;}</style>\\n</head>\\n<body class=\"report-body\">\\n' +
     reportWithImages + '\\n' + chartInitJS + '\\n</body>\\n</html>';
-  const blob = new Blob([fullHTML], {type:'text/html;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const w = window.open(url, '_blank');
-  if (!w) {
-    const a = document.createElement('a');
-    a.href = url; a.download = name + '_健康检测报告.html';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  }
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 5000);
+  const blob = new Blob([fullHTML], {type:'application/octet-stream'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name + '_健康检测报告.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
 }
 
 let currentPage = 1;
